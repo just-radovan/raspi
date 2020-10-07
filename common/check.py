@@ -140,7 +140,7 @@ def temperature_outdoor():
     if not storage.is_present():
         return
 
-    entries = storage.get_netatmo_data('temp_out', entries)
+    rows = storage.get_netatmo_data('temp_out', entries)
     rowsCnt = len(rows)
 
     if rowsCnt < entries:
