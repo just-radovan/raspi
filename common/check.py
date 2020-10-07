@@ -31,9 +31,9 @@ def summary_at_home():
     ]
     message = (
         '{}\n'
-        '✪ co2: {} ppm'
+        '✪ co2: {} ppm\n'
         '✪ temperature: {} °c\n'
-        '✪ humidity: {} %\n'
+        '✪ humidity: {} %'
     ).format(random.choice(start), co2, temperature, humidity)
 
     twitter.tweet(message)
@@ -76,8 +76,8 @@ def summary_morning():
     message = (
         '{}\n'
         '✪ temperature: {} °c\n'
-        '✪ pressure: {} mb'
-        '✪ humidity: {} %\n'
+        '✪ pressure: {} mb\n'
+        '✪ humidity: {} %'
     ).format(random.choice(start), temperature, pressure, humidity)
 
     twitter.tweet(message)
