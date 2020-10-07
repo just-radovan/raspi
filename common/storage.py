@@ -18,7 +18,7 @@ def was_outside():
     db = _open_database('data/presence_history.sqlite')
     cursor = db.cursor()
     cursor.row_factory = lambda cursor, row: row[0]
-    cursor.execute('select "present" from presence order by "timestamp" desc limit 0, 5')
+    cursor.execute('select present from presence order by "timestamp" desc limit 0, 5')
 
     rows = cursor.fetchall()
     db.close()
@@ -41,7 +41,7 @@ def get_netatmo_data(column, count):
     db = _open_database('data/netatmo_history.sqlite')
     cursor = db.cursor()
     cursor.row_factory = lambda cursor, row: row[0]
-    cursor.execute('select "{}" from netatmo order by "timestamp" desc limit 0, {}'.format(column, count))
+    cursor.execute('select {} from netatmo order by "timestamp" desc limit 0, {}'.format(column, count))
 
     rows = cursor.fetchall()
     db.close()
