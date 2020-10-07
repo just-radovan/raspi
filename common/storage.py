@@ -11,7 +11,7 @@ def is_present():
     cursor.row_factory = lambda cursor, row: row[0]
     cursor.execute('select present from presence order by timestamp desc limit 0, 1')
 
-    row = cursor.fetchone()[0]
+    row = cursor.fetchone()
     db.close()
 
     return (row == 1)
