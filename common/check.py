@@ -39,6 +39,8 @@ def summary_at_home():
     twitter.tweet(message)
 
 def summary_morning():
+    entries = 5
+
     if os.path.exists(morning_lock):
         return
 
@@ -49,18 +51,28 @@ def summary_morning():
     if not storage.is_present():
         return
 
-    entries = storage.get_netatmo_data('noise', 5)
-    if len(entries) < 5:
+    rows = storage.get_netatmo_data('noise', entries)
+    rowsCnt = len(rows)
+
+    if rowsCnt < entries:
         return
 
-    cnt = 0
-    for entry in entries:
-        if cnt < 2 and entry <= (sound_treshold + 1):
-            return
-        elif cnt >= 2 and entry > (sound_treshold + 1):
-            return
+    want = 0
+    dontWant = 0
 
-        cnt += 1
+    for row in rows:
+        if dontWant == 0:
+            if row > (sound_treshold + 1):
+                want += 1
+            else:
+                dontWant += 1
+        elif row <= (sound_treshold + 1):
+            dontWant += 1
+
+    print('noise evaluation: 👍 {} | 👎 {} of {}'.format(want, dontWant, rowsCnt))
+
+    if want <= 2:
+        return
 
     temperature = storage.get_netatmo_value('temp_out')
     humidity = storage.get_netatmo_value('humidity_out')
@@ -85,21 +97,33 @@ def summary_morning():
     open(morning_lock, 'a').close()
 
 def noise():
+    entries = 5
+
     if storage.is_present():
         return
 
-    entries = storage.get_netatmo_data('noise', 5)
-    if len(entries) < 5:
+    rows = storage.get_netatmo_data('noise', entries)
+    rowsCnt = len(rows)
+
+    if rowsCnt < entries:
         return
 
-    cnt = 0
-    for entry in entries:
-        if cnt < 1 and entry < sound_treshold:
-            return
-        elif cnt >= 1 and value >= sound_treshold:
-            return
+    want = 0
+    dontWant = 0
 
-        cnt += 1
+    for row in rows:
+        if dontWant == 0:
+            if row > sound_treshold:
+                want += 1
+            else:
+                dontWant += 1
+        elif row <= sound_treshold:
+            dontWant += 1
+
+    print('noise evaluation: 👍 {} | 👎 {} of {}'.format(want, dontWant, rowsCnt))
+
+    if want <= 1:
+        return
 
     twitter.tweet('🔊 there is some noise while you\'re away. it\'s currently at {} db'.format(entries[0]))
 
@@ -111,21 +135,33 @@ def co2():
     # TODO: check trend & check lower threshold
 
 def temperature_outdoor():
+    entries = 8
+
     if not storage.is_present():
         return
 
-    entries = storage.get_netatmo_data('temp_out', 8)
-    if len(entries) < 8:
+    entries = storage.get_netatmo_data('temp_out', entries)
+    rowsCnt = len(rows)
+
+    if rowsCnt < entries:
         return
 
-    cnt = 0
-    for entry in entries:
-        if cnt < 2 and entry > temp_outdoor_treshold:
-            return
-        elif cnt >= 2 and value <= temp_outdoor_treshold:
-            return
+    want = 0
+    dontWant = 0
 
-        cnt += 1
+    for row in rows:
+        if dontWant == 0:
+            if row <= temp_outdoor_treshold:
+                want += 1
+            else:
+                dontWant += 1
+        elif row >= temp_outdoor_treshold:
+            dontWant += 1
+
+    print('temperature evaluation: 👍 {} | 👎 {} of {}'.format(want, dontWant, rowsCnt))
+
+    if want <= 2:
+        return
 
     twitter.tweet('🥶 your ass will freeze off! outdoor temperature right now: {} °C'.format(entries[0]))
 

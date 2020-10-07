@@ -1,4 +1,5 @@
 #!/usr/bin/python3.7
+# -*- coding: UTF-8 -*-
 
 import path
 
@@ -16,24 +17,32 @@ def is_present():
     return (row == 1)
 
 def was_outside():
+    entries = 8
+
     db = _open_database('data/presence_history.sqlite')
     cursor = db.cursor()
     cursor.row_factory = lambda cursor, row: row[0]
-    cursor.execute('select present from presence order by timestamp desc limit 0, 5')
+    cursor.execute('select present from presence order by timestamp desc limit 0, {}'.format(entries))
 
     rows = cursor.fetchall()
+    rowsCnt = len(rows)
     db.close()
 
-    cnt = 0
+    want = 0
+    dontWant = 0
+
     for row in rows:
-        if cnt == 0 and row != 1:
-            return False
-        elif cnt >= 0 and row == 1:
-            return False
+        if dontWant == 0:
+            if row == 1:
+                want += 1
+            else:
+                dontWant += 1
+        elif row == 1:
+            dontWant += 1
 
-        cnt += 1
+    print('presence evaluation: 👍 {} | 👎 {} of {}'.format(want, dontWant, rowsCnt))
 
-    return True
+    return (rowsCnt == entries and want <= 3)
 
 def get_netatmo_value(column):
     return get_netatmo_data(column, 1)[0]
