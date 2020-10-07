@@ -1,4 +1,5 @@
 #!/usr/bin/python3.7
+# -*- coding: UTF-8 -*-
 
 import path
 import configuration.config as config
@@ -13,7 +14,7 @@ def ping():
         db = sqlite3.connect(path.to('data/presence_history.sqlite'))
     except Error as e:
         print('unable to open presence database: {}'.format(e))
-        quit()
+        return
 
     cursor = db.cursor()
     cursor.execute(

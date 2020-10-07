@@ -14,7 +14,10 @@ def is_present():
     row = cursor.fetchone()
     db.close()
 
-    return (row == 1)
+    isPresent = (row == 1)
+    print('✅ is_present(): {}'.format("🏡" if isPresent else "🏝"))
+
+    return isPresent
 
 def was_outside():
     entries = 8
@@ -40,7 +43,7 @@ def was_outside():
         elif row == 1:
             dontWant += 1
 
-    print('presence evaluation: 👍 {} | 👎 {} of {}'.format(want, dontWant, rowsCnt))
+    print('🤔 was_outside(): presence evaluation: 👍 {} | 👎 {} of {}'.format(want, dontWant, rowsCnt))
 
     return (rowsCnt == entries and want <= 3)
 
@@ -63,6 +66,6 @@ def _open_database(file):
     try:
         db = sqlite3.connect(path.to(file))
     except Error as e:
-        print('unable to open database "{}": {}'.format(file, e))
+        print('❌ _open_database(): unable to open database "{}": {}'.format(file, e))
 
     return db

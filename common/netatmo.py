@@ -1,4 +1,5 @@
 #!/usr/bin/python3.7
+# -*- coding: UTF-8 -*-
 
 import path
 import auth.netatmo as netatmo
@@ -36,7 +37,7 @@ def authorize():
         print('failed to obtain tokens.')
         return
 
-    print('tokens: ' + accessToken + ', ' + refreshToken)
+    print('✅ authorize(): tokens → ' + accessToken + ', ' + refreshToken)
 
     # store data
 
@@ -62,11 +63,11 @@ def auth_refresh():
             expiration = access['expiration']
 
     if expiration > (time.time() + 3600): # expiration in more than one hour
-        print('no need to refresh authorization.')
+        print('❌ auth_refresh(): no need to refresh authorization.')
         return
 
     if not refreshToken:
-        print('unable to load refresh tokens.')
+        print('❌ auth_refresh(): unable to load refresh tokens.')
         return
 
     # download data
@@ -90,10 +91,10 @@ def auth_refresh():
         expiresIn = data['expires_in']
 
     if not accessToken or not refreshToken:
-        print('failed to obtain tokens.')
+        print('❌ auth_refresh(): failed to obtain tokens.')
         return
 
-    print('tokens: ' + accessToken + ', ' + refreshToken)
+    print('✅ auth_refresh(): tokens → ' + accessToken + ', ' + refreshToken)
 
     # store data
 
@@ -119,7 +120,7 @@ def download():
             accessToken = access['access_token']
 
     if not accessToken:
-        print('unable to load access tokens.')
+        print('❌ download(): unable to load access tokens.')
         return
 
     # download data
@@ -167,7 +168,7 @@ def download():
     try:
         db = sqlite3.connect(path.to('data/netatmo_history.sqlite'))
     except Error as e:
-        print('unable to open netatmo database: {}'.format(e))
+        print('❌ download(): unable to open netatmo database: {}'.format(e))
         return
 
     cursor = db.cursor()
