@@ -20,9 +20,9 @@ def summary_at_home():
     if not storage.was_outside():
         return
 
+    co2 = storage.get_netatmo_value('co2')
     temperature = storage.get_netatmo_value('temp_in')
     humidity = storage.get_netatmo_value('humidity_in')
-    co2 = storage.get_netatmo_value('co2')
 
     start = [
       '🛰 welcome at avalon.',
@@ -30,7 +30,7 @@ def summary_at_home():
       '🚀 bridge is yours.'
     ]
     message = (
-        '{}\n'
+        '{}\n\n'
         '✪ co2: {} ppm\n'
         '✪ temperature: {} °c\n'
         '✪ humidity: {} %'
@@ -74,7 +74,7 @@ def summary_morning():
       '🧐 what a shitshow?'
     ]
     message = (
-        '{}\n'
+        '{}\n\n'
         '✪ temperature: {} °c\n'
         '✪ pressure: {} mb\n'
         '✪ humidity: {} %'

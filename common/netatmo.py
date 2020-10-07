@@ -157,7 +157,7 @@ def download():
 
     sql = (
         'insert into netatmo ('
-        '"timestamp", "temp_in", "temp_out", "humidity_in", "humidity_out", "pressure", "noise", "co2"'
+        'timestamp, temp_in, temp_out, humidity_in, humidity_out, pressure, noise, co2'
         ') values ('
         '?, ?, ?, ?, ?, ?, ?, ?'
         ')'
@@ -171,7 +171,7 @@ def download():
         return
 
     cursor = db.cursor()
-    cursor.execute(sql, (timestamp, pressure, co2, humiIndoor, humiOutdoor, noise, tempIndoor, tempOutdoor))
+    cursor.execute(sql, (timestamp, tempIndoor, tempOutdoor, humiIndoor, humiOutdoor, pressure, noise, co2))
 
     db.commit()
     db.close()
