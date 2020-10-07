@@ -17,6 +17,7 @@ def is_present():
 def was_outside():
     db = _open_database('data/presence_history.sqlite')
     cursor = db.cursor()
+    cursor.row_factory = lambda cursor, row: row[0]
     cursor.execute('select "present" from presence order by "timestamp" desc limit 0, 5')
 
     rows = cursor.fetchall()

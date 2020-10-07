@@ -7,10 +7,10 @@ import sqlite3
 def init_netatmo():
     sql = (
         'create table netatmo ('
-        'id integer primary key autoincrement, '
-        'timestamp integer, temp_in real, temp_out real, '
-        'humidity_in real, humidity_out real, pressure real, '
-        'noise real, co2 real)'
+        '"id" integer primary key autoincrement, '
+        '"timestamp" integer, "temp_in" real, "temp_out" real, '
+        '"humidity_in" real, "humidity_out" real, "pressure" real, '
+        '"noise" real, "co2" real)'
     )
 
     db = None
@@ -27,8 +27,8 @@ def init_netatmo():
 def init_presence():
     sql = (
         'create table presence ('
-        'id integer primary key autoincrement,'
-        'timestamp integer, present integer)'
+        '"id" integer primary key autoincrement,'
+        '"timestamp" integer, "present" integer)'
     )
 
     db = None
