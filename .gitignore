@@ -1,0 +1,12 @@
+# python
+
+__pycache__
+
+# credentials
+
+auth/*.py
+
+# storage
+
+data/*.sqlite
+data/*.data
