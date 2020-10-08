@@ -5,6 +5,7 @@ import path
 
 import os
 import time
+import math
 import sqlite3
 
 def lock(label, expiration):
@@ -100,7 +101,7 @@ def evaluate(entries, threshold, comparison, required, emojiLeading, emojiTraili
             leading = False
             found['trailing'] += 1
 
-    requiredCount = entriesCnt * required
+    requiredCount = int(math.ceil(entriesCnt * required))
     restCount = entriesCnt - requiredCount
 
     print('🤔 evaluate(): {} → {}/{} | {} → {}/{}'.format(emojiLeading, found['leading'], requiredCount, emojiTrailing, found['trailing'], requiredCount, restCount))
