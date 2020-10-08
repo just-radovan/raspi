@@ -100,7 +100,7 @@ def evaluate(entries, threshold, comparison, required, emojiLeading, emojiTraili
             leading = False
             found['trailing'] += 1
 
-    print('🤔 was_outside(): presence evaluation: {} {} | {} {} of {}'.format(emojiLeading, found['leading'], emojiTrailing, found['trailing'], entriesCnt))
+    print('🤔 evaluate(): {} → {} | {} → {} of {} values'.format(emojiLeading, found['leading'], emojiTrailing, found['trailing'], entriesCnt))
 
     requiredCount = entriesCnt * required
 
