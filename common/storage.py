@@ -73,9 +73,9 @@ def was_outside():
             expected = 0
             found[expected] += 0
 
-    print('🤔 was_outside(): presence evaluation: 👍 {} | 👎 {} of {}'.format(found[0], found[1], rowsCnt))
+    print('🤔 was_outside(): presence evaluation: 🏡 {} | 🏝 {} of {}'.format(found[1], found[0], rowsCnt))
 
-    return (rowsCnt == entries and (want > 0 and want <= 3))
+    return (rowsCnt == entries and (found[1] > 0 and found[1] <= 4) and found[0] >= 4)
 
 def get_netatmo_value(column):
     return get_netatmo_data(column, 1)[0]
