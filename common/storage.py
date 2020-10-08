@@ -100,11 +100,12 @@ def evaluate(entries, threshold, comparison, required, emojiLeading, emojiTraili
             leading = False
             found['trailing'] += 1
 
-    print('🤔 evaluate(): {} → {} | {} → {} of {} values'.format(emojiLeading, found['leading'], emojiTrailing, found['trailing'], entriesCnt))
-
     requiredCount = entriesCnt * required
+    restCount = entriesCnt - requiredCount
 
-    return ((found['leading'] > 0 and found['leading'] <= requiredCount) and found['trailing'] >= (entriesCnt - requiredCount))
+    print('🤔 evaluate(): {} → {}/{} | {} → {}/{}'.format(emojiLeading, found['leading'], requiredCount, emojiTrailing, found['trailing'], requiredCount, restCount))
+
+    return ((found['leading'] > 0 and found['leading'] <= requiredCount) and found['trailing'] >= restCount)
 
 def _compare(value, threshold, comparison, inverted):
     if not inverted:
