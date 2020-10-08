@@ -67,7 +67,7 @@ def summary_morning():
 
     rows = storage.get_netatmo_data('noise', entries)
 
-    if not evaluate(rows, sound_treshold, +1, 0.3, '🔊', '🔇')
+    if not evaluate(rows, sound_treshold, +1, 0.3, '🔊', '🔇'):
         print('❌ summary_morning(): not noisy enough.')
         return
 
@@ -106,7 +106,7 @@ def noise():
 
     rows = storage.get_netatmo_data('noise', entries)
 
-    if not evaluate(rows, sound_treshold, +1, 0.3, '🔊', '🔇')
+    if not evaluate(rows, sound_treshold, +1, 0.3, '🔊', '🔇'):
         print('❌ noise(): no noise detected.')
 
     twitter.tweet('🔊 there is some noise while you\'re away. it\'s currently at {} db'.format(entries[0]))
