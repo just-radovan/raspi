@@ -4,11 +4,11 @@
 import path
 
 import os
-import datetime
+import time
 import sqlite3
 
 def lock(label, expiration):
-    exp = int(datetime.datetime.now()) + expiration
+    exp = int(time.time()) + expiration
 
     file = open('data/{}.lock'.format(label), 'w')
     file.write(str(exp))
@@ -31,7 +31,7 @@ def check_lock(label):
     expiration = int(file.read())
     file.close()
 
-    if expiration < datetime.datetime.now():
+    if expiration < time.time():
         os.remove(name)
 
 def is_present():
