@@ -60,19 +60,20 @@ def was_outside():
     rowsCnt = len(rows)
     db.close()
 
-    want = 0
-    dontWant = 0
+    expected = 1
+    found = [0, 0]
 
     for row in rows:
-        if dontWant == 0:
-            if row == 1:
-                want += 1
-            else:
-                dontWant += 1
-        elif row == 1:
-            dontWant += 1
+        if row == expected:
+            found[expected] += 1
+        else:
+            if expected == 0:
+                break
 
-    print('🤔 was_outside(): presence evaluation: 👍 {} | 👎 {} of {}'.format(want, dontWant, rowsCnt))
+            expected = 0
+            found[expected] += 0
+
+    print('🤔 was_outside(): presence evaluation: 👍 {} | 👎 {} of {}'.format(found[0], found[1], rowsCnt))
 
     return (rowsCnt == entries and (want > 0 and want <= 3))
 
