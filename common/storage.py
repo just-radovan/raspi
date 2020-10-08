@@ -3,7 +3,34 @@
 
 import path
 
+import os
+import time
 import sqlite3
+
+def lock(label, expiration):
+    file = open('data/{}.lock'.format(label), 'w')
+    file.write(int(datetime.datetime.now() + expiration))
+    file.close()
+
+    return
+
+def is_locked(label):
+    check_lock(label)
+
+    return os.path.exists('data/{}.lock'.format(label))
+
+def check_lock(label):
+    name = 'data/{}.lock'.format(label)
+
+    if not os.path.exists(name):
+        return
+
+    file = open(name, 'r')
+    expiration = file.read()
+    file.close()
+
+    if expiration < datetime.datetime.now():
+        os.remove(name)
 
 def is_present():
     db = _open_database('data/presence_history.sqlite')
@@ -45,7 +72,7 @@ def was_outside():
 
     print('🤔 was_outside(): presence evaluation: 👍 {} | 👎 {} of {}'.format(want, dontWant, rowsCnt))
 
-    return (rowsCnt == entries and want <= 3)
+    return (rowsCnt == entries and (want > 0 and want <= 3))
 
 def get_netatmo_value(column):
     return get_netatmo_data(column, 1)[0]

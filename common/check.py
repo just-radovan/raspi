@@ -10,13 +10,20 @@ import os
 import datetime
 import random
 
-sound_treshold = 35 # db
+sound_treshold = 36 # db
 temp_outdoor_treshold = 1.0 # oc
 fresh_air_treshold = 700 # ppm
 
-morning_lock = path.to('data/morning.lock')
+def summary_presence():
+    # todo: count when i was at home and when not. present it as part of a day.
+
+    return
 
 def summary_at_home():
+    if storage.is_locked('summary_at_home'):
+        print('❌ summary_at_home(): lock file present.')
+        return
+
     if not storage.was_outside():
         print('❌ summary_at_home(): was not outside.')
         return
@@ -39,11 +46,12 @@ def summary_at_home():
 
     twitter.tweet(message)
     print('✅ summary_at_home(): tweeted.')
+    storage.lock('summary_at_home', 30*60)
 
 def summary_morning():
     entries = 5
 
-    if os.path.exists(morning_lock):
+    if storage.is_locked('summary_morning'):
         print('❌ summary_morning(): lock file present.')
         return
 
@@ -101,11 +109,14 @@ def summary_morning():
 
     twitter.tweet(message)
     print('✅ summary_morning(): tweeted.')
-
-    open(morning_lock, 'a').close()
+    storage.lock('summary_morning', 12*60*60)
 
 def noise():
     entries = 5
+
+    if storage.is_locked('noise'):
+        print('❌ noise(): lock file present.')
+        return
 
     if storage.is_present():
         print('❌ noise(): at home.')
@@ -138,9 +149,14 @@ def noise():
 
     twitter.tweet('🔊 there is some noise while you\'re away. it\'s currently at {} db'.format(entries[0]))
     print('✅ noise(): tweeted.')
+    storage.lock('noise', 30*60)
 
 def co2():
     entries = 10
+
+    if storage.is_locked('co2'):
+        print('❌ co2(): lock file present.')
+        return
 
     rows = storage.get_netatmo_data('co2', entries)
     rowsCnt = len(rows)
@@ -152,9 +168,14 @@ def co2():
     # TODO: check trend & check lower threshold
 
     print('✅ co2(): tweeted.')
+    storage.lock('co2', 30*60)
 
 def temperature_outdoor():
     entries = 8
+
+    if storage.is_locked('temperature_outdoor'):
+        print('❌ temperature_outdoor(): lock file present.')
+        return
 
     if not storage.is_present():
         print('❌ temperature_outdoor(): not at home.')
@@ -179,7 +200,7 @@ def temperature_outdoor():
         elif row >= temp_outdoor_treshold:
             dontWant += 1
 
-    print('temperature evaluation: 👍 {} | 👎 {} of {}'.format(want, dontWant, rowsCnt))
+    print('🤔 temperature_outdoor(): temperature evaluation: 👍 {} | 👎 {} of {}'.format(want, dontWant, rowsCnt))
 
     if want <= 2:
         print('❌ temperature_outdoor(): temperature is not low enough.')
@@ -187,8 +208,13 @@ def temperature_outdoor():
 
     twitter.tweet('🥶 your ass will freeze off! outdoor temperature right now: {} °C'.format(entries[0]))
     print('✅ temperature_outdoor(): tweeted.')
+    storage.lock('temperature_outdoor', 30*60)
 
 def cat_food():
+    if storage.is_locked('cat_food'):
+        print('❌ cat_food(): lock file present.')
+        return
+
     if storage.is_present():
         print('❌ cat_food(): at home.')
         return
@@ -197,3 +223,4 @@ def cat_food():
     if capture:
         twitter.tweet('🐈 cat food status', capture)
         print('✅ cat_food(): tweeted.')
+        storage.lock('cat_food', 1*60*60)
