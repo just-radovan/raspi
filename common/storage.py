@@ -104,7 +104,7 @@ def evaluate(entries, threshold, comparison, required, emojiLeading, emojiTraili
     requiredCount = int(math.ceil(entriesCnt * required))
     restCount = entriesCnt - requiredCount
 
-    print('🤔 evaluate(): {} → {}/{} | {} → {}/{}'.format(emojiLeading, found['leading'], requiredCount, emojiTrailing, found['trailing'], requiredCount, restCount))
+    print('🤔 evaluate(): {} → {} (0..{}) | {} → {} (>={})'.format(emojiLeading, found['leading'], requiredCount, emojiTrailing, found['trailing'], requiredCount, restCount))
 
     return ((found['leading'] > 0 and found['leading'] <= requiredCount) and found['trailing'] >= restCount)
 
