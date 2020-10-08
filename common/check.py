@@ -67,7 +67,7 @@ def summary_morning():
 
     rows = storage.get_netatmo_data('noise', entries)
 
-    if not evaluate(rows, sound_treshold, +1, 0.3, '🔊', '🔇'):
+    if not storage.evaluate(rows, sound_treshold, +1, 0.3, '🔊', '🔇'):
         print('❌ summary_morning(): not noisy enough.')
         return
 
@@ -106,7 +106,7 @@ def noise():
 
     rows = storage.get_netatmo_data('noise', entries)
 
-    if not evaluate(rows, sound_treshold, +1, 0.3, '🔊', '🔇'):
+    if not storage.evaluate(rows, sound_treshold, +1, 0.3, '🔊', '🔇'):
         print('❌ noise(): no noise detected.')
 
     twitter.tweet('🔊 there is some noise while you\'re away. it\'s currently at {} db'.format(entries[0]))
@@ -122,7 +122,7 @@ def co2():
 
     rows = storage.get_netatmo_data('co2', entries)
 
-    if not evaluate(rows, bad_air_threshold, +1, 0.3, '☣️', '💨'):
+    if not storage.evaluate(rows, bad_air_threshold, +1, 0.3, '☣️', '💨'):
         print('❌ co2(): co₂ is not above the limit.')
         return
 
@@ -143,7 +143,7 @@ def temperature_outdoor():
 
     rows = storage.get_netatmo_data('temp_out', entries)
 
-    if not evaluate(rows, temp_outdoor_treshold, -1, 0.5, '❄️', '☀️'):
+    if not storage.evaluate(rows, temp_outdoor_treshold, -1, 0.5, '❄️', '☀️'):
         print('❌ temperature_outdoor(): temperature is not low enough.')
         return
 
