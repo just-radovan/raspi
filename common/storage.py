@@ -8,10 +8,10 @@ import datetime
 import sqlite3
 
 def lock(label, expiration):
-    exp = int(datetime.datetime.now() + expiration)
+    exp = int(datetime.datetime.now()) + expiration
 
     file = open('data/{}.lock'.format(label), 'w')
-    file.write(str(int))
+    file.write(str(exp))
     file.close()
 
     return
