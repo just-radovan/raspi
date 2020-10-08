@@ -4,12 +4,14 @@
 import path
 
 import os
-import time
+import datetime
 import sqlite3
 
 def lock(label, expiration):
+    exp = int(datetime.datetime.now() + expiration)
+
     file = open('data/{}.lock'.format(label), 'w')
-    file.write(int(datetime.datetime.now() + expiration))
+    file.write(str(int))
     file.close()
 
     return
@@ -26,7 +28,7 @@ def check_lock(label):
         return
 
     file = open(name, 'r')
-    expiration = file.read()
+    expiration = int(file.read())
     file.close()
 
     if expiration < datetime.datetime.now():
