@@ -10,7 +10,7 @@ import sqlite3
 def lock(label, expiration):
     exp = int(time.time()) + expiration
 
-    file = open('data/{}.lock'.format(label), 'w')
+    file = open(path.to('data/{}.lock'.format(label)), 'w')
     file.write(str(exp))
     file.close()
 
@@ -19,20 +19,20 @@ def lock(label, expiration):
 def is_locked(label):
     check_lock(label)
 
-    return os.path.exists('data/{}.lock'.format(label))
+    return os.path.exists(path.to('data/{}.lock'.format(label)))
 
 def check_lock(label):
     name = 'data/{}.lock'.format(label)
 
-    if not os.path.exists(name):
+    if not os.path.exists(path.to(name)):
         return
 
-    file = open(name, 'r')
+    file = open(path.to(name), 'r')
     expiration = int(file.read())
     file.close()
 
     if expiration < time.time():
-        os.remove(name)
+        os.remove(path.to(name))
 
 def is_present():
     db = _open_database('data/presence_history.sqlite')
@@ -57,25 +57,9 @@ def was_outside():
     cursor.execute('select present from presence order by timestamp desc limit 0, {}'.format(entries))
 
     rows = cursor.fetchall()
-    rowsCnt = len(rows)
     db.close()
 
-    expected = 1
-    found = [0, 0]
-
-    for row in rows:
-        if row == expected:
-            found[expected] += 1
-        else:
-            if expected == 0:
-                break
-
-            expected = 0
-            found[expected] += 0
-
-    print('🤔 was_outside(): presence evaluation: 🏡 {} | 🏝 {} of {}'.format(found[1], found[0], rowsCnt))
-
-    return (rowsCnt == entries and (found[1] > 0 and found[1] <= 4) and found[0] >= 4)
+    return evaluate(rows, 1, 0, 0.3, '🏡', '🏝')
 
 def get_netatmo_value(column):
     return get_netatmo_data(column, 1)[0]
@@ -90,6 +74,43 @@ def get_netatmo_data(column, count):
     db.close()
 
     return rows
+
+# entries: list of numeric values
+# threshold: value that decides
+# comparison:
+# __ -1 = leading values should be below or same as threshold
+# __ 0 = leading values should match threshold
+# __ +1 = leading values should be above or same as threshold
+# required: portion of leading of all entries required to match threshold & comparison (0-1)
+def evaluate(entries, threshold, comparison, required, emojiLeading, emojiTrailing):
+    leading = True
+    found = {'leading': 0, 'trailing': 0}
+
+    entriesCnt = len(entries)
+    for entry in entries:
+        if _compare(entry, threshold, comparison, not leading):
+            if leading:
+                found['leading'] += 1
+            else:
+                found['trailing'] += 1
+        else:
+            if leading == False:
+                break
+
+            leading = False
+            found['trailing'] += 1
+
+    print('🤔 was_outside(): presence evaluation: {} {} | {} {} of {}'.format(emojiLeading, found['leading'], emojiTrailing, found['trailing'], entriesCnt))
+
+    requiredCount = entriesCnt * required
+
+    return ((found['leading'] > 0 and found['leading'] <= requiredCount) and found['trailing'] >= (entriesCnt - requiredCount))
+
+def _compare(value, threshold, comparison, inverted):
+    if not inverted:
+        return ((comparison == -1 and value <= threshold) or (comparison == 0 and value == threshold) or (comparison == +1 and value >= threshold))
+    else:
+        return ((comparison == -1 and value > threshold) or (comparison == 0 and value != threshold) or (comparison == +1 and value < threshold))
 
 def _open_database(file):
     db = None
