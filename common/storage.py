@@ -78,7 +78,7 @@ def how_long_outside():
     rowPrevious = None
     outsideStart = -1
     outside = 0
-    from row in rows:
+    for row in rows:
         if row['present'] == 0:
             if (not rowPrevious or rowPrevious['present'] == 1) and outsideStart < 0:
                 outsideStart = row['timestamp']
