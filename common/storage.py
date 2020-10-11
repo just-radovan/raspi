@@ -69,7 +69,6 @@ def how_long_outside():
 
     db = _open_database('data/presence_history.sqlite')
     cursor = db.cursor()
-    cursor.row_factory = lambda cursor, row: row[0]
     cursor.execute('select timestamp, present from presence where timestamp between ? and ?', (timeFrom, timeTo))
 
     rows = cursor.fetchall()
@@ -79,12 +78,12 @@ def how_long_outside():
     outsideStart = -1
     outside = 0
     for row in rows:
-        if row['present'] == 0:
-            if (not rowPrevious or rowPrevious['present'] == 1) and outsideStart < 0:
-                outsideStart = row['timestamp']
+        if row[1] == 0:
+            if (not rowPrevious or rowPrevious[1] == 1) and outsideStart < 0:
+                outsideStart = row[0]
         else:
             if outsideStart >= 0:
-                outside += (row['timestamp'] - outsideStart)
+                outside += (row[0] - outsideStart)
                 outsideStart = -1
 
         rowPrevious = row
