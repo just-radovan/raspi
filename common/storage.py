@@ -64,13 +64,13 @@ def was_outside():
     return evaluate(rows, 1, 0, 0.3, '🏡', '🏝')
 
 def how_long_outside():
-    timeFrom = datetime.datetime.timestamp(datetime.combine(date.today(), datetime.min.time())) # today's midnight
+    timeFrom = datetime.datetime.timestamp(datetime.combine(datetime.date.today(), datetime.min.time())) # today's midnight
     timeTo = int(time.time())
 
     db = _open_database('data/presence_history.sqlite')
     cursor = db.cursor()
     cursor.row_factory = lambda cursor, row: row[0]
-    cursor.execute('select timestamp, present from presence order by timestamp where timestamp >= ? and timestamp <= ?', (timeFrom, timeTo))
+    cursor.execute('select timestamp, present from presence order by timestamp where timestamp between ? and ?', (timeFrom, timeTo))
 
     rows = cursor.fetchall()
     db.close()
