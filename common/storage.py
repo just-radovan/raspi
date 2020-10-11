@@ -4,8 +4,9 @@
 import path
 
 import os
-import time
 import math
+import time
+import datetime
 import sqlite3
 
 def lock(label, expiration):
@@ -61,6 +62,34 @@ def was_outside():
     db.close()
 
     return evaluate(rows, 1, 0, 0.3, '🏡', '🏝')
+
+def how_long_outside():
+    timeFrom = datetime.timestamp(datetime.combine(date.today(), datetime.min.time())) # today's midnight
+    timeTo = int(time.time())
+
+    db = _open_database('data/presence_history.sqlite')
+    cursor = db.cursor()
+    cursor.row_factory = lambda cursor, row: row[0]
+    cursor.execute('select timestamp, present from presence order by timestamp where timestamp >= ? and timestamp <= ?', (timeFrom, timeTo))
+
+    rows = cursor.fetchall()
+    db.close()
+
+    rowPrevious = None
+    outsideStart = -1
+    outside = 0
+    from row in rows:
+        if row['present'] == 0:
+            if (not rowPrevious or rowPrevious['present'] == 1) and outsideStart < 0:
+                outsideStart = row['timestamp']
+        else:
+            if outsideStart >= 0:
+                outside += (row['timestamp'] - outsideStart)
+                outsideStart = -1
+
+        rowPrevious = row
+
+    return outside
 
 def get_netatmo_value(column):
     return get_netatmo_data(column, 1)[0]

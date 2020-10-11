@@ -16,7 +16,34 @@ bad_air_threshold = 1000 # ppm
 fresh_air_threshold = 700 # ppm
 
 def summary_presence():
-    # todo: count when i was at home and when not. present it as part of a day.
+    if storage.is_locked('summary_presence'):
+        print('❌ summary_presence(): lock file present.')
+        return
+
+    now = datetime.datetime.now()
+    if now.hour < 23:
+        print('❌ summary_presence(): outside of operating hours.')
+        return
+
+    outside = storage.how_long_outside()
+    outsideStr = ''
+    if outside < 60:
+        outsideStr = 'less than a minute'
+    elif outside < 5*60:
+        outsideStr = 'less than five minutes'
+    elif outside <= 90*60:
+        minutes = int(math.floor(outside / 60))
+
+        outsideStr = '{} minutes'.format(minutes)
+    else:
+        hours = int(math.floor(outside / (60 * 60)))
+        minutes = int(math.floor((outside - (hours * 60 * 60)) / 60))
+
+        outsideStr = '{}h{}'.format(hours, minutes)
+
+    twitter.tweet('🚶 you were outside for {} today.'.format(outsideStr))
+    print('✅ summary_presence(): tweeted.')
+    storage.lock('summary_presence', 12*60*60)
 
     return
 
