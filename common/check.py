@@ -8,6 +8,7 @@ import common.camera as camera
 
 import os
 import datetime
+import math
 import random
 
 sound_treshold = 36 # db
