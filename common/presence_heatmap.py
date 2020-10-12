@@ -54,8 +54,10 @@ def data():
 
     entryPrevious = None
     for entry in entries:
+        days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
         present = entry[idxPresent]
         timestamp = entry[idxTimestamp]
+
         timestampDelta = 0
         if entryPrevious:
             timestampDelta = timestamp - entryPrevious[idxTimestamp]
@@ -64,7 +66,7 @@ def data():
         hod = hour_of_day(timestamp)
 
         if present == 0 and timestampDelta < 5*60:
-            data[dow][hod] += timestampDelta
+            data[days[dow]][hod] += timestampDelta
 
         entryPrevious = entry
 
