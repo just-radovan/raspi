@@ -68,10 +68,3 @@ def day_of_week(timestamp):
 # returns hour of day 0..23
 def hour_of_day(timestamp):
     return datetime.datetime.fromtimestamp(timestamp).hour
-
-# returns timestamp of start of the day
-def midnight(timestamp):
-    date = datetime.datetime.fromtimestamp(timestamp)
-    midnight = datetime.datetime.combine(date, datetime.datetime.min.time())
-
-    return = datetime.datetime.timestamp(midnight)
