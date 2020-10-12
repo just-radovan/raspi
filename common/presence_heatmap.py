@@ -20,7 +20,7 @@ def post_heatmap():
 
     dataFrame = pandas.DataFrame(data())
 
-    palette = seaborn.color_palette('YlOrBr', as_cmap = True)
+    palette = seaborn.color_palette('Blues', as_cmap = True)
     heatmap = seaborn.heatmap(dataFrame, cmap = palette, cbar = False)
     heatmapFile = path.to('data/heatmap.png')
 
