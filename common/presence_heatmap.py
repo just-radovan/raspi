@@ -13,16 +13,21 @@ import pandas
 from pylab import savefig
 
 def post_heatmap():
+    if storage.is_locked('post_heatmap'):
+        print('❌ post_heatmap(): lock file present.')
+        return
+
     dataFrame = pandas.DataFrame(data())
     palette = seaborn.color_palette("ch:s=.25,rot=-.25", as_cmap = True)
     heatmap = seaborn.heatmap(dataFrame, cmap = palette, linewidth = 0.3)
+    heatmapFile = path.to('data/heatmap.png')
 
     fig = heatmap.get_figure()
-    fig.savefig(path.to('data/heatmap.png'), dpi = 400)
+    fig.savefig(heatmapFile, dpi = 400)
 
-    # todo: post `data/heatmap.png` to twitter
-
-    return
+    twitter.tweet('🏝', heatmapFile)
+    print('✅ post_heatmap(): tweeted.')
+    storage.lock('post_heatmap', 24*60*60)
 
 # return 2d array: day-of-the-week × hour-of-the-day
 def data():
