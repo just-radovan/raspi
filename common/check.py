@@ -156,7 +156,26 @@ def co2():
 
     twitter.tweet('🤢 there is too much co₂ in the room: {} ppm'.format(rows[0]))
     print('✅ co2(): tweeted.')
-    storage.lock('co2', 30*60)
+    storage.lock('co2', 15*60)
+
+def co2_trend():
+    entries = 10
+
+    if storage.is_locked('co2_trend') or storage.is_locked('co2'):
+        print('❌ co2_trend(): lock file present for co2() or co2_trend().')
+        return
+
+    rows = storage.get_netatmo_data('co2', entries)
+    trend = storage.evaluate_trend(rows, 0.03) # 3%
+
+    if trend[0] == +1:
+        twitter.tweet('⚠️ co₂ concentration rises sharply! {} → {} ppm.'.format(trend[1], trend[2]))
+        print('✅ co2(): tweeted (trend+).')
+        storage.lock('co2_trend', 15*60)
+    elif: trend[0] == -1:
+        twitter.tweet('👍 co₂ nicely declines. {} → {} ppm.'.format(trend[1], trend[2]))
+        print('✅ co2(): tweeted (trend-).')
+        storage.lock('co2_trend', 15*60)
 
 def temperature_outdoor():
     entries = 8

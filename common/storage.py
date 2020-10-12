@@ -110,7 +110,8 @@ def get_netatmo_data(column, count):
 # __ -1 = leading values should be below or same as threshold
 # __ 0 = leading values should match threshold
 # __ +1 = leading values should be above or same as threshold
-# required: portion of leading of all entries required to match threshold & comparison (0-1)
+# required: portion of leading of all entries required to match threshold & comparison (0.0-1.0)
+# returns true if conditions are met
 def evaluate(entries, threshold, comparison, required, emojiLeading, emojiTrailing):
     leading = True
     found = {'leading': 0, 'trailing': 0}
@@ -135,6 +136,58 @@ def evaluate(entries, threshold, comparison, required, emojiLeading, emojiTraili
     print('🤔 evaluate(): {} → {} (0..{}) | {} → {} (>={})'.format(emojiLeading, found['leading'], requiredCount, emojiTrailing, found['trailing'], requiredCount, restCount))
 
     return ((found['leading'] > 0 and found['leading'] <= requiredCount) and found['trailing'] >= restCount)
+
+# entries: list of numeric values (sorted last to first)
+# change: change required between each other etry (0.0-1.0)
+# return:
+# __ +1: it's increasing enough
+# __ 0: it's not changing enough
+# __ -1: it's decreasing enough
+def evaluate_trend(entries, change):
+    increasing = 0
+    increasingBoundaries = [None, None]
+    decreasing = 0
+    decreasingBoundaries = [None, None]
+
+    entryPrevious = None
+    for entry in entries:
+        if entryPrevious:
+            if decreasing >= 0:
+                if entry > (entryPrevious + (entryPrevious * change)):
+                    decreasing += 1
+                    if not decreasingBoundaries[1]:
+                        decreasingBoundaries[1] = entryPrevious
+                else:
+                    decreasing = -1
+                    if not decreasingBoundaries[0]:
+                        decreasingBoundaries[0] = entryPrevious
+
+            if increasing >= 0:
+                if entry < (entryPrevious - (entryPrevious * change)):
+                    increasing += 1
+                    if not increasingBoundaries[1]:
+                        increasingBoundaries[1] = entryPrevious
+                else:
+                    increasing = -1
+                    if not increasingBoundaries[0]:
+                        increasingBoundaries[0] = entryPrevious
+
+        entryPrevious = entry
+
+    print('🤔 evaluate_trend(): increased {} ({}→{}) values; decreased {} ({}→{}) values.'.format(increasing, increasingBoundaries[0], increasingBoundaries[1], decreasing, decreasingBoundaries[0], decreasingBoundaries[1]))
+
+    if increasing > decreasing:
+        if increasing > 5:
+            return [+1] + increasingBoundaries
+        else:
+            return [0, None, None]
+    elif increasing < decreasing:
+        if decreasing > 5:
+            return [-1] + decreasingBoundaries
+        else:
+            return [0, None, None]
+    else:
+        return [0, None, None]
 
 def _compare(value, threshold, comparison, inverted):
     if not inverted:
