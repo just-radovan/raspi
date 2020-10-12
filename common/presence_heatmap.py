@@ -21,8 +21,8 @@ def post_heatmap():
     dataFrame = pandas.DataFrame(data())
     dataFrame = dataFrame.pivot('day of week', 'hour of day', 'seconds')
 
-    palette = seaborn.color_palette('rocket', as_cmap = True)
-    heatmap = seaborn.heatmap(dataFrame, cmap = palette, square = True, cbar = False)
+    palette = seaborn.color_palette('YlOrBr', as_cmap = True)
+    heatmap = seaborn.heatmap(dataFrame, cmap = palette, cbar = False)
     heatmapFile = path.to('data/heatmap.png')
 
     os.remove(heatmapFile)
