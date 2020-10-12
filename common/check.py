@@ -172,7 +172,7 @@ def co2_trend():
         twitter.tweet('⚠️ co₂ concentration rises sharply! {} → {} ppm.'.format(trend[1], trend[2]))
         print('✅ co2(): tweeted (trend+).')
         storage.lock('co2_trend', 15*60)
-    elif: trend[0] == -1:
+    elif trend[0] == -1:
         twitter.tweet('👍 co₂ nicely declines. {} → {} ppm.'.format(trend[1], trend[2]))
         print('✅ co2(): tweeted (trend-).')
         storage.lock('co2_trend', 15*60)
