@@ -19,7 +19,6 @@ def post_heatmap():
         return
 
     dataFrame = pandas.DataFrame(data())
-    dataFrame = dataFrame.pivot('day of week', 'hour of day', 'seconds')
 
     palette = seaborn.color_palette('YlOrBr', as_cmap = True)
     heatmap = seaborn.heatmap(dataFrame, cmap = palette, cbar = False)
