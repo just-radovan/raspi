@@ -154,7 +154,8 @@ def co2():
         print('❌ co2(): co₂ is not above the limit.')
         return
 
-    twitter.tweet('🤢 there is too much co₂ in the room: {} ppm'.format(rows[0]))
+    co2 = int(rows[0])
+    twitter.tweet('🤢 there is too much co₂ in the room: {} ppm'.format(co2))
     print('✅ co2(): tweeted.')
     storage.lock('co2', 15*60)
 
@@ -168,12 +169,19 @@ def co2_trend():
     rows = storage.get_netatmo_data('co2', entries)
     trend = storage.evaluate_trend(rows, 0.03) # 3%
 
+    co2From = 0
+    co2To = 0
+    if trend[1]:
+        co2From = int(trend[1])
+    if trend[2]:
+        co2To = int(trend[2])
+
     if trend[0] == +1:
-        twitter.tweet('⚠️ co₂ concentration rises sharply! {} → {} ppm.'.format(trend[1], trend[2]))
+        twitter.tweet('⚠️ co₂ concentration rises sharply! {} → {} ppm.'.format(co2From, co2To))
         print('✅ co2(): tweeted (trend+).')
         storage.lock('co2_trend', 15*60)
     elif trend[0] == -1:
-        twitter.tweet('👍 co₂ nicely declines. {} → {} ppm.'.format(trend[1], trend[2]))
+        twitter.tweet('👍 co₂ nicely declines. {} → {} ppm.'.format(co2From, co2To))
         print('✅ co2(): tweeted (trend-).')
         storage.lock('co2_trend', 15*60)
 

@@ -156,14 +156,6 @@ def download():
 
     # store data
 
-    sql = (
-        'insert into netatmo ('
-        'timestamp, temp_in, temp_out, humidity_in, humidity_out, pressure, noise, co2'
-        ') values ('
-        '?, ?, ?, ?, ?, ?, ?, ?'
-        ')'
-    )
-
     db = None
     try:
         db = sqlite3.connect(path.to('data/netatmo_history.sqlite'))
@@ -172,6 +164,22 @@ def download():
         return
 
     cursor = db.cursor()
+    cursor.row_factory = lambda cursor, row: row[0]
+    cursor.execute('select timestamp from netatmo order by timestamp desc limit 0, 1')
+    timestampLast = cursor.fetchone()
+
+    if timestamp == timestampLast:
+        print('❌ download(): timestamp {} already saved'.format(timestamp))
+        db.close()
+        return
+
+    sql = (
+        'insert into netatmo ('
+        'timestamp, temp_in, temp_out, humidity_in, humidity_out, pressure, noise, co2'
+        ') values ('
+        '?, ?, ?, ?, ?, ?, ?, ?'
+        ')'
+    )
     cursor.execute(sql, (timestamp, tempIndoor, tempOutdoor, humiIndoor, humiOutdoor, pressure, noise, co2))
 
     db.commit()
