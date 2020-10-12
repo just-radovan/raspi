@@ -22,6 +22,8 @@ def post_heatmap():
     heatmap = seaborn.heatmap(dataFrame, cmap = palette, linewidth = 0.3)
     heatmapFile = path.to('data/heatmap.png')
 
+    os.remove(heatmapFile)
+
     fig = heatmap.get_figure()
     fig.savefig(heatmapFile, dpi = 400)
 
