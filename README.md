@@ -15,6 +15,7 @@ various scripts to notify me about what's happening at home. via twitter.
 
 * python 3.*
 * fswebcam (apt-get)
+* libatlas-base-dev (apt-get)
 * tweepy (pip)
 * numpy (pip)
 * seaborn (pip)

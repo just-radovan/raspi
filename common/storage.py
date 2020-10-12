@@ -40,7 +40,7 @@ def get_presence(asc = False):
     db = _open_database('data/presence_history.sqlite')
     cursor = db.cursor()
     cursor.row_factory = lambda cursor, row: row[0]
-    cursor.execute('select timestamp, present from presence order by timestamp {} limit'.format('asc' if asc else 'desc'))
+    cursor.execute('select timestamp, present from presence order by timestamp {}'.format('asc' if asc else 'desc'))
 
     rows = cursor.fetchall()
     db.close()
