@@ -24,7 +24,8 @@ def post_heatmap():
     heatmap = seaborn.heatmap(dataFrame, cmap = palette, cbar = False)
     heatmapFile = path.to('data/heatmap.png')
 
-    os.remove(heatmapFile)
+    if os.path.isfile(heatmapFile):
+        os.remove(heatmapFile)
 
     fig = heatmap.get_figure()
     fig.savefig(heatmapFile, dpi = 400)

@@ -33,7 +33,7 @@ def check_lock(label):
     expiration = int(file.read())
     file.close()
 
-    if expiration < time.time():
+    if expiration < time.time() and os.path.isfile(path.to(name)):
         os.remove(path.to(name))
 
 def get_presence(asc = False):

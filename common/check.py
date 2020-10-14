@@ -211,10 +211,6 @@ def cat_food():
         print('❌ cat_food(): lock file present.')
         return
 
-    if storage.is_present():
-        print('❌ cat_food(): at home.')
-        return
-
     capture = camera.take_photo()
     if capture:
         twitter.tweet('🐈 cat food status', capture)
