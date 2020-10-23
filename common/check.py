@@ -215,4 +215,4 @@ def camera():
     if capture:
         twitter.tweet('📷', capture)
         print('✅ camera(): tweeted.')
-        storage.lock('camera', 1*60*60)
+        storage.lock('camera', 30*60*60)
