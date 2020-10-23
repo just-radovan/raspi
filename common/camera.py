@@ -10,7 +10,7 @@ def take_photo():
     if os.path.isfile(capture):
         os.remove(capture)
     
-    result = os.system('fswebcam -q -S 5 -r 1280x720 --jpeg 80 "{}"'.format(capture))
+    result = os.system('fswebcam -q -D 2 -r 1280x720 --jpeg 80 "{}"'.format(capture))
     if result == 0:
         return capture
     else:

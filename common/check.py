@@ -206,13 +206,13 @@ def temperature_outdoor():
     print('✅ temperature_outdoor(): tweeted.')
     storage.lock('temperature_outdoor', 30*60)
 
-def cat_food():
-    if storage.is_locked('cat_food'):
-        print('❌ cat_food(): lock file present.')
+def camera():
+    if storage.is_locked('camera'):
+        print('❌ camera(): lock file present.')
         return
 
     capture = camera.take_photo()
     if capture:
-        twitter.tweet('🐈 cat food status', capture)
-        print('✅ cat_food(): tweeted.')
-        storage.lock('cat_food', 1*60*60)
+        twitter.tweet('📷', capture)
+        print('✅ camera(): tweeted.')
+        storage.lock('camera', 1*60*60)
