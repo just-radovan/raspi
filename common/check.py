@@ -206,7 +206,7 @@ def temperature_outdoor():
     print('✅ temperature_outdoor(): tweeted.')
     storage.lock('temperature_outdoor', 30*60)
 
-def camera():
+def view():
     if storage.is_locked('camera'):
         print('❌ camera(): lock file present.')
         return
