@@ -3,13 +3,15 @@
 import path
 
 import os
+import datetime
 
 def take_photo():
-    capture = path.to('data/capture.jpeg')
+    filedate = datetime.date.today().strftime("%Y_%m_%d")
+    capture = path.to('data/capture/capture_{}.jpeg'.format(filedate))
 
     if os.path.isfile(capture):
         os.remove(capture)
-    
+
     result = os.system('fswebcam -q -S 5 --no-banner --rotate 180 -r 1280x720 --jpeg 80 "{}"'.format(capture))
     if result == 0:
         return capture
