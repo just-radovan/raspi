@@ -207,11 +207,12 @@ def temperature_outdoor():
     storage.lock('temperature_outdoor', 30*60)
 
 def view():
-    if storage.is_locked('camera'):
-        print('❌ camera(): lock file present.')
+    capture = camera.take_photo()
+
+    if storage.is_locket('camera'):
+        print('❌ camera(): lock file present, won\'t tweet.')
         return
 
-    capture = camera.take_photo()
     if capture:
         twitter.tweet('📷', capture)
         print('✅ camera(): tweeted.')
