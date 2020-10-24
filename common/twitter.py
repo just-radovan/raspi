@@ -28,7 +28,8 @@ def tweet(message, media = None):
     api = tweepy.API(auth)
 
     if media:
-        img = api.media_upload(media)
+        media_file = open(media, 'r')
+        img = api.media_upload(media, file = media_file)
         api.update_status(status = message, media_ids = [img.media_id_string])
         log.info('tweet(): tweeted with media.')
     else:

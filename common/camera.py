@@ -55,8 +55,6 @@ def make_video():
 
     result = os.system('ffmpeg -i {} -c:v h264_omx -b:v 3000k -pass 1 -an -y -f mp4 /dev/null && ffmpeg -i {} -movflags +faststart -c:v h264_omx -b:v 3000k -ar 48000 -y {}'.format(captures, captures, video))
     if result == 0:
-        os.remove(captures)
-
         log.info('video created and saved to {}'.format(video))
         return video
     else:

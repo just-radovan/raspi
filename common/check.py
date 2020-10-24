@@ -226,6 +226,6 @@ def video():
 
     video = camera.make_video()
     if video:
-        twitter.tweet('🎞 today was like...', capture)
+        twitter.tweet('🎞 today was like...', video)
         log.info('video(): tweeted.')
         storage.lock('video', 23*60*60)
