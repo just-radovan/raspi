@@ -33,6 +33,10 @@ def take_photo():
             break
 
         camera_brightness += 20
+    
+    if camera_brightness > brightness_max:
+        camera_brightness = brightness_max
+
 
     log.info('using brightness {} to capture a photo with mean brightness {}.'.format(camera_brightness, mean))
 
