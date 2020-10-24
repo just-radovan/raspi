@@ -12,7 +12,7 @@ def take_photo():
     if os.path.isfile(capture):
         return
 
-    result = os.system('fswebcam -q -S 5 --no-banner --rotate 180 -r 1280x720 --jpeg 80 "{}"'.format(capture))
+    result = os.system('fswebcam -q -S 5 -F 10 --set Brightness=50 --set Contrast=0 --no-banner --rotate 180 -r 1280x720 --jpeg 80 "{}"'.format(capture))
     if result == 0:
         return capture
     else:
