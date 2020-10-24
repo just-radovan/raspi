@@ -32,7 +32,7 @@ def take_photo():
             break
 
         camera_brightness += 20
-    
+
     if camera_brightness > brightness_max:
         camera_brightness = brightness_max
 
@@ -58,7 +58,7 @@ def make_video():
     captures = path.to('data/capture/capture_{}*.jpeg'.format(filedate))
     video = path.to('data/video/video_{}.mp4'.format(filedate))
 
-    result = os.system('ffmpeg -i {} -c:v h264_omx -b:v 3000k -pass 1 -an -y -f mp4 /dev/null && ffmpeg -i {} -movflags +faststart -c:v h264_omx -b:v 3000k -ar 48000 -y {}'.format(captures, captures, video))
+    result = os.system('ffmpeg -r 1 -pattern_type glob -i "{}" -c:v libx264 {}'.format(captures, video))
     if result == 0:
         log.info('video created and saved to {}'.format(video))
         return video
