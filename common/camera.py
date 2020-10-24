@@ -58,7 +58,7 @@ def make_video():
     captures = path.to('data/capture/capture_{}*.jpeg'.format(filedate))
     video = path.to('data/video/video_{}.mp4'.format(filedate))
 
-    result = os.system('ffmpeg -r 1 -pattern_type glob -i "{}" -c:v libx264 {}'.format(captures, video))
+    result = os.system('ffmpeg -r 10 -pattern_type glob -i "{}" -c:v libx264 {}'.format(captures, video))
     if result == 0:
         log.info('video created and saved to {}'.format(video))
         return video
