@@ -2,6 +2,7 @@
 # -*- coding: UTF-8 -*-
 
 import path
+import common.log as log
 import auth.netatmo as netatmo
 
 import time
@@ -34,10 +35,10 @@ def authorize():
         expiresIn = data['expires_in']
 
     if not accessToken or not refreshToken:
-        print('failed to obtain tokens.')
+        log.error('failed to obtain tokens.')
         return
 
-    print('✅ authorize(): tokens → ' + accessToken + ', ' + refreshToken)
+    log.info('authorize(): tokens → ' + accessToken + ', ' + refreshToken)
 
     # store data
 
@@ -63,11 +64,11 @@ def auth_refresh():
             expiration = access['expiration']
 
     if expiration > (time.time() + 3600): # expiration in more than one hour
-        print('❌ auth_refresh(): no need to refresh authorization.')
+        log.error('auth_refresh(): no need to refresh authorization.')
         return
 
     if not refreshToken:
-        print('❌ auth_refresh(): unable to load refresh tokens.')
+        log.error('auth_refresh(): unable to load refresh tokens.')
         return
 
     # download data
@@ -91,10 +92,10 @@ def auth_refresh():
         expiresIn = data['expires_in']
 
     if not accessToken or not refreshToken:
-        print('❌ auth_refresh(): failed to obtain tokens.')
+        log.error('auth_refresh(): failed to obtain tokens.')
         return
 
-    print('✅ auth_refresh(): tokens → ' + accessToken + ', ' + refreshToken)
+    log.info('auth_refresh(): tokens → ' + accessToken + ', ' + refreshToken)
 
     # store data
 
@@ -120,7 +121,7 @@ def download():
             accessToken = access['access_token']
 
     if not accessToken:
-        print('❌ download(): unable to load access tokens.')
+        log.error('download(): unable to load access tokens.')
         return
 
     # download data
@@ -160,7 +161,7 @@ def download():
     try:
         db = sqlite3.connect(path.to('data/netatmo_history.sqlite'))
     except Error as e:
-        print('❌ download(): unable to open netatmo database: {}'.format(e))
+        log.error('download(): unable to open netatmo database: {}'.format(e))
         return
 
     cursor = db.cursor()
@@ -169,7 +170,7 @@ def download():
     timestampLast = cursor.fetchone()
 
     if timestamp == timestampLast:
-        print('❌ download(): timestamp {} already saved'.format(timestamp))
+        log.error('download(): timestamp {} already saved'.format(timestamp))
         db.close()
         return
 

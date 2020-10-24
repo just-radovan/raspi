@@ -2,6 +2,7 @@
 # -*- coding: UTF-8 -*-
 
 import path
+import common.log as log
 import auth.twitter as twitter
 
 import tweepy
@@ -18,7 +19,7 @@ def tweet(message, media = None):
             accessTokenSecret = access['token_secret']
 
     if not accessToken or not accessTokenSecret:
-        print('❌ tweet(): unable to load access tokens.')
+        log.error('tweet(): unable to load access tokens.')
         quit()
 
     auth = tweepy.OAuthHandler(twitter.get_consumer_key(), twitter.get_consumer_secret())
@@ -29,10 +30,10 @@ def tweet(message, media = None):
     if media:
         img = api.media_upload(media)
         api.update_status(status = message, media_ids = [img.media_id_string])
-        print('✅ tweet(): tweeted with media.')
+        log.info('tweet(): tweeted with media.')
     else:
         api.update_status(status = message)
-        print('✅ tweet(): tweeted. just text.')
+        log.info('tweet(): tweeted. just text.')
 
 def authorize():
     auth = tweepy.OAuthHandler(twitter.get_consumer_key(), twitter.get_consumer_secret(), 'oob')
@@ -42,19 +43,19 @@ def authorize():
 
         verifier = input('verification code? ')
     except tweepy.TweepError:
-        print('❌ authorize(): failed to get authorization request token.')
+        log.error('authorize(): failed to get authorization request token.')
         return
 
     try:
         auth.get_access_token(verifier)
     except tweepy.TweepError:
-        print('❌ authorize(): failed to get access token.')
+        log.error('authorize(): failed to get access token.')
         reeturn
 
     accessToken = auth.access_token
     accessSecret = auth.access_token_secret
 
-    print('✅ authorize(): tokens: ' + accessToken + ', ' + accessSecret)
+    log.info('authorize(): tokens: ' + accessToken + ', ' + accessSecret)
 
     # store data
 

@@ -1,6 +1,7 @@
 #!/usr/bin/python3.7
 
 import path
+import common.log as log
 
 import os
 import datetime
@@ -14,8 +15,10 @@ def take_photo():
 
     result = os.system('fswebcam -q -S 5 -F 10 --set Brightness=50 --set Contrast=0 --no-banner --rotate 180 -r 1280x720 --jpeg 80 "{}"'.format(capture))
     if result == 0:
+        log.info('image captured and saved to {}'.format(capture))
         return capture
     else:
+        log.error('failed to capture image: {}'.format(result))
         return
 
 def make_video():
@@ -27,6 +30,8 @@ def make_video():
     if result == 0:
         os.remove(captures)
 
+        log.info('video created and saved to {}'.format(video))
         return video
     else:
+        log.error('failed to create video: {}'.format(result))
         return

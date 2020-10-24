@@ -2,6 +2,7 @@
 # -*- coding: UTF-8 -*-
 
 import path
+import common.log as log
 import common.storage as storage
 import common.twitter as twitter
 
@@ -15,7 +16,7 @@ from pylab import savefig
 
 def post_heatmap():
     if storage.is_locked('post_heatmap'):
-        print('❌ post_heatmap(): lock file present.')
+        log.warning('post_heatmap(): lock file present.')
         return
 
     dataFrame = pandas.DataFrame(data())
@@ -31,7 +32,7 @@ def post_heatmap():
     fig.savefig(heatmapFile, dpi = 400)
 
     twitter.tweet('🏝', heatmapFile)
-    print('✅ post_heatmap(): tweeted.')
+    log.info('post_heatmap(): tweeted.')
     storage.lock('post_heatmap', 24*60*60)
 
 # return 2d array: day-of-the-week × hour-of-the-day

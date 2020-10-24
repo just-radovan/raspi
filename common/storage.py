@@ -2,6 +2,7 @@
 # -*- coding: UTF-8 -*-
 
 import path
+import common.log as log
 
 import os
 import math
@@ -56,7 +57,7 @@ def is_present():
     db.close()
 
     isPresent = (row == 1)
-    print('✅ is_present(): {}'.format("🏡" if isPresent else "🏝"))
+    log.info('is_present(): {}'.format("🏡" if isPresent else "🏝"))
 
     return isPresent
 
@@ -143,7 +144,7 @@ def evaluate(entries, threshold, comparison, required, emojiLeading, emojiTraili
     requiredCount = int(math.ceil(entriesCnt * required))
     restCount = entriesCnt - requiredCount
 
-    print('🤔 evaluate(): {} → {} (0..{}) | {} → {} (>={})'.format(emojiLeading, found['leading'], requiredCount, emojiTrailing, found['trailing'], requiredCount, restCount))
+    log.info('evaluate(): {} → {} (0..{}) | {} → {} (>={})'.format(emojiLeading, found['leading'], requiredCount, emojiTrailing, found['trailing'], requiredCount, restCount))
 
     return ((found['leading'] > 0 and found['leading'] <= requiredCount) and found['trailing'] >= restCount)
 
@@ -184,7 +185,7 @@ def evaluate_trend(entries, change):
 
         entryPrevious = entry
 
-    print('🤔 evaluate_trend(): increased {} ({}→{}) values; decreased {} ({}→{}) values.'.format(increasing, increasingBoundaries[0], increasingBoundaries[1], decreasing, decreasingBoundaries[0], decreasingBoundaries[1]))
+    log.info('evaluate_trend(): increased {} ({}→{}) values; decreased {} ({}→{}) values.'.format(increasing, increasingBoundaries[0], increasingBoundaries[1], decreasing, decreasingBoundaries[0], decreasingBoundaries[1]))
 
     if increasing > decreasing:
         if increasing > 5:
@@ -210,6 +211,6 @@ def _open_database(file):
     try:
         db = sqlite3.connect(path.to(file))
     except Error as e:
-        print('❌ _open_database(): unable to open database "{}": {}'.format(file, e))
+        log.error('_open_database(): unable to open database "{}": {}'.format(file, e))
 
     return db
