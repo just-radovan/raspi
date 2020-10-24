@@ -217,3 +217,14 @@ def view():
         twitter.tweet('📷', capture)
         print('✅ view(): tweeted.')
         storage.lock('view', 57*60)
+
+def video():
+    if storage.is_locked('video'):
+        print('❌ video(): lock file present, won\'t tweet.')
+        return
+
+    video = camera.make_video()
+    if video:
+        twitter.tweet('🎞 today was like...', capture)
+        print('✅ video(): tweeted.')
+        storage.lock('video', 23*60*60)

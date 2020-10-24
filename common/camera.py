@@ -6,7 +6,7 @@ import os
 import datetime
 
 def take_photo():
-    filedate = datetime.date.today().strftime("%Y_%m_%d_%H_%M")
+    filedate = datetime.date.now().strftime("%Y_%m_%d_%H_%M")
     capture = path.to('data/capture/capture_{}.jpeg'.format(filedate))
 
     if os.path.isfile(capture):
@@ -15,5 +15,18 @@ def take_photo():
     result = os.system('fswebcam -q -S 5 --no-banner --rotate 180 -r 1280x720 --jpeg 80 "{}"'.format(capture))
     if result == 0:
         return capture
+    else:
+        return
+
+def make_video():
+    filedate = datetime.date.today().strftime("%Y_%m_%d")
+    captures = path.to('data/capture/capture_{}*.jpeg'.format(filedate))
+    video = path.to('data/video/video_{}.mp4'.format(filedate))
+
+    result = os.system('ffmpeg -i {} -c:v h264_omx -b:v 3000k -pass 1 -an -y -f mp4 /dev/null && ffmpeg -i {} -movflags +faststart -c:v h264_omx -b:v 3000k -ar 48000 -y {}'.format(captures, captures, video))
+    if result == 0:
+        os.remove(captures)
+
+        return video
     else:
         return

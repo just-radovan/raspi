@@ -2,4 +2,4 @@
 
 import common.check as check
 
-check.cat_food()
+check.video()
