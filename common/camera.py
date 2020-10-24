@@ -26,7 +26,6 @@ def get_mean_brightness(camera_brightness):
 def take_photo():
     camera_brightness = brightness_min
 
-    mean = 0.0
     while camera_brightness <= brightness_max:
         mean = get_mean_brightness(camera_brightness)
         if mean >= 20.0:
@@ -38,7 +37,7 @@ def take_photo():
         camera_brightness = brightness_max
 
 
-    log.info('using brightness {} to capture a photo with mean brightness {}.'.format(camera_brightness, mean))
+    log.info('using brightness {} to capture a photo.'.format(camera_brightness))
 
     filedate = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M")
     capture = path.to('data/capture/capture_{}.jpeg'.format(filedate))
