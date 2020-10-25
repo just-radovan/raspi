@@ -36,7 +36,6 @@ def take_photo():
     if camera_brightness > brightness_max:
         camera_brightness = brightness_max
 
-
     log.info('using brightness {} to capture a photo.'.format(camera_brightness))
 
     filedate = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M")
