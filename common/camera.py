@@ -18,7 +18,7 @@ def get_mean_brightness(camera_brightness):
 
     result = os.system('fswebcam -q -S 5 -F 2 --set Brightness={} --set Contrast=0 --no-banner -r 160x120 --jpeg 80 "{}"'.format(camera_brightness, test_image))
     if result == 0:
-        mean = os.popen('convert {} -colorspace Gray -format "%[fx:100*image.mean]" info: '.format(test_image, tmp_file)).read().strip()
+        mean = os.popen('convert {} -colorspace Gray -format "%[fx:100*image.mean]" info: '.format(test_image)).read().strip()
 
         log.info('brigness: {} → {}'.format(camera_brightness, mean))
 
