@@ -225,7 +225,4 @@ def video():
         return
 
     video = camera.make_video()
-    if video:
-        twitter.tweet('🎞 today was like...', video)
-        log.info('video(): tweeted.')
-        storage.lock('video', 23*60*60)
+    # TODO: Copy to external
