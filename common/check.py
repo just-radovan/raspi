@@ -217,7 +217,7 @@ def view():
     if capture:
         twitter.tweet('📷', capture)
         log.info('view(): tweeted.')
-        storage.lock('view', 57*60)
+        storage.lock('view', (2*60*60)-5)
 
 def video():
     if storage.is_locked('video'):
@@ -225,4 +225,3 @@ def video():
         return
 
     video = camera.make_video()
-    # TODO: Copy to external

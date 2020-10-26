@@ -20,7 +20,7 @@ def get_mean_brightness(camera_brightness):
     if result == 0:
         mean = os.popen('convert {} -colorspace Gray -format "%[fx:100*image.mean]" info: '.format(test_image)).read().strip()
 
-        log.info('brigness: {} → {}'.format(camera_brightness, mean))
+        log.info('brightness: {} → {}'.format(camera_brightness, mean))
 
         return float(mean)
     else:
