@@ -2,6 +2,7 @@
 
 import path
 import common.log as log
+import common.storage as storage
 
 import os
 import datetime
@@ -9,6 +10,8 @@ import datetime
 # fswebcam --list-controls
 brightness_min = 30
 brightness_max = 255
+
+overlay_font = '/usr/local/share/fonts/SpaceMono-Regular.ttf'
 
 def get_mean_brightness(camera_brightness):
     test_image = path.to('data/capture/_test_capture.jpeg')
@@ -55,6 +58,11 @@ def take_photo():
     # take photo: skip first five frames, create photo from another ten frames.
     result = os.system('fswebcam -q -S 5 -F 10 --set Brightness={} --set Contrast=0 --no-banner --rotate 180 -r 1280x720 --jpeg 80 "{}"'.format(camera_brightness, capture))
     if result == 0:
+        weather_first = '{} °c'.format(storage.get_netatmo_value('temp_out'))
+        weather_second = '{} mb'.format(storage.get_netatmo_value('pressure'))
+
+        os.system('convert -font {} -fill white -pointsize 24 -gravity SouthWest -draw \'text 60,40 "{}"\' -draw \'text 60,10 "{}"\' {} {}'.format(overlay_font, weather_first, weather_second, capture, capture))
+
         log.info('image captured and saved to {}'.format(capture))
         return capture
     else:
