@@ -11,28 +11,8 @@ import datetime
 brightness_min = 30
 brightness_max = 255
 
+# full path to truetype file used for annotations
 overlay_font = '/usr/local/share/fonts/SpaceMono-Regular.ttf'
-
-def get_mean_brightness(camera_brightness):
-    test_image = path.to('data/capture/_test_capture.jpeg')
-
-    if os.path.isfile(test_image):
-        os.remove(test_image)
-
-    # take a photo: skip first five frames, create photo from two another frames.
-    result = os.system('fswebcam -q -S 5 -F 2 --set Brightness={} --set Contrast=0 --no-banner -r 160x120 --jpeg 80 "{}"'.format(camera_brightness, test_image))
-    if result == 0:
-        # crop upper half (camera is upside down!)
-        os.system('convert {} -crop 160x60+0+0 {}'.format(test_image, test_image))
-
-        # get mean brightness of the photo
-        mean = os.popen('convert {} -colorspace Gray -format "%[fx:100*image.mean]" info: '.format(test_image)).read().strip()
-
-        log.info('brightness: {} → {}'.format(camera_brightness, mean))
-
-        return float(mean)
-    else:
-        return -1.0
 
 def take_photo():
     camera_brightness = brightness_min
@@ -42,7 +22,7 @@ def take_photo():
         if mean >= 20.0:
             break
 
-        camera_brightness += 20
+        camera_brightness += 10
 
     if camera_brightness > brightness_max:
         camera_brightness = brightness_max
@@ -81,3 +61,24 @@ def make_video():
     else:
         log.error('failed to create video: {}'.format(result))
         return
+
+def get_mean_brightness(camera_brightness):
+    test_image = path.to('data/capture/_test_capture.jpeg')
+
+    if os.path.isfile(test_image):
+        os.remove(test_image)
+
+    # take a photo: skip first five frames, create photo from two another frames.
+    result = os.system('fswebcam -q -S 5 -F 2 --set Brightness={} --set Contrast=0 --no-banner -r 160x120 --jpeg 80 "{}"'.format(camera_brightness, test_image))
+    if result == 0:
+        # crop upper half (camera is upside down!)
+        os.system('convert {} -crop 160x60+0+0 {}'.format(test_image, test_image))
+
+        # get mean brightness of the photo
+        mean = os.popen('convert {} -colorspace Gray -format "%[fx:100*image.mean]" info: '.format(test_image)).read().strip()
+
+        log.info('brightness: {} → {}'.format(camera_brightness, mean))
+
+        return float(mean)
+    else:
+        return -1.0
