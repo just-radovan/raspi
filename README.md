@@ -25,3 +25,4 @@ various scripts to notify me about what's happening at home. via twitter.
 * tweepy (pip) - python: twitter client
 * numpy (pip) - twitter: library to handle numbers
 * seaborn (pip) - twitter: library to visualise numbers (heatmaps here)
+* space mono ([github.com/../spacemono](https://github.com/googlefonts/spacemono)) - font used to annotate timelapse frames
