@@ -210,18 +210,5 @@ def temperature_outdoor():
 def view():
     capture = camera.take_photo()
 
-    if storage.is_locked('view'):
-        log.warning('view(): lock file present, won\'t tweet.')
-        return
-
-    if capture:
-        twitter.tweet('📷', capture)
-        log.info('view(): tweeted.')
-        storage.lock('view', (2*60*60)-5)
-
 def video():
-    if storage.is_locked('video'):
-        log.warning('video(): lock file present, won\'t tweet.')
-        return
-
     video = camera.make_video()
