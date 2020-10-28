@@ -11,10 +11,17 @@ import datetime
 brightness_min = 30
 brightness_max = 255
 
+# path to brightness test capture
+test_capture = 'data/capture/_test_capture.jpeg'
+
 # full path to truetype file used for annotations
 overlay_font = '/usr/local/share/fonts/SpaceMono-Regular.ttf'
 
 def take_photo():
+    # heat up the camera
+    startup()
+
+    # get correct brightness
     camera_brightness = brightness_min
 
     while camera_brightness <= brightness_max:
@@ -29,6 +36,7 @@ def take_photo():
 
     log.info('using brightness {} to capture a photo.'.format(camera_brightness))
 
+    # capture full photo
     filedate = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M")
     capture = path.to('data/capture/capture_{}.jpeg'.format(filedate))
 
@@ -36,7 +44,7 @@ def take_photo():
         return
 
     # take photo: skip first five frames, create photo from another ten frames.
-    result = os.system('fswebcam -q -S 5 -F 10 --set Brightness={} --set Contrast=0 --no-banner --rotate 180 -r 1280x720 --jpeg 80 "{}"'.format(camera_brightness, capture))
+    result = os.system('fswebcam -q -S 5 -F 15 --set Brightness={} --set Contrast=5 --no-banner --rotate 180 -r 1280x720 --jpeg 80 "{}"'.format(camera_brightness, capture))
     if result == 0:
         weather_first = '{} °c'.format(storage.get_netatmo_value('temp_out'))
         weather_second = '{} mb'.format(storage.get_netatmo_value('pressure'))
@@ -62,17 +70,22 @@ def make_video():
         log.error('failed to create video: {}'.format(result))
         return
 
+def startup():
+    test_image = path.to(test_capture)
+
+    os.system('fswebcam -q -D 3 -S 1 -F 5 --set Brightness={} --set Contrast=5 --no-banner -r 1280x720 --jpeg 80 "{}"'.format(brightness_min, test_image))
+
 def get_mean_brightness(camera_brightness):
-    test_image = path.to('data/capture/_test_capture.jpeg')
+    test_image = path.to(test_capture)
 
     if os.path.isfile(test_image):
         os.remove(test_image)
 
     # take a photo: skip first five frames, create photo from two another frames.
-    result = os.system('fswebcam -q -S 5 -F 2 --set Brightness={} --set Contrast=0 --no-banner -r 160x120 --jpeg 80 "{}"'.format(camera_brightness, test_image))
+    result = os.system('fswebcam -q -S 5 -F 15 --set Brightness={} --set Contrast=5 --no-banner -r 1280x720 --jpeg 80 "{}"'.format(camera_brightness, test_image))
     if result == 0:
         # crop upper half (camera is upside down!)
-        os.system('convert {} -crop 160x60+0+0 {}'.format(test_image, test_image))
+        os.system('convert {} -crop 1280x360+0+0 {}'.format(test_image, test_image))
 
         # get mean brightness of the photo
         mean = os.popen('convert {} -colorspace Gray -format "%[fx:100*image.mean]" info: '.format(test_image)).read().strip()
