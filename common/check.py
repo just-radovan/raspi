@@ -123,7 +123,7 @@ def summary_morning():
     storage.lock('summary_morning', 12*60*60)
 
 def noise():
-    entries = 5
+    entries = 4
 
     if storage.is_locked('noise'):
         log.warning('noise(): lock file present.')
@@ -140,10 +140,10 @@ def noise():
 
     twitter.tweet('🔊 there is some noise while you\'re away. it\'s currently at {} db'.format(entries[0]))
     log.info('noise(): tweeted.')
-    storage.lock('noise', 30*60)
+    storage.lock('noise', 15*60)
 
 def co2():
-    entries = 10
+    entries = 4
 
     if storage.is_locked('co2'):
         log.warning('co2(): lock file present.')
@@ -158,17 +158,17 @@ def co2():
     co2 = int(rows[0])
     twitter.tweet('🤢 there is too much co₂ in the room: {} ppm'.format(co2))
     log.info('co2(): tweeted.')
-    storage.lock('co2', 15*60)
+    storage.lock('co2', 30*60)
 
 def co2_trend():
-    entries = 10
+    entries = 5
 
     if storage.is_locked('co2_trend') or storage.is_locked('co2'):
         log.warning('co2_trend(): lock file present for co2() or co2_trend().')
         return
 
     rows = storage.get_netatmo_data('co2', entries)
-    trend = storage.evaluate_trend(rows, 0.03) # 3%
+    trend = storage.evaluate_trend(rows, 0.01)
 
     co2From = 0
     co2To = 0
@@ -180,14 +180,14 @@ def co2_trend():
     if trend[0] == +1:
         twitter.tweet('⚠️ co₂ concentration rises sharply! {} → {} ppm.'.format(co2From, co2To))
         log.info('co2(): tweeted (trend+).')
-        storage.lock('co2_trend', 15*60)
+        storage.lock('co2_trend', 60*60)
     elif trend[0] == -1:
         twitter.tweet('👍 co₂ nicely declines. {} → {} ppm.'.format(co2From, co2To))
         log.info('co2(): tweeted (trend-).')
-        storage.lock('co2_trend', 15*60)
+        storage.lock('co2_trend', 60*60)
 
 def temperature_outdoor():
-    entries = 8
+    entries = 4
 
     if storage.is_locked('temperature_outdoor'):
         log.warning('temperature_outdoor(): lock file present.')

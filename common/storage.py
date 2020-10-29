@@ -185,6 +185,11 @@ def evaluate_trend(entries, change):
 
         entryPrevious = entry
 
+    if entryPrevious and not decreasingBoundaries[0]:
+        decreasingBoundaries[0] = entryPrevious
+    if entryPrevious and not increasingBoundaries[0]:
+        increasingBoundaries[0] = entryPrevious
+
     log.info('evaluate_trend(): increased {} ({}→{}) values; decreased {} ({}→{}) values.'.format(increasing, increasingBoundaries[0], increasingBoundaries[1], decreasing, decreasingBoundaries[0], decreasingBoundaries[1]))
 
     if increasing > decreasing:
