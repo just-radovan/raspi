@@ -162,11 +162,8 @@ def evaluate_trend(entries, change):
     decreasing = 0
     decreasingBoundaries = [None, None]
 
-    entryPrevious = None
-    for entry in entries:
-        if not entryPrevious:
-            continue
-
+    entryPrevious = entries[0]
+    for entry in entries[1:]:
         if decreasing >= 0:
             if not decreasingBoundaries[0]:
                 decreasingBoundaries[0] = entryPrevious
