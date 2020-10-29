@@ -155,6 +155,8 @@ def evaluate(entries, threshold, comparison, required, emojiLeading, emojiTraili
 # __ 0: it's not changing enough
 # __ -1: it's decreasing enough
 def evaluate_trend(entries, change):
+    entries.reverse() # now first entry is oldest, last is most recent
+
     increasing = 0
     increasingBoundaries = [None, None]
     decreasing = 0
@@ -162,35 +164,32 @@ def evaluate_trend(entries, change):
 
     entryPrevious = None
     for entry in entries:
-        if entryPrevious:
-            if decreasing >= 0:
-                if entry > (entryPrevious + (entryPrevious * change)):
-                    decreasing += 1
-                else:
-                    decreasing = -1
-                    if not decreasingBoundaries[0]:
-                        decreasingBoundaries[0] = entry
+        if not entryPrevious:
+            continue
 
-                if not decreasingBoundaries[1]:
-                    decreasingBoundaries[1] = entryPrevious
+        if decreasing >= 0:
+            if not decreasingBoundaries[0]:
+                decreasingBoundaries[0] = entryPrevious
 
-            if increasing >= 0:
-                if entry < (entryPrevious - (entryPrevious * change)):
-                    increasing += 1
-                else:
-                    increasing = -1
-                    if not increasingBoundaries[0]:
-                        increasingBoundaries[0] = entry
+            if entry <= (entryPrevious - (entryPrevious * change)):
+                decreasing += 1
+                decreasingBoundaries[1] = entry
+            else:
+                decreasing = -1
+                decreasingBoundaries[1] = entryPrevious
 
-                if not increasingBoundaries[1]:
-                    increasingBoundaries[1] = entryPrevious
+        if increasing >= 0:
+            if not increasingBoundaries[0]:
+                increasingBoundaries[0] = entryPrevious
+
+            if entry >= (entryPrevious + (entryPrevious * change)):
+                increasing += 1
+                increasingBoundaries[1] = entry
+            else:
+                increasing = -1
+                increasingBoundaries[1] = entryPrevious
 
         entryPrevious = entry
-
-    if entryPrevious and not decreasingBoundaries[0]:
-        decreasingBoundaries[0] = entryPrevious
-    if entryPrevious and not increasingBoundaries[0]:
-        increasingBoundaries[0] = entryPrevious
 
     log.info('evaluate_trend(): increased {} ({}→{}) values; decreased {} ({}→{}) values.'.format(increasing, increasingBoundaries[0], increasingBoundaries[1], decreasing, decreasingBoundaries[0], decreasingBoundaries[1]))
 
