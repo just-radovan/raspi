@@ -57,8 +57,12 @@ def download():
     os.system('convert {} -crop 595x376+2+83 +repage {}').format(file_lightning, file_lightning)
 
 def download_image(url, path):
-    with request.urlopen(url) as response, open(path, 'wb') as file:
-        shutil.copyfileobj(response, file)
+    try:
+        with request.urlopen(url) as response, open(path, 'wb') as file:
+            shutil.copyfileobj(response, file)
+    except:
+        log.error('failed to download {}'.format(url))
+        return
 
     if os.path.isfile(path):
         log.info('downloaded {} to {}'.format(url, path))
