@@ -4,7 +4,7 @@
 import path
 import common.log as log
 import common.storage as storage
-import common.radar as radar
+import common.chmi as chmi
 import common.twitter as twitter
 import common.camera as camera
 
@@ -213,7 +213,7 @@ def radar():
         log.warning('radar(): lock file present.')
         return
 
-    data = radar.get_rain_intensity()
+    data = chmi.get_rain_intensity()
     if data[0] < 5:
         return
 
