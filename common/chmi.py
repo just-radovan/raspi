@@ -54,10 +54,10 @@ def download():
     download_image(url_lightning, file_lightning)
 
     if os.path.isfile(file_rain):
-        os.system('convert {} -crop 595x376+2+83 +repage {}').format(file_rain, file_rain)
+        os.system('convert {} -crop 595x376+2+83 +repage {}'.format(file_rain, file_rain))
 
     if os.path.isfile(file_lightning):
-        os.system('convert {} -crop 595x376+2+83 +repage {}').format(file_lightning, file_lightning)
+        os.system('convert {} -crop 595x376+2+83 +repage {}'.format(file_lightning, file_lightning))
 
 def download_image(url, path):
     if os.path.isfile(path):
