@@ -46,10 +46,18 @@ def take_photo():
     # take photo: skip first five frames, create photo from another ten frames.
     result = os.system('fswebcam -q -S 5 -F 15 --set Brightness={} --set Contrast=5 --no-banner --rotate 180 -r 1280x720 --jpeg 80 "{}"'.format(camera_brightness, capture))
     if result == 0:
+        # add current wather
         weather_first = '{} °c'.format(storage.get_netatmo_value('temp_out'))
         weather_second = '{} mb'.format(storage.get_netatmo_value('pressure'))
 
         os.system('convert -font {} -fill white -pointsize 24 -gravity SouthWest -draw \'text 60,40 "{}"\' -draw \'text 60,10 "{}"\' {} {}'.format(overlay_font, weather_first, weather_second, capture, capture))
+
+        # add current time
+        now = datetime.datetime.now()
+        time_hour = '{:02d}'.format(now.hour)
+        time_minute = '{:02d}'.format(now.minute)
+
+        os.system('convert -font {} -fill white -pointsize 50 -gravity SouthWest -draw \'text 240,4 "{}h{}"\' {} {}'.format(overlay_font, time_hour, time_minute, capture, capture))
 
         log.info('image captured and saved to {}'.format(capture))
         return capture
