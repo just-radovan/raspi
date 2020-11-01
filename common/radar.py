@@ -45,8 +45,8 @@ def download():
     download_image(url_rain, file_rain)
     download_image(url_lightning, file_lightning)
 
-    os.system('convert {} -crop 596x376+2+83 +repage {}').format(file_rain, file_rain)
-    os.system('convert {} -crop 596x376+2+83 +repage {}').format(file_lightning, file_lightning)
+    os.system('convert {} -crop 595x376+2+83 +repage {}').format(file_rain, file_rain)
+    os.system('convert {} -crop 595x376+2+83 +repage {}').format(file_lightning, file_lightning)
 
 def download_image(url, path):
     with request.urlopen(url) as response, open(path, 'wb') as file:
