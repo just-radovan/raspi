@@ -214,10 +214,12 @@ def radar():
         return
 
     data = chmi.get_rain_intensity()
-    if not data or data[0] < 5:
+    if not data: # or data[0] < 5:
         return
 
-    twitter.tweet('🌧 it rains somewhere around. maximum intensity is {} %.'.format(data[0]), media = data[1])
+    images = [data[1], camera.get_last_photo()]
+
+    twitter.tweet('🌧 it rains somewhere around. maximum intensity is {} %.'.format(data[0]), media = images)
     log.info('radar(): tweeted.')
     storage.lock('radar', 30*60)
 

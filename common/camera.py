@@ -6,6 +6,7 @@ import common.log as log
 import common.storage as storage
 
 import os
+import glob
 import datetime
 
 # fswebcam --list-controls
@@ -13,10 +14,16 @@ brightness_min = 30
 brightness_max = 255
 
 # path to brightness test capture
-test_capture = 'data/capture/_test_capture.jpeg'
+test_capture = 'data/_test_capture.jpeg'
 
 # full path to truetype file used for annotations
 overlay_font = '/usr/local/share/fonts/SpaceMono-Regular.ttf'
+
+def get_last_photo():
+    dir = path.to('data/capture/')
+    files = glob.glob(dir + '*')
+
+    return max(files, key = os.path.getctime)
 
 def take_photo():
     # heat up the camera
