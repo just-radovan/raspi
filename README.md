@@ -22,6 +22,7 @@ various scripts to notify me about what's happening at home. via twitter.
 * fswebcam (apt-get) - handling the webcam
 * imagemagick (apt-get) - image manipulation
 * libatlas-base-dev (apt-get) - ???
+* pytz (pip) - python: time zones
 * tweepy (pip) - python: twitter client
 * numpy (pip) - twitter: library to handle numbers
 * seaborn (pip) - twitter: library to visualise numbers (heatmaps here)
