@@ -24,9 +24,15 @@ file_lightning = path.to('data/chmi/lightning.png')
 
 composite = path.to('data/chmi/composite.png')
 
-def check_for_rain():
-    # todo: check for rain around kobylisy, return max. intensity
-    return
+def get_rain_intensity():
+    download()
+    create_composite()
+
+    intensity = 0
+
+    # todo: check for rain around kobylisy, return max. intensity in percent
+
+    return [intensity, composite]
 
 def create_composite():
     if os.path.isfile(composite):
@@ -35,6 +41,8 @@ def create_composite():
     os.system('composite {} {} {}'.format(asset_terrain, asset_cities, composite))
     os.system('composite {} {} {}'.format(composite, file_rain, composite))
     os.system('composite {} {} {}'.format(composite, file_lightning, composite))
+
+    return composite
 
 def download():
     timestamp = get_data_timestamp()

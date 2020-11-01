@@ -4,6 +4,7 @@
 import path
 import common.log as log
 import common.storage as storage
+import common.radar as radar
 import common.twitter as twitter
 import common.camera as camera
 
@@ -206,6 +207,19 @@ def temperature_outdoor():
     twitter.tweet('🥶 your ass will freeze off! outdoor temperature right now: {} °C'.format(rows[0]))
     log.info('temperature_outdoor(): tweeted.')
     storage.lock('temperature_outdoor', 30*60)
+
+def radar():
+    if storage.is_locked('radar'):
+        log.warning('radar(): lock file present.')
+        return
+
+    data = radar.get_rain_intensity()
+    if data[0] < 5:
+        return
+
+    twitter.tweet('🌧 it rains somewhere around. maximum intensity is {} %.'.format(data[0]), media = data[1])
+    log.info('radar(): tweeted.')
+    storage.lock('radar', 30*60)
 
 def view():
     capture = camera.take_photo()
