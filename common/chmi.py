@@ -32,11 +32,16 @@ def get_rain_intensity():
 
     # todo: check for rain around kobylisy, return max. intensity in percent
 
-    return [intensity, composite]
+    if os.path.isfile(composite):
+        return [intensity, composite]
 
 def create_composite():
     if os.path.isfile(composite):
         os.remove(composite)
+
+    if not os.path.isfile(file_rain) or not os.path.isfile(file_lightning):
+        log.error('can\'t create composite, files are not downloaded.')
+        return
 
     os.system('composite {} {} {}'.format(asset_terrain, asset_cities, composite))
     os.system('composite {} {} {}'.format(composite, file_rain, composite))

@@ -214,7 +214,7 @@ def radar():
         return
 
     data = chmi.get_rain_intensity()
-    if data[0] < 5:
+    if not data or data[0] < 5:
         return
 
     twitter.tweet('🌧 it rains somewhere around. maximum intensity is {} %.'.format(data[0]), media = data[1])
