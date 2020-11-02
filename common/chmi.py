@@ -9,6 +9,7 @@ import os
 import math
 import datetime
 import shutil
+import numpy
 from urllib import request
 
 import pytz
@@ -24,16 +25,36 @@ file_lightning = path.to('data/chmi/lightning.png')
 
 composite = path.to('data/chmi/composite.png')
 
+location = [227, 152] # coordinates of kobylisy on file_rain, file_lightning, and composite.
+watch = [32, 32] # size of the area to watch for rain; with location in the middle.
+
 def get_rain_intensity():
     download()
     create_composite()
 
+    if not os.path.isfile(composite):
+        return
+
+    rain = numpy.zeros((watch[0], watch[1]), dtype=int)
+    for x in range(watch[0]):
+        for y in range(watch[1]):
+            x_rel = location[0] + x - math.floor(watch[0] / 2)
+            y_rel = location[1] + x - math.floor(watch[1] / 2)
+
+            pixel = os.popen('convert {} -format "%[fx:int(255*p\{{x},{y}\}.r)],%[fx:int(255*p\{{x},{y}\}.g)],%[fx:int(255*p\{{x},{y}\}.b)]" info:-'.format(file_rain, x = x_rel, y = y_rel)).read().strip()
+            colors = pixel.split(',')
+
+            r = int(colors[0])
+            g = int(colors[1])
+            b = int(colors[2])
+
+            rain[x][y] = 0
+            # todo: get color of the pixel and store how much rains there (int; 0..100)
+
     intensity = 0
+    # todo: calculate total intensity.
 
-    # todo: check for rain around kobylisy, return max. intensity in percent
-
-    if os.path.isfile(composite):
-        return [intensity, composite]
+    return [intensity, composite]
 
 def create_composite():
     if os.path.isfile(composite):

@@ -210,21 +210,32 @@ def temperature_outdoor():
 
 def radar():
     if storage.is_locked('radar'):
-        log.warning('radar(): lock file present.')
+        log.warning('radar(): lock file present for data download.')
         return
 
     data = chmi.get_rain_intensity()
-    if not data: # or data[0] < 5:
+    storage.lock('radar', 10*60)
+
+    radar_tweet(data)
+
+def radar_tweet(data):
+    if storage.is_locked('radar_tweet'):
+        log.warning('radar_tweet(): lock file present.')
+        return
+
+    if not data or data[0] <= 5:
         return
 
     images = [data[1], camera.get_last_photo()]
 
     twitter.tweet('🌧 it rains somewhere around. maximum intensity is {} %.'.format(data[0]), media = images)
-    log.info('radar(): tweeted.')
-    storage.lock('radar', 30*60)
+    log.info('radar_tweet(): tweeted.')
+    storage.lock('radar_tweet', 30*60)
 
 def view():
-    capture = camera.take_photo()
+    # timed by cron
+    camera.take_photo()
 
 def video():
-    video = camera.make_video()
+    # timed by cron
+    camera.make_video()
