@@ -23,6 +23,8 @@ asset_cities = path.to('assets/chmi_sidla.png')
 file_rain = path.to('data/chmi/rain.png')
 file_lightning = path.to('data/chmi/lightning.png')
 
+file_rain_cutout = path.to('data/chmi/rain_cutout.png')
+
 composite = path.to('data/chmi/composite.png')
 
 location = [227, 152] # coordinates of kobylisy on file_rain, file_lightning, and composite.
@@ -59,10 +61,7 @@ def get_rain_intensity():
 
     for x in range(watch[0]):
         for y in range(watch[1]):
-            x_rel = location[0] + x - math.floor(watch[0] / 2)
-            y_rel = location[1] + x - math.floor(watch[1] / 2)
-
-            pixel = os.popen('convert {} -format "%[fx:int(255*p{{{x},{y}}}.r)],%[fx:int(255*p{{{x},{y}}}.g)],%[fx:int(255*p{{{x},{y}}}.b)]" info:-'.format(file_rain, x = x_rel, y = y_rel)).read().strip()
+            pixel = os.popen('convert {} -format "%[fx:int(255*p{{{x},{y}}}.r)],%[fx:int(255*p{{{x},{y}}}.g)],%[fx:int(255*p{{{x},{y}}}.b)]" info:-'.format(file_rain_cutout), x = x, y = y)).read().strip()
             colors = pixel.split(',')
 
             r = int(colors[0])
@@ -118,6 +117,10 @@ def download():
 
     if os.path.isfile(file_rain):
         os.system('convert {} -crop 595x376+2+83 +repage {}'.format(file_rain, file_rain))
+
+        x_rel = location[0] - math.floor(watch[0] / 2)
+        y_rel = location[1] - math.floor(watch[1] / 2)
+        os.system('convert {} -crop {}x{}+{}+{} +repage {}'.format(file_rain, watch[0], watch[1], x_rel, y_rel, file_rain_cutout))
 
     if os.path.isfile(file_lightning):
         os.system('convert {} -crop 595x376+2+83 +repage {}'.format(file_lightning, file_lightning))
