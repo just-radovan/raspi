@@ -17,8 +17,6 @@ def lock(label, expiration):
     file.write(str(exp))
     file.close()
 
-    return
-
 def is_locked(label):
     check_lock(label)
 

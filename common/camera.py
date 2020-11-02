@@ -6,6 +6,7 @@ import common.log as log
 import common.storage as storage
 
 import os
+import math
 import glob
 import datetime
 
@@ -14,7 +15,8 @@ brightness_min = 30
 brightness_max = 255
 
 # path to brightness test capture
-test_capture = 'data/_test_capture.jpeg'
+test_capture = path.to('data/_test_capture.jpeg')
+brightness_save = path.to('data/camera_brightness.save')
 
 # full path to truetype file used for annotations
 overlay_font = '/usr/local/share/fonts/SpaceMono-Regular.ttf'
@@ -30,7 +32,7 @@ def take_photo():
     startup()
 
     # get correct brightness
-    camera_brightness = brightness_min
+    camera_brightness = math.max(brightness_min, load_brightness() - 20)
 
     while camera_brightness <= brightness_max:
         mean = get_mean_brightness(camera_brightness)
@@ -42,6 +44,7 @@ def take_photo():
     if camera_brightness > brightness_max:
         camera_brightness = brightness_max
 
+    save_brightness(camera_brightness)
     log.info('using brightness {} to capture a photo.'.format(camera_brightness))
 
     # capture full photo
@@ -87,27 +90,38 @@ def make_video():
         return
 
 def startup():
-    test_image = path.to(test_capture)
-
-    os.system('fswebcam -q -D 3 -S 1 -F 5 --set Brightness={} --set Contrast=5 --no-banner -r 1280x720 --jpeg 80 "{}"'.format(brightness_min, test_image))
+    os.system('fswebcam -q -D 3 -S 1 -F 5 --set Brightness={} --set Contrast=5 --no-banner -r 1280x720 --jpeg 80 "{}"'.format(brightness_min, test_capture))
 
 def get_mean_brightness(camera_brightness):
-    test_image = path.to(test_capture)
-
-    if os.path.isfile(test_image):
-        os.remove(test_image)
+    if os.path.isfile(test_capture):
+        os.remove(test_capture)
 
     # take a photo: skip first five frames, create photo from two another frames.
-    result = os.system('fswebcam -q -S 5 -F 15 --set Brightness={} --set Contrast=5 --no-banner -r 1280x720 --jpeg 80 "{}"'.format(camera_brightness, test_image))
+    result = os.system('fswebcam -q -S 5 -F 15 --set Brightness={} --set Contrast=5 --no-banner -r 1280x720 --jpeg 80 "{}"'.format(camera_brightness, test_capture))
     if result == 0:
         # crop upper half (camera is upside down!)
-        os.system('convert {} -crop 1280x360+0+0 {}'.format(test_image, test_image))
+        os.system('convert {} -crop 1280x360+0+0 {}'.format(test_capture, test_capture))
 
         # get mean brightness of the photo
-        mean = os.popen('convert {} -colorspace Gray -format "%[fx:100*image.mean]" info: '.format(test_image)).read().strip()
+        mean = os.popen('convert {} -colorspace Gray -format "%[fx:100*image.mean]" info: '.format(test_capture)).read().strip()
 
         log.info('brightness: {} → {}'.format(camera_brightness, mean))
 
         return float(mean)
     else:
         return -1.0
+
+def save_brightness(brightness):
+    file = open(brightness_save, 'w')
+    file.write(str(brightness))
+    file.close()
+
+def load_brightness():
+    if not os.path.exists(brightness_save):
+        return 0
+
+    file = open(brightness_save, 'r')
+    brightness = int(file.read())
+    file.close()
+
+    return brightness
