@@ -16,4 +16,4 @@ def warning(message):
 def error(message):
     timestamp = datetime.datetime.now().strftime("%Y.%m.%d %H:%M:%S")
 
-    print('❌   {} • {}'.format(timestamp, message))
+    print('🛑   {} • {}'.format(timestamp, message))
