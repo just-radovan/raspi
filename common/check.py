@@ -81,7 +81,7 @@ def summary_at_home():
 
 def summary_morning():
     now = datetime.datetime.now()
-    if now.hour < 5 or now.hour > 12:
+    if not (5 < now.hour < 12):
         log.warning('summary_morning(): outside of operating hours.')
         return
 
@@ -206,7 +206,7 @@ def radar():
 
 def radar_tweet(data):
     now = datetime.datetime.now()
-    if now.hour > 1 or now.hour < 7:
+    if 1 < now.hour < 7:
         log.warning('radar_tweet(): outside of operating hours.')
         return
 
