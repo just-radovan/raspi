@@ -209,13 +209,8 @@ def temperature_outdoor():
     storage.lock('temperature_outdoor', 30*60)
 
 def radar():
-    if storage.is_locked('radar'):
-        log.warning('radar(): lock file present.')
-        return
-
+    # timed by cron
     data = chmi.get_rain_intensity()
-    storage.lock('radar', 10*60)
-
     radar_tweet(data)
 
 def radar_tweet(data):
