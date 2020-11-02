@@ -19,13 +19,13 @@ bad_air_threshold = 1000 # ppm
 fresh_air_threshold = 700 # ppm
 
 def summary_presence():
-    if storage.is_locked('summary_presence'):
-        log.warning('summary_presence(): lock file present.')
-        return
-
     now = datetime.datetime.now()
     if now.hour < 23:
         log.warning('summary_presence(): outside of operating hours.')
+        return
+
+    if storage.is_locked('summary_presence'):
+        log.warning('summary_presence(): lock file present.')
         return
 
     outside = storage.how_long_outside()
@@ -80,21 +80,20 @@ def summary_at_home():
     storage.lock('summary_at_home', 30*60)
 
 def summary_morning():
-    entries = 5
-
-    if storage.is_locked('summary_morning'):
-        log.warning('summary_morning(): lock file present.')
-        return
-
     now = datetime.datetime.now()
     if now.hour < 5 or now.hour > 12:
         log.warning('summary_morning(): outside of operating hours.')
+        return
+
+    if storage.is_locked('summary_morning'):
+        log.warning('summary_morning(): lock file present.')
         return
 
     if not storage.is_present():
         log.warning('summary_morning(): not at home.')
         return
 
+    entries = 5
     rows = storage.get_netatmo_data('noise', entries)
 
     if not storage.evaluate(rows, sound_treshold, +1, 0.3, '🔊', '🔇'):
@@ -124,8 +123,6 @@ def summary_morning():
     storage.lock('summary_morning', 12*60*60)
 
 def noise():
-    entries = 4
-
     if storage.is_locked('noise'):
         log.warning('noise(): lock file present.')
         return
@@ -134,7 +131,7 @@ def noise():
         log.warning('noise(): at home.')
         return
 
-    rows = storage.get_netatmo_data('noise', entries)
+    rows = storage.get_netatmo_data('noise', 4)
 
     if not storage.evaluate(rows, sound_treshold, +1, 0.3, '🔊', '🔇'):
         log.warning('noise(): no noise detected.')
@@ -144,13 +141,11 @@ def noise():
     storage.lock('noise', 15*60)
 
 def co2():
-    entries = 4
-
     if storage.is_locked('co2'):
         log.warning('co2(): lock file present.')
         return
 
-    rows = storage.get_netatmo_data('co2', entries)
+    rows = storage.get_netatmo_data('co2', 4)
 
     if not storage.evaluate(rows, bad_air_threshold, +1, 0.3, '☣️', '💨'):
         log.warning('co2(): co₂ is not above the limit.')
@@ -162,13 +157,11 @@ def co2():
     storage.lock('co2', 30*60)
 
 def co2_trend():
-    entries = 5
-
     if storage.is_locked('co2_trend') or storage.is_locked('co2'):
         log.warning('co2_trend(): lock file present for co2() or co2_trend().')
         return
 
-    rows = storage.get_netatmo_data('co2', entries)
+    rows = storage.get_netatmo_data('co2', 5)
     trend = storage.evaluate_trend(rows, 0.01)
 
     co2From = 0
@@ -188,8 +181,6 @@ def co2_trend():
         storage.lock('co2_trend', 60*60)
 
 def temperature_outdoor():
-    entries = 4
-
     if storage.is_locked('temperature_outdoor'):
         log.warning('temperature_outdoor(): lock file present.')
         return
@@ -198,7 +189,7 @@ def temperature_outdoor():
         log.warning('temperature_outdoor(): not at home.')
         return
 
-    rows = storage.get_netatmo_data('temp_out', entries)
+    rows = storage.get_netatmo_data('temp_out', 4)
 
     if not storage.evaluate(rows, temp_outdoor_treshold, -1, 0.5, '❄️', '☀️'):
         log.warning('temperature_outdoor(): temperature is not low enough.')
@@ -214,11 +205,17 @@ def radar():
     radar_tweet(data)
 
 def radar_tweet(data):
+    now = datetime.datetime.now()
+    if now.hour > 1 or now.hour < 7:
+        log.warning('radar_tweet(): outside of operating hours.')
+        return
+
     if storage.is_locked('radar_tweet'):
         log.warning('radar_tweet(): lock file present.')
         return
 
     if not data or data[0] <= 4 or data[1] < 3: # at least 4 mm/hr at 3% of the area.
+        log.warning('radar_tweet(): not raining enough: {} mm/hr at {} %'.format(data[0], data[1]))
         return
 
     images = [data[1], camera.get_last_photo()]
