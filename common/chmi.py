@@ -62,7 +62,7 @@ def get_rain_intensity():
             x_rel = location[0] + x - math.floor(watch[0] / 2)
             y_rel = location[1] + x - math.floor(watch[1] / 2)
 
-            pixel = os.popen('convert {} -format "%[fx:int(255*p\{{x},{y}\}.r)],%[fx:int(255*p\{{x},{y}\}.g)],%[fx:int(255*p\{{x},{y}\}.b)]" info:-'.format(file_rain, x = x_rel, y = y_rel)).read().strip()
+            pixel = os.popen('convert {} -format "%[fx:int(255*p{{{x},{y}}}.r)],%[fx:int(255*p{{{x},{y}}}.g)],%[fx:int(255*p{{{x},{y}}}.b)]" info:-'.format(file_rain, x = x_rel, y = y_rel)).read().strip()
             colors = pixel.split(',')
 
             r = int(colors[0])
