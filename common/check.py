@@ -31,20 +31,20 @@ def summary_presence():
     outside = storage.how_long_outside()
     outsideStr = ''
     if outside < 60:
-        outsideStr = 'less than a minute'
+        outsideStr = 'míň než minutu'
     elif outside < 5*60:
-        outsideStr = 'less than five minutes'
+        outsideStr = 'miň než pět minut'
     elif outside <= 90*60:
         minutes = int(math.floor(outside / 60))
 
-        outsideStr = '{} minutes'.format(minutes)
+        outsideStr = '{} minut'.format(minutes)
     else:
         hours = int(math.floor(outside / (60 * 60)))
         minutes = int(math.floor((outside - (hours * 60 * 60)) / 60))
 
         outsideStr = '{}h{}'.format(hours, minutes)
 
-    twitter.tweet('🚶 you were outside for {} today.'.format(outsideStr))
+    twitter.tweet('🚶 dneska si byl venku {}.'.format(outsideStr))
     log.info('summary_presence(): tweeted.')
     storage.lock('summary_presence', 12*60*60)
 
@@ -64,15 +64,15 @@ def summary_at_home():
     humidity = storage.get_netatmo_value('humidity_in')
 
     start = [
-      '🛰 welcome at avalon.',
-      '🛰 avalon welcomes you back.',
-      '🚀 bridge is yours.'
+      '🛰 vítej na avalonu.',
+      '🛰 avalon tě vítá zpět.',
+      '🚀 domov, sladký domov.'
     ]
     message = (
         '{}\n\n'
         '✪ co₂: {} ppm\n'
-        '✪ temperature: {} °c\n'
-        '✪ humidity: {} %'
+        '✪ teplota: {} °c\n'
+        '✪ vlhkost: {} %'
     ).format(random.choice(start), co2, temperature, humidity)
 
     twitter.tweet(message)
@@ -106,17 +106,17 @@ def summary_morning():
     pressure = storage.get_netatmo_value('pressure')
 
     start = [
-      '🙄 fuck! not this day thing again.',
-      '🤪 morning bitch!',
-      '🏝 another day in paradise...',
-      '🤪 oi cunt!',
-      '🧐 what a shitshow?'
+      '🙄 a kurva. další den.',
+      '🤪 dobrý ráno!',
+      '🏝 další den v ráji...',
+      '🤪 čau debile!',
+      '🧐 zase den na píču?'
     ]
     message = (
         '{}\n\n'
-        '✪ temperature: {} °c\n'
-        '✪ pressure: {} mb\n'
-        '✪ humidity: {} %'
+        '✪ teplota: {} °c\n'
+        '✪ tlak vzduchu: {} mb\n'
+        '✪ vlhkost: {} %'
     ).format(random.choice(start), temperature, pressure, humidity)
 
     twitter.tweet(message)
@@ -139,7 +139,7 @@ def noise():
     if not storage.evaluate(rows, sound_treshold, +1, 0.3, '🔊', '🔇'):
         log.warning('noise(): no noise detected.')
 
-    twitter.tweet('🔊 there is some noise while you\'re away. it\'s currently at {} db'.format(entries[0]))
+    twitter.tweet('🔊 je tu hluk i když tu nejsi. aktuálně to je {} db'.format(entries[0]))
     log.info('noise(): tweeted.')
     storage.lock('noise', 15*60)
 
@@ -157,7 +157,7 @@ def co2():
         return
 
     co2 = int(rows[0])
-    twitter.tweet('🤢 there is too much co₂ in the room: {} ppm'.format(co2))
+    twitter.tweet('🤢 chtělo by to vyvětrat. aktuální koncentrace co₂: {} ppm.'.format(co2))
     log.info('co2(): tweeted.')
     storage.lock('co2', 30*60)
 
@@ -179,11 +179,11 @@ def co2_trend():
         co2To = int(trend[2])
 
     if trend[0] == +1:
-        twitter.tweet('⚠️ co₂ concentration rises sharply! {} → {} ppm.'.format(co2From, co2To))
+        twitter.tweet('⚠️ koncentrace co₂ rychle roste! {} → {} ppm.'.format(co2From, co2To))
         log.info('co2(): tweeted (trend+).')
         storage.lock('co2_trend', 60*60)
     elif trend[0] == -1:
-        twitter.tweet('👍 co₂ nicely declines. {} → {} ppm.'.format(co2From, co2To))
+        twitter.tweet('👍 paráda, koncentrace co₂ klesá. {} → {} ppm.'.format(co2From, co2To))
         log.info('co2(): tweeted (trend-).')
         storage.lock('co2_trend', 60*60)
 
@@ -204,7 +204,7 @@ def temperature_outdoor():
         log.warning('temperature_outdoor(): temperature is not low enough.')
         return
 
-    twitter.tweet('🥶 your ass will freeze off! outdoor temperature right now: {} °C'.format(rows[0]))
+    twitter.tweet('🥶 usměj se než ti ztuhne xicht. venku je jen {} °C.'.format(rows[0]))
     log.info('temperature_outdoor(): tweeted.')
     storage.lock('temperature_outdoor', 30*60)
 
@@ -223,7 +223,7 @@ def radar_tweet(data):
 
     images = [data[1], camera.get_last_photo()]
 
-    twitter.tweet('🌧 it rains somewhere around. maximum intensity is {} mm/h at {} % of watched area.'.format(data[0], data[1]), media = images)
+    twitter.tweet('🌧 někde poblíž chčije. prší na {} % sledované oblasti, maximum je {} mm/h.'.format(data[1], data[0]), media = images)
     log.info('radar_tweet(): tweeted.')
     storage.lock('radar_tweet', 30*60)
 
