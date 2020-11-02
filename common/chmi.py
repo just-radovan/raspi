@@ -79,11 +79,11 @@ def get_rain_intensity():
 
                 if color == [r, g, b]:
                     # matches map color
-                    intensity = math.max(intensity, mmhr)
+                    intensity = max(intensity, mmhr)
                     area += 1
                 elif color_next and (((color[0] <= r <= color_next[0]) or (color[0] >= r >= color_next[0])) and ((color[1] <= g <= color_next[1]) or (color[1] >= g >= color_next[1])) and ((color[2] <= b <= color_next[2]) or (color[2] >= b >= color_next[2]))):
                     # is somewhere between two neighbouring map colors
-                    intensity = math.max(intensity, mmhr)
+                    intensity = max(intensity, mmhr)
                     area += 1
 
     area = math.floor((area / (watch[0] * watch[1])) * 100)

@@ -6,7 +6,6 @@ import common.log as log
 import common.storage as storage
 
 import os
-import math
 import glob
 import datetime
 
@@ -32,7 +31,7 @@ def take_photo():
     startup()
 
     # get correct brightness
-    camera_brightness = math.max(brightness_min, load_brightness() - 20)
+    camera_brightness = max(brightness_min, load_brightness() - 20)
 
     while camera_brightness <= brightness_max:
         mean = get_mean_brightness(camera_brightness)
