@@ -87,7 +87,7 @@ def get_rain_intensity():
                     intensity = math.max(intensity, mmhr)
                     area += 1
 
-    area = math.round((area_rain / (watch[0] * watch[1])) * 100)
+    area = math.floor((area_rain / (watch[0] * watch[1])) * 100)
 
     log.info('radar data explored. rain: max {} mm/hr at {} % of the area.'.format(intensity, area))
 
