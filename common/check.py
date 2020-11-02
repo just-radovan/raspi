@@ -223,14 +223,14 @@ def radar_tweet(data):
         log.warning('radar_tweet(): lock file present.')
         return
 
-    if not data or data[0] <= 5:
+    if not data or data[0] <= 4 or data[1] < 3: # at least 4 mm/hr at 3% of the area.
         return
 
-    images = [data[1], camera.get_last_photo()]
+    # images = [data[1], camera.get_last_photo()]
 
-    twitter.tweet('🌧 it rains somewhere around. maximum intensity is {} %.'.format(data[0]), media = images)
-    log.info('radar_tweet(): tweeted.')
-    storage.lock('radar_tweet', 30*60)
+    # twitter.tweet('🌧 it rains somewhere around. maximum intensity is {} mm/h at {} % of watched area.'.format(data[0], data[1]), media = images)
+    # log.info('radar_tweet(): tweeted.')
+    # storage.lock('radar_tweet', 30*60)
 
 def view():
     # timed by cron

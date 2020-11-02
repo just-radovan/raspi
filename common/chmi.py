@@ -28,6 +28,24 @@ composite = path.to('data/chmi/composite.png')
 location = [227, 152] # coordinates of kobylisy on file_rain, file_lightning, and composite.
 watch = [32, 32] # size of the area to watch for rain; with location in the middle.
 
+color_map = [ # color legend for chmi rain data
+	[56, 0, 112], # 04 mm/hr
+	[48, 0, 168], # 08
+	[0, 0, 252], # 12
+	[0, 108, 192], # 16
+	[0, 160, 0], # 20
+	[0, 188, 0], # 24
+	[52, 216, 0], # 28
+	[156, 220, 0], # 32
+	[224, 220, 0], # 36
+	[252, 176, 0], # 40
+	[252, 132, 0], # 44
+	[252, 88, 0], #48
+	[252, 0, 0], # 52
+	[160, 0, 0], # 56
+	[252, 252, 252] # 60
+]
+
 def get_rain_intensity():
     download()
     create_composite()
@@ -35,7 +53,10 @@ def get_rain_intensity():
     if not os.path.isfile(composite):
         return
 
-    rain = numpy.zeros((watch[0], watch[1]), dtype=int)
+    color_map_len = len(color_map)
+    intensity = 0
+    area = 0
+
     for x in range(watch[0]):
         for y in range(watch[1]):
             x_rel = location[0] + x - math.floor(watch[0] / 2)
@@ -48,13 +69,29 @@ def get_rain_intensity():
             g = int(colors[1])
             b = int(colors[2])
 
-            rain[x][y] = 0
-            # todo: get color of the pixel and store how much rains there (int; 0..100)
+            for r in range(color_map_len):
+                mmhr = (r + 1) * 4 # mm/hr
 
-    intensity = 0
-    # todo: calculate total intensity.
+                color = color_map[r]
+                if r < (color_map_len - 2):
+                    color_next = color_map[r + 1]
+                else:
+                    color_next = None
 
-    return [intensity, composite]
+                if color == [r, g, b]:
+                    # matches map color
+                    intensity = math.max(intensity, mmhr)
+                    area += 1
+                elif color_next and (((color[0] <= r <= color_next[0]) or (color[0] >= r >= color_next[0])) and ((color[1] <= g <= color_next[1]) or (color[1] >= g >= color_next[1])) and ((color[2] <= b <= color_next[2]) or (color[2] >= b >= color_next[2]))):
+                    # is somewhere between two neighbouring map colors
+                    intensity = math.max(intensity, mmhr)
+                    area += 1
+
+    area = math.round((area_rain / (watch[0] * watch[1])) * 100)
+
+    log.info('radar data explored. rain: max {} mm/hr at {} % of the area.'.format(intensity, area))
+
+    return [intensity, area, composite]
 
 def create_composite():
     if os.path.isfile(composite):
