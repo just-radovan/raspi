@@ -236,7 +236,7 @@ def radar_tweet():
         tweet = (
             '🌤 přestalo chcát.'
         )
-    elif rain_now[column_distance] <= 2 and (rain_history[column_distance] > 2 or rain_history[column_distance] < 0):
+    elif 0 <= rain_now[column_distance] <= 2 and (rain_history[column_distance] > 2 or rain_history[column_distance] < 0):
         tweet = (
             '☔️ prší na avalon!\n\n'
             '✪ vzdálenost: {:.1f} km\n'
