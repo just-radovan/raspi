@@ -99,7 +99,7 @@ def get_rain_intensity():
                     else:
                         distance = min(distance, dst)
 
-    area = math.floor((area_rain / area_watch * 100)
+    area = math.floor(area_rain / area_watch * 100)
 
     log.info('radar data explored. rain: max {} mm/hr at {} % of the area. closest rain: {} kms.'.format(intensity, area, distance))
 
