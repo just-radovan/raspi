@@ -231,7 +231,7 @@ def radar_tweet():
             '✪ plocha: {} %\n'
             '✪ intenzita: {} mm/h'
         ).format(rain_now[column_distance], rain_now[column_area], rain_now[column_instensity])
-    elif rain_now[column_area] = 0 and rain_history[column_area] > 0:
+    elif rain_now[column_area] == 0 and rain_history[column_area] > 0:
         tweet = (
             '🌤 přestalo chcát.'
         )
