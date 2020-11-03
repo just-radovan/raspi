@@ -210,7 +210,7 @@ def radar_tweet():
         log.warning('radar_tweet(): lock file present.')
         return
 
-    since = int(time.time()) - (25 * 60 * 60) # last 25 minutes (should cover two entries)
+    since = int(time.time()) - (25 * 60) # last 25 minutes (should cover two entries)
     entries = storage.get_rain_data(since)
     if len(entries) < 2:
         log.error('radar_tweet(): there is not enough data points to compare & tweet.')
