@@ -7,6 +7,7 @@ import common.storage as storage
 
 import os
 import math
+import time
 import datetime
 import sqlite3
 import shutil
@@ -107,19 +108,21 @@ def get_rain_intensity():
     else:
         log.info('radar data explored. no rain detected.')
 
+    db = None
     try:
         db = sqlite3.connect(path.to('data/rain_history.sqlite'))
+    except Error as e:
+        log.error('unable to open rain database: {}'.format(e))
 
+    if db:
         cursor = db.cursor()
         cursor.execute(
             'insert into rain ("timestamp", "intensity", "distance", "area") values (?, ?, ?, ?)',
-            (int(time.time()), intensity, distance if distance else -1, area)
+            (int(time.time()), intensity, distance if distance else -1.0, area)
         )
 
         db.commit()
         db.close()
-    except Error as e:
-        log.error('unable to open rain database: {}'.format(e))
 
     return [intensity, distance, area, composite]
 
