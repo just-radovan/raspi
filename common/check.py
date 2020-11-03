@@ -214,8 +214,8 @@ def radar_tweet(data):
         log.warning('radar_tweet(): lock file present.')
         return
 
-    if not data or data[0] <= 4 or data[1] < 3: # at least 4 mm/hr at 3% of the area.
-        log.warning('radar_tweet(): not raining enough: {} mm/hr at {} %'.format(data[0], data[1]))
+    if not data or data[0] <= 4 or data[2] < 2: # at least 4 mm/hr at 3% of the area.
+        log.warning('radar_tweet(): not raining enough: {} mm/hr at {} %'.format(data[0], data[2]))
         return
 
     if not data[1]:
