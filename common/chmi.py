@@ -89,7 +89,7 @@ def get_rain_intensity():
                 else:
                     color_next = None
 
-                if (color == [r, g, b]) or (color_next and (((color[0] <= r <= color_next[0]) or (color[0] >= r >= color_next[0])) and ((color[1] <= g <= color_next[1]) or (color[1] >= g >= color_next[1])) and ((color[2] <= b <= color_next[2]) or (color[2] >= b >= color_next[2])))):
+                if (color == [r, g, b]) or (color_next and (((color[0] <= r < color_next[0]) or (color[0] >= r > color_next[0])) and ((color[1] <= g < color_next[1]) or (color[1] >= g > color_next[1])) and ((color[2] <= b < color_next[2]) or (color[2] >= b > color_next[2])))):
                     # rain intensity
                     mmhr = (clr + 1) * 4 # mm/hr
                     intensity = max(intensity, mmhr)
@@ -103,7 +103,7 @@ def get_rain_intensity():
                     else:
                         distance = min(distance, dst)
 
-    area = math.floor(area_rain / area_watch * 100)
+    area = math.floor((area_rain / area_watch) * 100)
 
     if distance:
         log.info('get_rain_intensity(): radar data explored. rain: max {} mm/hr at {} % of the area. closest rain: {:.1f} kms.'.format(intensity, area, distance))
