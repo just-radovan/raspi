@@ -218,7 +218,7 @@ def radar_tweet(data):
         log.warning('radar_tweet(): not raining enough: {} mm/hr at {} %'.format(data[0], data[1]))
         return
 
-    images = [data[1], camera.get_last_photo()]
+    images = [data[2], camera.get_last_photo()]
 
     twitter.tweet('🌧 někde poblíž chčije. prší na {} % sledované oblasti, maximum je {} mm/h.'.format(data[1], data[0]), media = images)
     log.info('radar_tweet(): tweeted.')
