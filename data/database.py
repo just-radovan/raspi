@@ -24,6 +24,24 @@ def init_netatmo():
     cursor.execute(sql)
     db.commit()
 
+def init_rain():
+    sql = (
+        'create table rain ('
+        '"id" integer primary key autoincrement, '
+        '"timestamp" integer, "intensity" real, "distance" real, "area" real)'
+    )
+
+    db = None
+    try:
+        db = sqlite3.connect(path.to('data/rain_history.sqlite'))
+    except Error as e:
+        print('unable to open rain database: {}'.format(e))
+        quit()
+
+    cursor = db.cursor()
+    cursor.execute(sql)
+    db.commit()
+
 def init_presence():
     sql = (
         'create table presence ('
