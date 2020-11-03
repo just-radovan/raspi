@@ -33,9 +33,13 @@ def tweet(message, media = None):
             for media_item in media:
                 img = api.media_upload(media_item)
                 ids.append(img.media_id_string)
+
+                log.info('id for "{}" is {}.'.format(media_item, img.media_id_string))
         else:
             img = api.media_upload(media)
             ids.append(img.media_id_string)
+
+            log.info('id for "{}" is {}.'.format(media, img.media_id_string))
 
         api.update_status(status = message, media_ids = ids)
         log.info('tweet(): tweeted with media.')

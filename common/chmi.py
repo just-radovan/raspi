@@ -10,9 +10,8 @@ import math
 import datetime
 import shutil
 import numpy
-from urllib import request
-
 import pytz
+from urllib import request
 
 url_base = 'http://portal.chmi.cz/files/portal/docs/meteo/rad/inca-cz/data'
 url_postfix_rain = '/czrad-z_max3d/pacz2gmaps3.z_max3d.{}.0.png'
