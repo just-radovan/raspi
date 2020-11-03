@@ -224,7 +224,7 @@ def radar_tweet():
 
     tweet = None
 
-    if rain_now[column_area] > 0 and rain_history[column_area] = 0:
+    if rain_now[column_area] > 0 and rain_history[column_area] == 0:
         tweet = (
             '🌧 a chčije...\n\n'
             '✪ vzdálenost: {:.1f} km\n'
