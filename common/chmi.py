@@ -8,6 +8,7 @@ import common.storage as storage
 import os
 import math
 import datetime
+import sqlite3
 import shutil
 import numpy
 import pytz
@@ -102,6 +103,20 @@ def get_rain_intensity():
     area = math.floor(area_rain / area_watch * 100)
 
     log.info('radar data explored. rain: max {} mm/hr at {} % of the area. closest rain: {:.1f} kms.'.format(intensity, area, distance))
+
+    try:
+        db = sqlite3.connect(path.to('data/rain_history.sqlite'))
+
+        cursor = db.cursor()
+        cursor.execute(
+            'insert into rain ("timestamp", "intensity", "distance", "area") values (?, ?, ?, ?)',
+            (int(time.time()), intensity, distance, area)
+        )
+
+        db.commit()
+        db.close()
+    except Error as e:
+        log.error('unable to open rain database: {}'.format(e))
 
     return [intensity, distance, area, composite]
 
