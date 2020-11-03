@@ -102,6 +102,8 @@ def get_rain_intensity():
                         distance = dst
                     else:
                         distance = min(distance, dst)
+                elif not (r == 0 and g == 0 and b == 0):
+                    log.error('color {}.{}.{} was not understood.'.format(r, g, b))
 
     area = math.floor(area_rain / area_watch * 100)
 
