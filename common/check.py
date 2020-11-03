@@ -223,9 +223,6 @@ def radar_tweet():
     rain_history = entries[0]
     rain_now = entries[1]
 
-    log.info('was: {} mm/hr, {} kms, {} %'.format(rain_history[column_instensity], rain_history[column_distance], rain_history[column_area]))
-    log.info('is: {} mm/hr, {} kms, {} %'.format(rain_now[column_instensity], rain_now[column_distance], rain_now[column_area]))
-
     tweet = None
 
     if rain_now[column_area] > 0 and rain_history[column_area] == 0:
