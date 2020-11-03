@@ -53,7 +53,8 @@ def get_rain_intensity():
     download()
     create_composite()
 
-    if not os.path.isfile(composite):
+    if not os.path.isfile(file_rain_cutout):
+        log.error('get_rain_intensity(): rain cutout is missing. can\'t get rain intensity.')
         return
 
     watch_x = location[0] - watch
@@ -65,6 +66,7 @@ def get_rain_intensity():
     area_watch = 0
     area_rain = 0
 
+    # detect rain
     for x in range(watch * 2):
         for y in range(watch * 2):
             dst = math.sqrt(abs(x - watch) + abs(y - watch))
@@ -104,34 +106,33 @@ def get_rain_intensity():
     area = math.floor(area_rain / area_watch * 100)
 
     if distance:
-        log.info('radar data explored. rain: max {} mm/hr at {} % of the area. closest rain: {:.1f} kms.'.format(intensity, area, distance))
+        log.info('get_rain_intensity(): radar data explored. rain: max {} mm/hr at {} % of the area. closest rain: {:.1f} kms.'.format(intensity, area, distance))
     else:
-        log.info('radar data explored. no rain detected.')
+        log.info('get_rain_intensity(): radar data explored. no rain detected.')
 
+    # store data
     db = None
     try:
         db = sqlite3.connect(path.to('data/rain_history.sqlite'))
     except Error as e:
-        log.error('unable to open rain database: {}'.format(e))
+        log.error('get_rain_intensity(): unable to open rain database: {}'.format(e))
+        return
 
-    if db:
-        cursor = db.cursor()
-        cursor.execute(
-            'insert into rain ("timestamp", "intensity", "distance", "area") values (?, ?, ?, ?)',
-            (int(time.time()), intensity, distance if distance else -1.0, area)
-        )
+    cursor = db.cursor()
+    cursor.execute(
+        'insert into rain ("timestamp", "intensity", "distance", "area") values (?, ?, ?, ?)',
+        (int(time.time()), intensity, distance if distance else -1.0, area)
+    )
 
-        db.commit()
-        db.close()
-
-    return [intensity, distance, area, composite]
+    db.commit()
+    db.close()
 
 def create_composite():
     if os.path.isfile(composite):
         os.remove(composite)
 
     if not os.path.isfile(file_rain) or not os.path.isfile(file_lightning):
-        log.error('can\'t create composite, files are not downloaded.')
+        log.error('create_composite(): can\'t create composite, files are not downloaded.')
         return
 
     os.system('convert {} {} -geometry +0+0 -composite {}'.format(asset_terrain, asset_cities, composite))
@@ -167,13 +168,13 @@ def download_image(url, path):
         with request.urlopen(url) as response, open(path, 'wb') as file:
             shutil.copyfileobj(response, file)
     except:
-        log.error('failed to download {}'.format(url))
+        log.error('download_image(): failed to download {}'.format(url))
         return
 
     if os.path.isfile(path):
-        log.info('downloaded {} to {}'.format(url, path))
+        log.info('download_image(): downloaded {} to {}'.format(url, path))
     else:
-        log.error('failed to download {}'.format(url))
+        log.error('download_image(): failed to download {}'.format(url))
 
 def get_data_timestamp():
     now = datetime.datetime.now(pytz.utc) - datetime.timedelta(minutes=10)

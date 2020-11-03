@@ -201,33 +201,74 @@ def temperature_outdoor():
 
 def radar():
     # timed by cron
-    data = chmi.get_rain_intensity()
-    radar_tweet(data)
+    chmi.get_rain_intensity()
+    radar_tweet()
 
-def radar_tweet(data):
-    now = datetime.datetime.now()
-    if 1 < now.hour < 7:
-        log.warning('radar_tweet(): outside of operating hours.')
-        return
-
+def radar_tweet():
     if storage.is_locked('radar_tweet'):
         log.warning('radar_tweet(): lock file present.')
         return
 
-    if not data or data[0] <= 4 or data[2] < 2: # at least 4 mm/hr at 3% of the area.
-        log.warning('radar_tweet(): not raining enough: {} mm/hr at {} %'.format(data[0], data[2]))
+    since = int(time.time()) - (25 * 60 * 60) # last 25 minutes (should cover two entries)
+    entries = storage.get_rain_data(since)
+    if len(entries) < 2:
+        log.error('radar_tweet(): there is not enough data points to compare & tweet.')
         return
 
-    if not data[1]:
-        tweet = '🌧 někde poblíž chčije. prší na {} % sledované oblasti, maximum je {} mm/h.'.format(data[2], data[0])
-    elif data[1] < 2:
-        tweet = '☔️ chčije! prší na {} % sledované oblasti, maximum je {} mm/h.'.format(data[2], data[0])
-    else:
-        tweet = '🌧 {:.1f} km od avalonu chčije! prší na {} % sledované oblasti, maximum je {} mm/h.'.format(data[1], data[2], data[0])
+    column_instensity = 0
+    column_distance = 1
+    column_area = 2
 
-    twitter.tweet(tweet, media = [data[3], camera.get_last_photo()])
+    rain_history = entries[0]
+    rain_now = entries[1]
+
+    tweet = None
+
+    if rain_now[column_area] > 0 and rain_history[column_area] = 0:
+        tweet = (
+            '🌧 a chčije...\n\n'
+            '✪ vzdálenost: {:.1f} km\n'
+            '✪ plocha: {} %\n'
+            '✪ intenzita: {} mm/h'
+        ).format(rain_now[column_distance], rain_now[column_area], rain_now[column_instensity])
+    elif rain_now[column_area] = 0 and rain_history[column_area] > 0:
+        tweet = (
+            '🌤 přestalo chcát.'
+        )
+    elif rain_now[column_distance] <= 2 and (rain_history[column_distance] > 2 or rain_history[column_distance] < 0):
+        tweet = (
+            '☔️ prší na avalon!\n\n'
+            '✪ vzdálenost: {:.1f} km\n'
+            '✪ plocha: {} %\n'
+            '✪ intenzita: {} mm/h'
+        ).format(rain_now[column_distance], rain_now[column_area], rain_now[column_instensity])
+    elif rain_now[column_distance] < (rain_history[column_distance] * 0.75) and rain_history[column_distance] >= 0:
+        tweet = (
+            '☔️ prší blíž avalonu!\n\n'
+            '✪ vzdálenost: {:.1f} km\n'
+            '✪ plocha: {} %\n'
+            '✪ intenzita: {} mm/h'
+        ).format(rain_now[column_distance], rain_now[column_area], rain_now[column_instensity])
+    elif rain_now[column_instensity] > (rain_history[column_instensity] * 1.25):
+        tweet = (
+            '💦 prší víc!\n\n'
+            '✪ vzdálenost: {:.1f} km\n'
+            '✪ plocha: {} %\n'
+            '✪ intenzita: {} mm/h'
+        ).format(rain_now[column_distance], rain_now[column_area], rain_now[column_instensity])
+
+    if not tweet:
+        log.warning('radar_tweet(): won\'t tweet, there is no reason.')
+        return
+
+    composite = path.to('data/chmi/composite.png')
+    if not os.path.isfile(composite):
+        log.error('radar_tweet(): composite image is missing.')
+        return
+
+    twitter.tweet(tweet, media = [composite, camera.get_last_photo()])
     log.info('radar_tweet(): tweeted.')
-    storage.lock('radar_tweet', 30*60)
+    storage.lock('radar_tweet', 15*60)
 
 def view():
     # timed by cron
