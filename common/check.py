@@ -206,10 +206,6 @@ def radar():
     radar_tweet()
 
 def radar_tweet():
-    if storage.is_locked('radar_tweet'):
-        log.warning('radar_tweet(): lock file present.')
-        return
-
     since = int(time.time()) - (25 * 60) # last 25 minutes (should cover two entries)
     entries = storage.get_rain_data(since)
     if len(entries) < 2:
@@ -269,7 +265,6 @@ def radar_tweet():
 
     twitter.tweet(tweet, media = [composite, camera.get_last_photo()])
     log.info('radar_tweet(): tweeted.')
-    storage.lock('radar_tweet', 15*60)
 
 def view():
     # timed by cron
