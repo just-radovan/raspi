@@ -27,7 +27,7 @@ file_rain_cutout = path.to('data/chmi/rain_cutout.png')
 composite = path.to('data/chmi/composite.png')
 
 location = [227, 152] # coordinates of kobylisy on file_rain, file_lightning, and composite.
-watch = [32, 32] # size of the area to watch for rain; with location in the middle.
+watch = 20 # radius of the area to watch for rain
 
 color_map = [ # color legend for chmi rain data
 	[56, 0, 112], # 04 mm/hr
@@ -54,16 +54,23 @@ def get_rain_intensity():
     if not os.path.isfile(composite):
         return
 
-    watch_x = location[0] - math.floor(watch[0] / 2)
-    watch_y = location[1] - math.floor(watch[1] / 2)
+    watch_x = location[0] - watch
+    watch_y = location[1] - watch
 
     color_map_len = len(color_map)
     intensity = 0
     distance = None
-    area = 0
+    area_watch = 0
+    area_rain = 0
 
-    for x in range(watch[0]):
-        for y in range(watch[1]):
+    for x in range(watch * 2):
+        for y in range(watch * 2):
+            dst = math.ceil(math.sqrt(abs(x - watch) + abs(y - watch)))
+            if dst > watch: # make it circle
+                continue
+
+            area_watch += 1
+
             pixel = os.popen('convert {} -format "%[fx:int(255*p{{{x},{y}}}.r)],%[fx:int(255*p{{{x},{y}}}.g)],%[fx:int(255*p{{{x},{y}}}.b)]" info:-'.format(file_rain_cutout, x = x, y = y)).read().strip()
             colors = pixel.split(',')
 
@@ -72,8 +79,6 @@ def get_rain_intensity():
             b = int(colors[2])
 
             for r in range(color_map_len):
-                mmhr = (r + 1) * 4 # mm/hr
-
                 color = color_map[r]
                 if r < (color_map_len - 2):
                     color_next = color_map[r + 1]
@@ -81,17 +86,20 @@ def get_rain_intensity():
                     color_next = None
 
                 if (color == [r, g, b]) or (color_next and (((color[0] <= r <= color_next[0]) or (color[0] >= r >= color_next[0])) and ((color[1] <= g <= color_next[1]) or (color[1] >= g >= color_next[1])) and ((color[2] <= b <= color_next[2]) or (color[2] >= b >= color_next[2])))):
+                    # rain intensity
+                    mmhr = (r + 1) * 4 # mm/hr
                     intensity = max(intensity, mmhr)
-                    area += 1
 
-                    dst = math.ceil(math.sqrt(abs(x - 16) + abs(y - 16)))
+                    # rain impacted area
+                    area_rain += 1
 
+                    # distance to avalon
                     if not distance:
                         distance = dst
                     else:
                         distance = min(distance, dst)
 
-    area = math.floor((area / (watch[0] * watch[1])) * 100)
+    area = math.floor((area_rain / area_watch * 100)
 
     log.info('radar data explored. rain: max {} mm/hr at {} % of the area. closest rain: {} kms.'.format(intensity, area, distance))
 
@@ -123,9 +131,9 @@ def download():
     if os.path.isfile(file_rain):
         os.system('convert {} -crop 595x376+2+83 +repage {}'.format(file_rain, file_rain))
 
-        watch_x = location[0] - math.floor(watch[0] / 2)
-        watch_y = location[1] - math.floor(watch[1] / 2)
-        os.system('convert {} -crop {}x{}+{}+{} +repage {}'.format(file_rain, watch[0], watch[1], watch_x, watch_y, file_rain_cutout))
+        watch_x = location[0] - watch
+        watch_y = location[1] - watch
+        os.system('convert {} -crop {}x{}+{}+{} +repage {}'.format(file_rain, (watch * 2), (watch * 2), watch_x, watch_y, file_rain_cutout))
 
     if os.path.isfile(file_lightning):
         os.system('convert {} -crop 595x376+2+83 +repage {}'.format(file_lightning, file_lightning))
