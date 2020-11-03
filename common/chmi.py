@@ -26,7 +26,7 @@ file_rain_cutout = path.to('data/chmi/rain_cutout.png')
 
 composite = path.to('data/chmi/composite.png')
 
-location = [227, 152] # coordinates of kobylisy on file_rain, file_lightning, and composite.
+location = [226, 149] # coordinates of kobylisy on file_rain, file_lightning, and composite.
 watch = 20 # radius of the area to watch for rain
 
 color_map = [ # color legend for chmi rain data
