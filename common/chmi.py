@@ -82,16 +82,16 @@ def get_rain_intensity():
             g = int(colors[1])
             b = int(colors[2])
 
-            for r in range(color_map_len):
-                color = color_map[r]
-                if r < (color_map_len - 2):
-                    color_next = color_map[r + 1]
+            for clr in range(color_map_len):
+                color = color_map[clr]
+                if clr < (color_map_len - 2):
+                    color_next = color_map[clr + 1]
                 else:
                     color_next = None
 
                 if (color == [r, g, b]) or (color_next and (((color[0] <= r <= color_next[0]) or (color[0] >= r >= color_next[0])) and ((color[1] <= g <= color_next[1]) or (color[1] >= g >= color_next[1])) and ((color[2] <= b <= color_next[2]) or (color[2] >= b >= color_next[2])))):
                     # rain intensity
-                    mmhr = (r + 1) * 4 # mm/hr
+                    mmhr = (clr + 1) * 4 # mm/hr
                     intensity = max(intensity, mmhr)
 
                     # rain impacted area
@@ -102,8 +102,6 @@ def get_rain_intensity():
                         distance = dst
                     else:
                         distance = min(distance, dst)
-                elif not (r == 0 and g == 0 and b == 0):
-                    log.error('color {}.{}.{} was not understood.'.format(r, g, b))
 
     area = math.floor(area_rain / area_watch * 100)
 
