@@ -84,7 +84,7 @@ def get_rain_intensity():
                     intensity = max(intensity, mmhr)
                     area += 1
 
-                    dst = math.ceil(math.sqrt(abs(x - 16) * abs(y - 16)))
+                    dst = math.ceil(math.sqrt(abs(x - 16) + abs(y - 16)))
 
                     if not distance:
                         distance = dst
