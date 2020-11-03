@@ -54,8 +54,12 @@ def get_rain_intensity():
     if not os.path.isfile(composite):
         return
 
+    watch_x = location[0] - math.floor(watch[0] / 2)
+    watch_y = location[1] - math.floor(watch[1] / 2)
+
     color_map_len = len(color_map)
     intensity = 0
+    distance = None
     area = 0
 
     for x in range(watch[0]):
@@ -76,20 +80,22 @@ def get_rain_intensity():
                 else:
                     color_next = None
 
-                if color == [r, g, b]:
-                    # matches map color
+                if (color == [r, g, b]) or (color_next and (((color[0] <= r <= color_next[0]) or (color[0] >= r >= color_next[0])) and ((color[1] <= g <= color_next[1]) or (color[1] >= g >= color_next[1])) and ((color[2] <= b <= color_next[2]) or (color[2] >= b >= color_next[2])))):
                     intensity = max(intensity, mmhr)
                     area += 1
-                elif color_next and (((color[0] <= r <= color_next[0]) or (color[0] >= r >= color_next[0])) and ((color[1] <= g <= color_next[1]) or (color[1] >= g >= color_next[1])) and ((color[2] <= b <= color_next[2]) or (color[2] >= b >= color_next[2]))):
-                    # is somewhere between two neighbouring map colors
-                    intensity = max(intensity, mmhr)
-                    area += 1
+
+                    dst = math.ceil(math.sqrt(abs(x - 16) * abs(y - 16)))
+
+                    if not distance:
+                        distance = dst
+                    else:
+                        distance = min(distance, dst)
 
     area = math.floor((area / (watch[0] * watch[1])) * 100)
 
-    log.info('radar data explored. rain: max {} mm/hr at {} % of the area.'.format(intensity, area))
+    log.info('radar data explored. rain: max {} mm/hr at {} % of the area. closest rain: {} kms.'.format(intensity, area, distance))
 
-    return [intensity, area, composite]
+    return [intensity, distance, area, composite]
 
 def create_composite():
     if os.path.isfile(composite):
@@ -117,9 +123,9 @@ def download():
     if os.path.isfile(file_rain):
         os.system('convert {} -crop 595x376+2+83 +repage {}'.format(file_rain, file_rain))
 
-        x_rel = location[0] - math.floor(watch[0] / 2)
-        y_rel = location[1] - math.floor(watch[1] / 2)
-        os.system('convert {} -crop {}x{}+{}+{} +repage {}'.format(file_rain, watch[0], watch[1], x_rel, y_rel, file_rain_cutout))
+        watch_x = location[0] - math.floor(watch[0] / 2)
+        watch_y = location[1] - math.floor(watch[1] / 2)
+        os.system('convert {} -crop {}x{}+{}+{} +repage {}'.format(file_rain, watch[0], watch[1], watch_x, watch_y, file_rain_cutout))
 
     if os.path.isfile(file_lightning):
         os.system('convert {} -crop 595x376+2+83 +repage {}'.format(file_lightning, file_lightning))
