@@ -102,7 +102,10 @@ def get_rain_intensity():
 
     area = math.floor(area_rain / area_watch * 100)
 
-    log.info('radar data explored. rain: max {} mm/hr at {} % of the area. closest rain: {:.1f} kms.'.format(intensity, area, distance))
+    if distance:
+        log.info('radar data explored. rain: max {} mm/hr at {} % of the area. closest rain: {:.1f} kms.'.format(intensity, area, distance))
+    else:
+        log.info('radar data explored. no rain detected.')
 
     try:
         db = sqlite3.connect(path.to('data/rain_history.sqlite'))
@@ -110,7 +113,7 @@ def get_rain_intensity():
         cursor = db.cursor()
         cursor.execute(
             'insert into rain ("timestamp", "intensity", "distance", "area") values (?, ?, ?, ?)',
-            (int(time.time()), intensity, distance, area)
+            (int(time.time()), intensity, distance if distance else -1, area)
         )
 
         db.commit()
