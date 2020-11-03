@@ -65,7 +65,7 @@ def get_rain_intensity():
 
     for x in range(watch * 2):
         for y in range(watch * 2):
-            dst = math.ceil(math.sqrt(abs(x - watch) + abs(y - watch)))
+            dst = (math.sqrt(abs(x - watch) + abs(y - watch)))
             if dst > watch: # make it circle
                 continue
 
@@ -101,7 +101,7 @@ def get_rain_intensity():
 
     area = math.floor(area_rain / area_watch * 100)
 
-    log.info('radar data explored. rain: max {} mm/hr at {} % of the area. closest rain: {} kms.'.format(intensity, area, distance))
+    log.info('radar data explored. rain: max {} mm/hr at {} % of the area. closest rain: {:.1f} kms.'.format(intensity, area, distance))
 
     return [intensity, distance, area, composite]
 

@@ -223,7 +223,7 @@ def radar_tweet(data):
     elif data[1] < 2:
         tweet = '☔️ chčije! prší na {} % sledované oblasti, maximum je {} mm/h.'.format(data[2], data[0])
     else:
-        tweet = '🌧 {} km od avalonu chčije! prší na {} % sledované oblasti, maximum je {} mm/h.'.format(data[1], data[2], data[0])
+        tweet = '🌧 {:.1f} km od avalonu chčije! prší na {} % sledované oblasti, maximum je {} mm/h.'.format(data[1], data[2], data[0])
 
     twitter.tweet(tweet, media = [data[3], camera.get_last_photo()])
     log.info('radar_tweet(): tweeted.')
