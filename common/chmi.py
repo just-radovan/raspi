@@ -135,9 +135,16 @@ def create_composite():
         log.error('create_composite(): can\'t create composite, files are not downloaded.')
         return
 
-    os.system('convert {} {} -geometry +0+0 -composite {}'.format(asset_terrain, file_rain, composite))
+    os.system('convert {} {} -geometry +0+0 -composite {}'.format(asset_terrain, asset_cities, composite))
+    os.system('convert {} {} -geometry +0+0 -composite {}'.format(composite, file_rain, composite))
     os.system('convert {} {} -geometry +0+0 -composite {}'.format(composite, file_lightning, composite))
-    os.system('convert {} {} -geometry +0+0 -composite {}'.format(composite, asset_cities, composite))
+
+    x = location[0] - watch
+    y = location[1] - watch
+    w = watch * 2
+    h = watch * 2
+
+    os.system('convert {} -fill #20000000 -stroke #80000000 -strokewidth 2 -draw "circle {},{} {},{}" {}'.format(composite, x, y, w, h, composite))
 
     return composite
 
