@@ -144,7 +144,7 @@ def create_composite():
     cx = location[0] - watch
     cy = location[1] - watch
 
-    os.system('convert {} -fill -fill "rgba(0, 0, 0, 0.0)" -stroke "rgba(0, 0, 0, 0.8)" -strokewidth 2 -draw "circle {},{} {},{}" {}'.format(composite, x, y, cx, cy, composite))
+    os.system('convert {} -fill "rgba(0, 0, 0, 1.0)" -stroke "rgba(0, 0, 0, 0.8)" -strokewidth 2 -draw "circle {},{} {},{}" {}'.format(composite, x, y, cx, cy, composite))
 
     return composite
 
