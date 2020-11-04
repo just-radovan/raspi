@@ -139,12 +139,12 @@ def create_composite():
     os.system('convert {} {} -geometry +0+0 -composite {}'.format(composite, file_rain, composite))
     os.system('convert {} {} -geometry +0+0 -composite {}'.format(composite, file_lightning, composite))
 
-    x = location[0] - watch
-    y = location[1] - watch
-    w = watch * 2
-    h = watch * 2
+    x = location[0]
+    y = location[1]
+    cx = location[0] - watch
+    cy = location[1] - watch
 
-    os.system('convert {} -fill #20000000 -stroke #80000000 -strokewidth 2 -draw "circle {},{} {},{}" {}'.format(composite, x, y, w, h, composite))
+    os.system('convert {} -fill -fill "rgba(0, 0, 0, 0.0)" -stroke "rgba(0, 0, 0, 0.8)" -strokewidth 2 -draw "circle {},{} {},{}" {}'.format(composite, x, y, cx, cy, composite))
 
     return composite
 
