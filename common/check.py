@@ -211,13 +211,15 @@ def radar_tweet():
     column_distance = 2
     column_area = 3
 
+    rain_now = storage.get_rain()
+
     timestamp = storage.load_last_rain_tweeted()
     if not timestamp:
-        log.error('radar_tweet(): unable to load last time when rain tweeted.')
+        log.error('radar_tweet(): unable to load last time when rain tweeted; saving last entry.')
+        storage.save_last_rain_tweeted(rain_now[0])
         return
 
     rain_history = storage.get_rain_when(timestamp)
-    rain_now = storage.get_rain()
 
     tweet = None
 
