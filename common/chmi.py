@@ -69,7 +69,7 @@ def get_rain_intensity():
     # detect rain
     for x in range(watch * 2):
         for y in range(watch * 2):
-            dst = math.sqrt(abs(x - watch) + abs(y - watch))
+            dst = math.sqrt(abs(x - watch) ** 2 + abs(y - watch) ** 2)
             if dst > watch: # make it circle
                 continue
 

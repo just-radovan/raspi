@@ -10,6 +10,8 @@ import time
 import datetime
 import sqlite3
 
+rain_save = path.to('data/rain_tweet.save')
+
 def lock(label, expiration):
     exp = int(time.time()) + expiration
 
@@ -113,15 +115,37 @@ def get_netatmo_data(column, count):
 
     return rows
 
-def get_rain_data(since):
+def get_rain():
+    return get_rain_when(None)
+
+def get_rain_when(when):
     db = _open_database('data/rain_history.sqlite')
     cursor = db.cursor()
-    cursor.execute('select intensity, distance, area from rain where timestamp > {} order by timestamp asc'.format(since))
 
-    rows = cursor.fetchall()
+    if when:
+        cursor.execute('select timestamp, intensity, distance, area from rain order by timestamp desc where timestamp <= {} limit 0, 1'.format(when))
+    else:
+        cursor.execute('select timestamp, intensity, distance, area from rain order by timestamp desc limit 0, 1')
+
+    row = cursor.fetchone()
     db.close()
 
-    return rows
+    return row
+
+def save_last_rain_tweeted(timestamp):
+    file = open(rain_save, 'w')
+    file.write(str(timestamp))
+    file.close()
+
+def load_last_rain_tweeted():
+    if not os.path.exists(rain_save):
+        return
+
+    file = open(rain_save, 'r')
+    timestamp = int(file.read())
+    file.close()
+
+    return timestamp
 
 # entries: list of numeric values
 # threshold: value that decides

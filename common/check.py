@@ -206,18 +206,18 @@ def radar():
     radar_tweet()
 
 def radar_tweet():
-    since = int(time.time()) - (25 * 60) # last 25 minutes (should cover two entries)
-    entries = storage.get_rain_data(since)
-    if len(entries) < 2:
-        log.error('radar_tweet(): there is not enough data points to compare & tweet.')
+    column_timestamp = 0
+    column_instensity = 1
+    column_distance = 2
+    column_area = 3
+
+    timestamp = storage.load_last_rain_tweeted()
+    if not timestamp:
+        log.error('radar_tweet(): unable to load last time when rain tweeted.')
         return
 
-    column_instensity = 0
-    column_distance = 1
-    column_area = 2
-
-    rain_history = entries[0]
-    rain_now = entries[1]
+    rain_history = storage.get_rain_when(timestamp)
+    rain_now = storage.get_rain()
 
     tweet = None
 
@@ -239,7 +239,7 @@ def radar_tweet():
             '✪ plocha: {} %\n'
             '✪ intenzita: {} mm/h'
         ).format(rain_now[column_distance], rain_now[column_area], rain_now[column_instensity])
-    elif rain_now[column_distance] < (rain_history[column_distance] * 0.75) and rain_history[column_distance] >= 0:
+    elif 0 <= rain_now[column_distance] < (rain_history[column_distance] * 0.75) and rain_history[column_distance] >= 0:
         tweet = (
             '☔️ prší blíž avalonu!\n\n'
             '✪ vzdálenost: {:.1f} km\n'
@@ -264,6 +264,7 @@ def radar_tweet():
         return
 
     twitter.tweet(tweet, media = [composite, camera.get_last_photo()])
+    storage.save_last_rain_tweeted(rain_now[column_timestamp])
     log.info('radar_tweet(): tweeted.')
 
 def view():
