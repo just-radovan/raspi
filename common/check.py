@@ -94,9 +94,7 @@ def summary_morning():
         log.warning('summary_morning(): not at home.')
         return
 
-    entries = 5
-    rows = storage.get_netatmo_data('noise', entries)
-
+    rows = storage.get_netatmo_data('noise', 5)
     if not storage.evaluate(rows, sound_treshold, +1, 0.3, '🔊', '🔇'):
         log.warning('summary_morning(): not noisy enough.')
         return
@@ -104,6 +102,7 @@ def summary_morning():
     temperature = storage.get_netatmo_value('temp_out')
     humidity = storage.get_netatmo_value('humidity_out')
     pressure = storage.get_netatmo_value('pressure')
+    rain_dst = storage.get_rain_value('distance')
 
     start = [
       '🙄 a kurva. další den.',
@@ -112,12 +111,21 @@ def summary_morning():
       '🤪 čau debile!',
       '🧐 zase den na píču?'
     ]
+
+    if rain_dst < 0:
+        rain_text = 'neprší'
+    elif 0 <= rain_dst < 2:
+        rain_text = 'prší'
+    elif:
+        rain_text = 'prší {:.1f} km daleko'.format(rain_dst)
+
     message = (
         '{}\n\n'
         '✪ teplota: {} °c\n'
+        '✪ déšť: {}\n'
         '✪ tlak vzduchu: {} mb\n'
         '✪ vlhkost: {} %'
-    ).format(random.choice(start), temperature, pressure, humidity)
+    ).format(random.choice(start), rain_text, temperature, pressure, humidity)
 
     twitter.tweet(message)
     log.info('summary_morning(): tweeted.')

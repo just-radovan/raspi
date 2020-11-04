@@ -115,6 +115,20 @@ def get_netatmo_data(column, count):
 
     return rows
 
+def get_rain_value(column):
+    return get_rain_data(column, 1)[0]
+
+def get_rain_data(column, count):
+    db = _open_database('data/rain_history.sqlite')
+    cursor = db.cursor()
+    cursor.row_factory = lambda cursor, row: row[0]
+    cursor.execute('select {} from rain order by timestamp desc limit 0, {}'.format(column, count))
+
+    rows = cursor.fetchall()
+    db.close()
+
+    return rows
+
 def get_rain():
     return get_rain_when(None)
 
