@@ -1,0 +1,10 @@
+#!/usr/bin/python3.7
+
+consumerKey = ''
+consumerSecret = ''
+
+def get_consumer_key():
+    return consumerKey
+
+def get_consumer_secret():
+    return consumerSecret
