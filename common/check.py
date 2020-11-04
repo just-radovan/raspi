@@ -116,7 +116,7 @@ def summary_morning():
         rain_text = 'neprší'
     elif 0 <= rain_dst < 2:
         rain_text = 'prší'
-    elif:
+    else:
         rain_text = 'prší {:.1f} km daleko'.format(rain_dst)
 
     message = (
