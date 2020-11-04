@@ -47,6 +47,10 @@ def get_presence(asc = False):
 
     return rows
 
+def get_location():
+    # todo: get last checkin location (lat, lon)
+    return
+
 def is_present():
     db = _open_database('data/presence_history.sqlite')
     cursor = db.cursor()

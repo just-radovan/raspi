@@ -59,3 +59,7 @@ def init_presence():
     cursor = db.cursor()
     cursor.execute(sql)
     db.commit()
+
+def init_location():
+    # todo: database for swarm checkins
+    return

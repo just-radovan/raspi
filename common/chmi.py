@@ -49,6 +49,10 @@ color_map = [ # color legend for chmi rain data
 	[252, 252, 252] # 60
 ]
 
+def get_pixel_for_location(lat, lon):
+    # todo: translate location to pixel on composite image.
+    return (0, 0)
+
 def get_rain_intensity():
     download()
     create_composite()
