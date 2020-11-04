@@ -137,7 +137,7 @@ def get_rain_when(when):
     cursor = db.cursor()
 
     if when:
-        cursor.execute('select timestamp, intensity, distance, area from rain order by timestamp desc where timestamp <= {} limit 0, 1'.format(when))
+        cursor.execute('select timestamp, intensity, distance, area from rain where timestamp <= {} order by timestamp desc limit 0, 1'.format(when))
     else:
         cursor.execute('select timestamp, intensity, distance, area from rain order by timestamp desc limit 0, 1')
 
