@@ -135,9 +135,9 @@ def create_composite():
         log.error('create_composite(): can\'t create composite, files are not downloaded.')
         return
 
-    os.system('convert {} {} -geometry +0+0 -composite {}'.format(asset_terrain, asset_cities, composite))
-    os.system('convert {} {} -geometry +0+0 -composite {}'.format(composite, file_rain, composite))
+    os.system('convert {} {} -geometry +0+0 -composite {}'.format(asset_terrain, file_rain, composite))
     os.system('convert {} {} -geometry +0+0 -composite {}'.format(composite, file_lightning, composite))
+    os.system('convert {} {} -geometry +0+0 -composite {}'.format(composite, asset_cities, composite))
 
     return composite
 
