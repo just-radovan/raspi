@@ -13,7 +13,7 @@ import sqlite3
 import shutil
 import numpy
 import pytz
-import geopy
+from geopy import distance
 from urllib import request
 
 url_base = 'http://portal.chmi.cz/files/portal/docs/meteo/rad/inca-cz/data'
@@ -60,8 +60,8 @@ def get_my_pixel():
     longitude = location[1]
 
     # get distances between avalon and current location
-    dst_ns = geopy.distance.distance(avalon_gps, (latitude, avalon_gps[1])).km
-    dst_ew = geopy.distance.distance(avalon_gps, (avalon_gps[0], longitude)).km
+    dst_ns = distance.distance(avalon_gps, (latitude, avalon_gps[1])).km
+    dst_ew = distance.distance(avalon_gps, (avalon_gps[0], longitude)).km
 
     if avalon_gps[0] < latitude:
         dst_ns_dir = -1 # on image: to the top
