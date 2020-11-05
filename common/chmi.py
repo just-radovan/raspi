@@ -11,7 +11,7 @@ import time
 import datetime
 import sqlite3
 import shutil
-import nump
+import numpy
 import pytz
 import geopy
 from urllib import request
