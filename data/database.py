@@ -67,7 +67,8 @@ def init_location():
     sql = (
         'create table location ('
         '"id" integer primary key autoincrement, '
-        '"swarm_id" text, '"createdAt" integer, "latitude" real, "longitude" real, "venue" text'
+        '"swarm_id" text not null unique, '
+        '"timestamp" integer, "latitude" real, "longitude" real, "venue" text'
         ')'
     )
 

@@ -25,13 +25,43 @@ def download_checkins():
     client = foursquare.Foursquare(access_token = access_token)
     data = client.users.checkins(params = {'limit': 100})
 
-    for checkin in data['checkins']['items']:
-        print('id: {}'.format(checkin['id']))
-        print('when: {}'.format(checkin['createdAt']))
-        print('where: {}'.format(checkin['venue']['name']))
-        print('gps: {}, {}'.format(checkin['venue']['location']['lat'], checkin['venue']['location']['lng']))
+    db = None
+    try:
+        db = sqlite3.connect(path.to('data/location_history.sqlite'))
+    except Error as e:
+        log.error('download(): unable to open location database: {}'.format(e))
+        return
 
-    # todo: store to database
+    cursor = db.cursor()
+    cursor.row_factory = lambda cursor, row: row[0]
+    cursor.execute('select timestamp from location order by timestamp desc limit 0, 1')
+    timestampLast = cursor.fetchone()
+
+    stored = 0
+    for checkin in data['checkins']['items']:
+        swarm_id = checkin['id'])
+        timestamp = checkin['createdAt']
+        venue = checkin['venue']['name']
+        latitude = checkin['venue']['location']['lat']
+        longitude = checkin['venue']['location']['lng']
+
+        if timestampLast and timestamp <= timestampLast:
+            continue
+
+        sql = (
+            'insert into location ('
+            'swarm_id, timestamp, latitude, longitude, venue'
+            ') values ('
+            '?, ?, ?, ?, ?, ?, ?, ?'
+            ')'
+        )
+        cursor.execute(sql, (swarm_id, timestamp, value, latitude, longitude))
+        stored += 1
+
+    db.commit()
+    db.close()
+
+    log.info('download_checkins(): stored new {} checkins.'.format(stored))
 
 def authorize():
     client = foursquare.Foursquare(client_id = swarm.get_consumer_key(), client_secret = swarm.get_consumer_secret(), redirect_uri = 'https://www.radovan.be/')
