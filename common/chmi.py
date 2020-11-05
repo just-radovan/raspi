@@ -51,18 +51,15 @@ color_map = [ # color legend for chmi rain data
 
 def get_my_pixel():
     # define avalon
-
     avalon_pixel = (226, 149) # it's x,y
     avalon_gps = (50.1352602954946, 14.448018107292) # it's lat,lng / north,east / y,x
 
     # get current location
-
     location = storage.get_location()
     latitude = location[0]
     longitude = location[1]
 
     # get distances between avalon and current location
-
     dst_ns = geopy.distance.distance(avalon_gps, (latitude, avalon_gps[1])).km
     dst_ew = geopy.distance.distance(avalon_gps, (avalon_gps[0], longitude)).km
 
@@ -80,7 +77,6 @@ def get_my_pixel():
     my_y = avalon_pixel[1] + (dst_ns * dst_ns_dir)
 
     # check image boundaries
-
     if my_x < 0 or my_x > 595:
         my_x = avalon_pixel[0]
 
@@ -88,13 +84,15 @@ def get_my_pixel():
         my_y = avalon_pixel[1]
 
     # create my pixel
-
     my_pixel = (
         avalon_pixel[0] + (dst_ew * dst_ew_dir),
         avalon_pixel[1] + (dst_ns * dst_ns_dir)
     )
 
-    return my_pixel
+    log.info('get_my_pixel(): current position: {},{} at {},{}'.format(dst_ew * dst_ew_dir, dst_ns * dst_ns_dir, my_pixel[0], my_pixel[1]))
+
+    # return my_pixel
+    return avalon_pixel
 
 def get_rain_intensity():
     download()
