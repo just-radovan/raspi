@@ -7,6 +7,7 @@ import auth.swarm as swarm
 
 import foursquare
 import json
+import sqlite3
 
 access_file = path.to('data/swarm_access.data')
 
@@ -28,8 +29,8 @@ def download_checkins():
     db = None
     try:
         db = sqlite3.connect(path.to('data/location_history.sqlite'))
-    except Error as e:
-        log.error('download(): unable to open location database: {}'.format(e))
+    except:
+        log.error('download_checkins(): unable to open location database.')
         return
 
     cursor = db.cursor()
@@ -39,7 +40,7 @@ def download_checkins():
 
     stored = 0
     for checkin in data['checkins']['items']:
-        swarm_id = checkin['id'])
+        swarm_id = checkin['id']
         timestamp = checkin['createdAt']
         venue = checkin['venue']['name']
         latitude = checkin['venue']['location']['lat']
