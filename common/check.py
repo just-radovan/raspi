@@ -231,17 +231,17 @@ def radar_tweet():
 
     tweet = None
 
-    if rain_now[column_area] > 0 and rain_history[column_area] == 0:
+    if rain_now[column_area] == 0 and rain_history[column_area] > 0:
+        tweet = (
+            '🌤 přestalo chcát.'
+        )
+    elif rain_now[column_area] > 0 and rain_history[column_area] == 0:
         tweet = (
             '🌧 a chčije...\n\n'
             '✪ vzdálenost: {:.1f} km\n'
             '✪ plocha: {} %\n'
             '✪ intenzita: {} mm/h'
         ).format(rain_now[column_distance], rain_now[column_area], rain_now[column_instensity])
-    elif rain_now[column_area] == 0 and rain_history[column_area] > 0:
-        tweet = (
-            '🌤 přestalo chcát.'
-        )
     elif 0 <= rain_now[column_distance] <= 2 and (rain_history[column_distance] > 2 or rain_history[column_distance] < 0):
         tweet = (
             '☔️ prší na avalon!\n\n'

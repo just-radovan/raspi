@@ -48,8 +48,20 @@ def get_presence(asc = False):
     return rows
 
 def get_location():
-    # todo: get last checkin location (lat, lon)
-    return
+    db = _open_database('data/location_history.sqlite')
+    cursor = db.cursor()
+    cursor.execute('select latitude, longitude, venue from location order by timestamp desc limit 0, 1')
+
+    row = cursor.fetchone()
+    db.close()
+
+    latitude = row[0]
+    longitude = row[1]
+    venue = row[2]
+
+    log.info('get_location(): last known location: {} ({:.5f}, {:.5f})'. format(venue, latitude, longitude))
+
+    return [latitude, longitude, venue]
 
 def is_present():
     db = _open_database('data/presence_history.sqlite')
