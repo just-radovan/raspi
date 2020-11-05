@@ -161,6 +161,7 @@ def download():
     download_image(url_rain, file_rain)
     download_image(url_lightning, file_lightning)
 
+
     if os.path.isfile(file_rain):
         os.system('convert {} -crop 595x376+2+83 +repage {}'.format(file_rain, file_rain))
 
@@ -187,8 +188,8 @@ def download_image(url, path):
     else:
         log.error('download_image(): failed to download {}'.format(url))
 
-def get_data_timestamp():
-    now = datetime.datetime.now(pytz.utc) - datetime.timedelta(minutes=20)
+def get_data_timestamp(back = 15):
+    now = datetime.datetime.now(pytz.utc) - datetime.timedelta(minutes = back)
 
     yr = '{:04d}'.format(now.year)
     mo = '{:02d}'.format(now.month)

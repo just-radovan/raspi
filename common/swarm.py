@@ -5,7 +5,47 @@ import path
 import common.log as log
 import auth.swarm as swarm
 
+import foursquare
+
+access_file = path.to('data/swarm_access.data')
+
 def download_checkins():
-    # todo: download all new checkins from https://developer.foursquare.com/docs/api-reference/users/checkins/
+    access_token = None
+
+    with open(access_file) as infile:
+        data = json.load(infile)
+        for access in data['access']:
+            access_token = access['token']
+
+    if not access_token:
+        log.error('download_checkins(): unable to load access token.')
+        return
+
+    client = foursquare.Foursquare(access_token = access_token)
+    checkins = client.users.checkins(params = {'limit': 100})
+
+    print(checkins)
+
     # todo: store to database
-    return
+
+def authorize():
+    client = foursquare.Foursquare(client_id = swarm.get_consumer_key(), client_secret = swarm.get_consumer_secret(), redirect_uri = 'oob')
+    redirect_url = client.oauth.auth_url()
+
+    print('👉 authorize(): to continue, please visit {}'.format(redirect_url))
+    verifier = input('verification code? ')
+
+    access_token = client.oauth.get_token(verifier)
+
+    log.info('authorize(): token: {}'.format(access_token))
+
+    # store data
+
+    data = {}
+    data['access'] = []
+    data['access'].append({
+        'token': access_token
+        })
+
+    with open(access_file, 'w') as outfile:
+        json.dump(data, outfile)

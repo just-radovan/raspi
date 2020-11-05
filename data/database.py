@@ -10,7 +10,8 @@ def init_netatmo():
         '"id" integer primary key autoincrement, '
         '"timestamp" integer, "temp_in" real, "temp_out" real, '
         '"humidity_in" real, "humidity_out" real, "pressure" real, '
-        '"noise" real, "co2" real)'
+        '"noise" real, "co2" real'
+        ')'
     )
 
     db = None
@@ -28,7 +29,8 @@ def init_rain():
     sql = (
         'create table rain ('
         '"id" integer primary key autoincrement, '
-        '"timestamp" integer, "intensity" real, "distance" real, "area" real)'
+        '"timestamp" integer, "intensity" real, "distance" real, "area" real'
+        ')'
     )
 
     db = None
@@ -46,7 +48,8 @@ def init_presence():
     sql = (
         'create table presence ('
         '"id" integer primary key autoincrement,'
-        '"timestamp" integer, "present" integer)'
+        '"timestamp" integer, "present" integer'
+        ')'
     )
 
     db = None
@@ -61,5 +64,20 @@ def init_presence():
     db.commit()
 
 def init_location():
-    # todo: database for swarm checkins
-    return
+    sql = (
+        'create table location ('
+        '"id" integer primary key,' # check-in real id
+        '"createdAt" integer, "latitude" real, "longitude" real, "venue" text'
+        ')'
+    )
+
+    db = None
+    try:
+        db = sqlite3.connect(path.to('data/location_history.sqlite'))
+    except Error as e:
+        print('unable to open location database: {}'.format(e))
+        quit()
+
+    cursor = db.cursor()
+    cursor.execute(sql)
+    db.commit()

@@ -47,8 +47,8 @@ def authorize():
     auth = tweepy.OAuthHandler(twitter.get_consumer_key(), twitter.get_consumer_secret(), 'oob')
     try:
         redirect_url = auth.get_authorization_url()
-        print('👉 authorize(): to continue, please visit ' + redirect_url)
-
+        
+        print('👉 authorize(): to continue, please visit {}'.format(redirect_url))
         verifier = input('verification code? ')
     except tweepy.TweepError:
         log.error('authorize(): failed to get authorization request token.')
@@ -58,7 +58,7 @@ def authorize():
         auth.get_access_token(verifier)
     except tweepy.TweepError:
         log.error('authorize(): failed to get access token.')
-        reeturn
+        return
 
     accessToken = auth.access_token
     accessSecret = auth.access_token_secret
