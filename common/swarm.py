@@ -53,7 +53,7 @@ def download_checkins():
             'insert into location ('
             'swarm_id, timestamp, latitude, longitude, venue'
             ') values ('
-            '?, ?, ?, ?, ?, ?, ?, ?'
+            '?, ?, ?, ?, ?'
             ')'
         )
         cursor.execute(sql, (swarm_id, timestamp, latitude, longitude, venue))
