@@ -6,6 +6,7 @@ import common.log as log
 import auth.swarm as swarm
 
 import foursquare
+import json
 
 access_file = path.to('data/swarm_access.data')
 
@@ -29,10 +30,11 @@ def download_checkins():
     # todo: store to database
 
 def authorize():
-    client = foursquare.Foursquare(client_id = swarm.get_consumer_key(), client_secret = swarm.get_consumer_secret(), redirect_uri = 'oob')
+    client = foursquare.Foursquare(client_id = swarm.get_consumer_key(), client_secret = swarm.get_consumer_secret(), redirect_uri = 'https://www.radovan.be/')
     redirect_url = client.oauth.auth_url()
 
     print('👉 authorize(): to continue, please visit {}'.format(redirect_url))
+    print('⚠️ (please copy access token from url you have been redirected to)')
     verifier = input('verification code? ')
 
     access_token = client.oauth.get_token(verifier)
