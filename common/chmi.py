@@ -85,11 +85,11 @@ def get_my_pixel():
 
     # create my pixel
     my_pixel = (
-        avalon_pixel[0] + (dst_ew * dst_ew_dir),
-        avalon_pixel[1] + (dst_ns * dst_ns_dir)
+        int(avalon_pixel[0] + (dst_ew * dst_ew_dir)),
+        int(avalon_pixel[1] + (dst_ns * dst_ns_dir))
     )
 
-    log.info('get_my_pixel(): current position: {},{} at {},{}'.format(dst_ew * dst_ew_dir, dst_ns * dst_ns_dir, my_pixel[0], my_pixel[1]))
+    log.info('get_my_pixel(): current position: {},{} at {},{}'.format(int(dst_ew * dst_ew_dir), int(dst_ns * dst_ns_dir), my_pixel[0], my_pixel[1]))
 
     # return my_pixel
     return avalon_pixel
