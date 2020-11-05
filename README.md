@@ -27,6 +27,7 @@ various scripts to notify me about what's happening at home. via twitter.
 * pytz (pip) - python: time zones
 * tweepy (pip) - python: twitter client
 * foursquare (pip) - python: foursquare/swarm client
-* numpy (pip) - twitter: library to handle numbers
-* seaborn (pip) - twitter: library to visualise numbers (heatmaps here)
+* numpy (pip) - python: library to handle numbers
+* seaborn (pip) - python: library to visualise numbers (heatmaps here)
+* geopy (pip) - python: precise distance between coordinates
 * space mono ([github.com/../spacemono](https://github.com/googlefonts/spacemono)) - font used to annotate timelapse frames

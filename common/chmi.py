@@ -11,8 +11,9 @@ import time
 import datetime
 import sqlite3
 import shutil
-import numpy
+import nump
 import pytz
+import geopy
 from urllib import request
 
 url_base = 'http://portal.chmi.cz/files/portal/docs/meteo/rad/inca-cz/data'
@@ -28,30 +29,72 @@ file_rain_cutout = path.to('data/chmi/rain_cutout.png')
 
 composite = path.to('data/chmi/composite.png')
 
-location = [226, 149] # coordinates of kobylisy on file_rain, file_lightning, and composite.
 watch = 20 # radius of the area to watch for rain
 
 color_map = [ # color legend for chmi rain data
-	[56, 0, 112], # 04 mm/hr
-	[48, 0, 168], # 08
-	[0, 0, 252], # 12
-	[0, 108, 192], # 16
-	[0, 160, 0], # 20
-	[0, 188, 0], # 24
-	[52, 216, 0], # 28
-	[156, 220, 0], # 32
-	[224, 220, 0], # 36
-	[252, 176, 0], # 40
-	[252, 132, 0], # 44
-	[252, 88, 0], #48
-	[252, 0, 0], # 52
-	[160, 0, 0], # 56
-	[252, 252, 252] # 60
+	(56, 0, 112), # 04 mm/hr
+    (48, 0, 168), # 08
+	(0, 0, 252), # 12
+	(0, 108, 192), # 16
+	(0, 160, 0), # 20
+	(0, 188, 0), # 24
+	(52, 216, 0), # 28
+	(156, 220, 0), # 32
+	(224, 220, 0), # 36
+	(252, 176, 0), # 40
+	(252, 132, 0), # 44
+	(252, 88, 0), #48
+	(252, 0, 0), # 52
+	(160, 0, 0), # 56
+	(252, 252, 252) # 60
 ]
 
-def get_pixel_for_location(lat, lon):
-    # todo: translate location to pixel on composite image.
-    return (0, 0)
+def get_my_pixel():
+    # define avalon
+
+    avalon_pixel = (226, 149) # it's x,y
+    avalon_gps = (50.1352602954946, 14.448018107292) # it's lat,lng / north,east / y,x
+
+    # get current location
+
+    location = storage.get_location()
+    latitude = location[0]
+    longitude = location[1]
+
+    # get distances between avalon and current location
+
+    dst_ns = geopy.distance.distance(avalon_gps, (latitude, avalon_gps[1])).km
+    dst_ew = geopy.distance.distance(avalon_gps, (avalon_gps[0], longitude)).km
+
+    if avalon_gps[0] < latitude:
+        dst_ns_dir = -1 # on image: to the top
+    else:
+        dst_ns_dir = +1 # on image: to the bottom
+
+    if avalon_gps[1] < longitude:
+        dst_ew_dir = +1 # on image: to the left
+    else:
+        dst_ew_dir = -1 # on image: to the right
+
+    my_x = avalon_pixel[0] + (dst_ew * dst_ew_dir)
+    my_y = avalon_pixel[1] + (dst_ns * dst_ns_dir)
+
+    # check image boundaries
+
+    if my_x < 0 or my_x > 595:
+        my_x = avalon_pixel[0]
+
+    if my_y < 0 or my_x > 376:
+        my_y = avalon_pixel[1]
+
+    # create my pixel
+
+    my_pixel = (
+        avalon_pixel[0] + (dst_ew * dst_ew_dir),
+        avalon_pixel[1] + (dst_ns * dst_ns_dir)
+    )
+
+    return my_pixel
 
 def get_rain_intensity():
     download()
@@ -61,6 +104,7 @@ def get_rain_intensity():
         log.error('get_rain_intensity(): rain cutout is missing. can\'t get rain intensity.')
         return
 
+    location = get_my_pixel()
     watch_x = location[0] - watch
     watch_y = location[1] - watch
 
@@ -143,6 +187,7 @@ def create_composite():
     os.system('convert {} {} -geometry +0+0 -composite {}'.format(composite, file_rain, composite))
     os.system('convert {} {} -geometry +0+0 -composite {}'.format(composite, file_lightning, composite))
 
+    location = get_my_pixel()
     x = location[0]
     y = location[1]
     cx = location[0] - watch
@@ -165,6 +210,7 @@ def download():
     if os.path.isfile(file_rain):
         os.system('convert {} -crop 595x376+2+83 +repage {}'.format(file_rain, file_rain))
 
+        location = get_my_pixel()
         watch_x = location[0] - watch
         watch_y = location[1] - watch
         os.system('convert {} -crop {}x{}+{}+{} +repage {}'.format(file_rain, (watch * 2), (watch * 2), watch_x, watch_y, file_rain_cutout))
