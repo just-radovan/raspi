@@ -47,7 +47,7 @@ def init_rain():
 def init_presence():
     sql = (
         'create table presence ('
-        '"id" integer primary key autoincrement,'
+        '"id" integer primary key autoincrement, '
         '"timestamp" integer, "present" integer'
         ')'
     )
@@ -66,8 +66,8 @@ def init_presence():
 def init_location():
     sql = (
         'create table location ('
-        '"id" integer primary key,' # check-in real id
-        '"createdAt" integer, "latitude" real, "longitude" real, "venue" text'
+        '"id" integer primary key autoincrement, '
+        '"swarm_id" text, '"createdAt" integer, "latitude" real, "longitude" real, "venue" text'
         ')'
     )
 

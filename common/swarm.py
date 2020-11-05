@@ -23,9 +23,13 @@ def download_checkins():
         return
 
     client = foursquare.Foursquare(access_token = access_token)
-    checkins = client.users.checkins(params = {'limit': 100})
+    data = client.users.checkins(params = {'limit': 100})
 
-    print(checkins)
+    for checkin in data['checkins']['items']:
+        print('id: {}'.format(checkin['id']))
+        print('when: {}'.format(checkin['createdAt']))
+        print('where: {}'.format(checkin['venue']['name']))
+        print('gps: {}, {}'.format(checkin['venue']['location']['lat'], checkin['venue']['location']['lng']))
 
     # todo: store to database
 
@@ -34,7 +38,7 @@ def authorize():
     redirect_url = client.oauth.auth_url()
 
     print('👉 authorize(): to continue, please visit {}'.format(redirect_url))
-    print('⚠️ (please copy access token from url you have been redirected to)')
+    print('⚠️  (please copy the code from url you have been redirected to)')
     verifier = input('verification code? ')
 
     access_token = client.oauth.get_token(verifier)
