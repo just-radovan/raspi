@@ -10,3 +10,7 @@ auth/*.py
 
 data/*.sqlite
 data/*.data
+
+# system
+
+.DS_Store
