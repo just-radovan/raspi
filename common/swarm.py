@@ -56,7 +56,7 @@ def download_checkins():
             '?, ?, ?, ?, ?, ?, ?, ?'
             ')'
         )
-        cursor.execute(sql, (swarm_id, timestamp, value, latitude, longitude))
+        cursor.execute(sql, (swarm_id, timestamp, latitude, longitude, venue))
         stored += 1
 
     db.commit()
