@@ -125,7 +125,7 @@ def summary_morning():
         '✪ déšť: {}\n'
         '✪ tlak vzduchu: {} mb\n'
         '✪ vlhkost: {} %'
-    ).format(random.choice(start), rain_text, temperature, pressure, humidity)
+    ).format(random.choice(start), temperature, rain_text, pressure, humidity)
 
     twitter.tweet(message)
     log.info('summary_morning(): tweeted.')

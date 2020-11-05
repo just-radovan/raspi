@@ -188,7 +188,7 @@ def download_image(url, path):
         log.error('download_image(): failed to download {}'.format(url))
 
 def get_data_timestamp():
-    now = datetime.datetime.now(pytz.utc) - datetime.timedelta(minutes=10)
+    now = datetime.datetime.now(pytz.utc) - datetime.timedelta(minutes=20)
 
     yr = '{:04d}'.format(now.year)
     mo = '{:02d}'.format(now.month)

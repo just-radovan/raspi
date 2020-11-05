@@ -25,6 +25,7 @@ various scripts to notify me about what's happening at home. via twitter.
 * libatlas-base-dev (apt-get) - ???
 * pytz (pip) - python: time zones
 * tweepy (pip) - python: twitter client
+* foursquare (pip) - python: foursquare/swarm client
 * numpy (pip) - twitter: library to handle numbers
 * seaborn (pip) - twitter: library to visualise numbers (heatmaps here)
 * space mono ([github.com/../spacemono](https://github.com/googlefonts/spacemono)) - font used to annotate timelapse frames
