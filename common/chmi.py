@@ -91,8 +91,7 @@ def get_my_pixel():
 
     log.info('get_my_pixel(): current position: {},{} at {},{}'.format(int(dst_ew * dst_ew_dir), int(dst_ns * dst_ns_dir), my_pixel[0], my_pixel[1]))
 
-    # return my_pixel
-    return avalon_pixel
+    return my_pixel
 
 def get_rain_intensity():
     download()
