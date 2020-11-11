@@ -4,6 +4,7 @@
 import path
 import common.log as log
 import common.storage as storage
+import common.twitter as twitter
 
 import os
 import glob
@@ -89,7 +90,18 @@ def make_video():
         return
 
 def startup():
+    if os.path.isfile(test_capture):
+        os.remove(test_capture)
+
     os.system('fswebcam -q -D 3 -S 1 -F 5 --set Brightness={} --set Contrast=5 --no-banner -r 1280x720 --jpeg 80 "{}"'.format(brightness_min, test_capture))
+
+    if not os.path.isfile(test_capture):
+        log.error('startup(): unable to start the camera.')
+
+        if not storage.is_locked('camera_startup'):
+            twitter.tweet('❌ unable to start the camera. do something!')
+            storage.lock('camera_startup', 2*60*60)
+
 
 def get_mean_brightness(camera_brightness):
     if os.path.isfile(test_capture):
