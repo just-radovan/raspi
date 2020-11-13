@@ -49,7 +49,7 @@ color_map = [ # color legend for chmi rain data
 	(252, 252, 252) # 60
 ]
 
-def get_my_pixel():
+def get_my_pixel(): # -> (x, y)
     # define avalon
     avalon_pixel = (226, 149) # it's x,y
     avalon_gps = (50.1352602954946, 14.448018107292) # it's lat,lng / north,east / y,x
@@ -172,7 +172,7 @@ def get_rain_intensity():
     db.commit()
     db.close()
 
-def create_composite():
+def create_composite(): # -> composite filename (string)
     if os.path.isfile(composite):
         os.remove(composite)
 
@@ -231,7 +231,7 @@ def download_image(url, path):
     else:
         log.error('download_image(): failed to download {}'.format(url))
 
-def get_data_timestamp(back = 15):
+def get_data_timestamp(back = 15): # -> chmi image timestamp (string)
     now = datetime.datetime.now(pytz.utc) - datetime.timedelta(minutes = back)
 
     yr = '{:04d}'.format(now.year)

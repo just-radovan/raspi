@@ -7,6 +7,7 @@ import common.storage as storage
 import common.chmi as chmi
 import common.twitter as twitter
 import common.camera as camera
+import common.radovan_be as website
 
 import os
 import time
@@ -119,13 +120,25 @@ def summary_morning():
     else:
         rain_text = 'prší {:.1f} km daleko'.format(rain_dst)
 
-    message = (
-        '{}\n\n'
-        '✪ teplota: {} °c\n'
-        '✪ déšť: {}\n'
-        '✪ tlak vzduchu: {} mb\n'
-        '✪ vlhkost: {} %'
-    ).format(random.choice(start), temperature, rain_text, pressure, humidity)
+    post = website.on_this_day()
+    if post:
+        message = (
+            '{}\n\n'
+            '✪ teplota: {} °c\n'
+            '✪ déšť: {}\n'
+            '✪ tlak vzduchu: {} mb\n'
+            '✪ vlhkost: {} %\n'
+            '\n'
+            '🔗 {}'
+        ).format(random.choice(start), temperature, rain_text, pressure, humidity, post)
+    else:
+        message = (
+            '{}\n\n'
+            '✪ teplota: {} °c\n'
+            '✪ déšť: {}\n'
+            '✪ tlak vzduchu: {} mb\n'
+            '✪ vlhkost: {} %'
+        ).format(random.choice(start), temperature, rain_text, pressure, humidity)
 
     twitter.tweet(message)
     log.info('summary_morning(): tweeted.')
