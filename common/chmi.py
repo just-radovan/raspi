@@ -134,7 +134,7 @@ def get_rain_intensity():
                 else:
                     color_next = None
 
-                if (color == [r, g, b]) or (color_next and (((color[0] <= r < color_next[0]) or (color[0] >= r > color_next[0])) and ((color[1] <= g < color_next[1]) or (color[1] >= g > color_next[1])) and ((color[2] <= b < color_next[2]) or (color[2] >= b > color_next[2])))):
+                if (color[0] == r and color[1] == g and color[2] == b) or (color_next and (((color[0] <= r < color_next[0]) or (color[0] >= r > color_next[0])) and ((color[1] <= g < color_next[1]) or (color[1] >= g > color_next[1])) and ((color[2] <= b < color_next[2]) or (color[2] >= b > color_next[2])))):
                     # rain intensity
                     mmhr = (clr + 1) * 4 # mm/hr
                     intensity = max(intensity, mmhr)
