@@ -246,32 +246,32 @@ def radar_tweet():
 
     if rain_now[column_area] == 0 and rain_history[column_area] > 0:
         tweet = (
-            '🌤 přestalo chcát.'
+            '🌤 je po dešti.'
         )
-    elif rain_now[column_area] > 0 and rain_history[column_area] == 0:
+    elif rain_now[column_area] > 3 and rain_history[column_area] <= 3:
         tweet = (
-            '🌧 a chčije...\n\n'
+            '🌧 chčije a chčije...\n\n'
             '✪ vzdálenost: {:.1f} km\n'
             '✪ plocha: {} %\n'
             '✪ intenzita: {} mm/h'
         ).format(rain_now[column_distance], rain_now[column_area], rain_now[column_instensity])
     elif 0 <= rain_now[column_distance] <= 2 and (rain_history[column_distance] > 2 or rain_history[column_distance] < 0):
         tweet = (
-            '☔️ prší na avalon!\n\n'
+            '☔️ zmokneš, jesli vylezeš ven!\n\n'
             '✪ vzdálenost: {:.1f} km\n'
             '✪ plocha: {} %\n'
             '✪ intenzita: {} mm/h'
         ).format(rain_now[column_distance], rain_now[column_area], rain_now[column_instensity])
     elif 0 <= rain_now[column_distance] < (rain_history[column_distance] * 0.75) and rain_history[column_distance] >= 0:
         tweet = (
-            '☔️ prší blíž avalonu!\n\n'
+            '☔️ prší blíž.\n\n'
             '✪ vzdálenost: {:.1f} km\n'
             '✪ plocha: {} %\n'
             '✪ intenzita: {} mm/h'
         ).format(rain_now[column_distance], rain_now[column_area], rain_now[column_instensity])
     elif rain_now[column_instensity] > (rain_history[column_instensity] * 1.25):
         tweet = (
-            '💦 prší víc!\n\n'
+            '💦 prší víc.\n\n'
             '✪ vzdálenost: {:.1f} km\n'
             '✪ plocha: {} %\n'
             '✪ intenzita: {} mm/h'
