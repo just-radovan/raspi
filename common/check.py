@@ -33,20 +33,20 @@ def summary_presence():
     outside = storage.how_long_outside()
     outsideStr = ''
     if outside < 60:
-        outsideStr = 'míň než minutu'
+        outsideStr = 'less than a minute'
     elif outside < 5*60:
-        outsideStr = 'miň než pět minut'
+        outsideStr = 'less than five minutes'
     elif outside <= 90*60:
         minutes = int(math.floor(outside / 60))
 
-        outsideStr = '{} minut'.format(minutes)
+        outsideStr = '{} mins'.format(minutes)
     else:
         hours = int(math.floor(outside / (60 * 60)))
         minutes = int(math.floor((outside - (hours * 60 * 60)) / 60))
 
         outsideStr = '{}h{}'.format(hours, minutes)
 
-    twitter.tweet('🚶 dneska si byl venku {}.'.format(outsideStr))
+    twitter.tweet('🚶 today you were outside for {}.'.format(outsideStr))
     log.info('summary_presence(): tweeted.')
     storage.lock('summary_presence', 12*60*60)
 
@@ -66,15 +66,15 @@ def summary_at_home():
     humidity = storage.get_netatmo_value('humidity_in')
 
     start = [
-      '🛰 vítej na avalonu.',
-      '🛰 avalon tě vítá zpět.',
-      '🚀 domov, sladký domov.'
+      '🛰 avalon welcomes you.',
+      '🛰 welcome back on avalon.',
+      '🚀 home, sweet home.'
     ]
     message = (
         '{}\n\n'
         '✪ co₂: {} ppm\n'
-        '✪ teplota: {} °c\n'
-        '✪ vlhkost: {} %'
+        '✪ temperature: {} °c\n'
+        '✪ humidity: {} %'
     ).format(random.choice(start), co2, temperature, humidity)
 
     twitter.tweet(message)
@@ -106,38 +106,38 @@ def summary_morning():
     rain_dst = storage.get_rain_value('distance')
 
     start = [
-      '🙄 a kurva. další den.',
-      '🤪 dobrý ráno!',
-      '🏝 další den v ráji...',
-      '🤪 čau debile!',
-      '🧐 zase den na píču?'
+      '🙄 fuck. another day.',
+      '🤪 morning bitch!',
+      '🏝 another day in paradise...',
+      '🤪 oi cunt!',
+      '🧐 another shitty day?'
     ]
 
     if rain_dst < 0:
-        rain_text = 'neprší'
+        rain_text = 'none'
     elif 0 <= rain_dst < 2:
-        rain_text = 'prší'
+        rain_text = 'yup'
     else:
-        rain_text = 'prší {:.1f} km daleko'.format(rain_dst)
+        rain_text = 'rains {:.1f} km away'.format(rain_dst)
 
     post = website.on_this_day()
     if post:
         message = (
             '{}\n\n'
-            '✪ teplota: {} °c\n'
-            '✪ déšť: {}\n'
-            '✪ tlak vzduchu: {} mb\n'
-            '✪ vlhkost: {} %\n'
+            '✪ temperature: {} °c\n'
+            '✪ rain: {}\n'
+            '✪ pressure: {} mb\n'
+            '✪ humidity: {} %\n'
             '\n'
             '🔗 {}'
         ).format(random.choice(start), temperature, rain_text, pressure, humidity, post)
     else:
         message = (
             '{}\n\n'
-            '✪ teplota: {} °c\n'
-            '✪ déšť: {}\n'
-            '✪ tlak vzduchu: {} mb\n'
-            '✪ vlhkost: {} %'
+            '✪ temperature: {} °c\n'
+            '✪ rain: {}\n'
+            '✪ pressure: {} mb\n'
+            '✪ humidity: {} %'
         ).format(random.choice(start), temperature, rain_text, pressure, humidity)
 
     twitter.tweet(message)
@@ -158,7 +158,7 @@ def noise():
     if not storage.evaluate(rows, sound_treshold, +1, 0.3, '🔊', '🔇'):
         log.warning('noise(): no noise detected.')
 
-    twitter.tweet('🔊 je tu hluk i když tu nejsi. aktuálně to je {} db'.format(entries[0]))
+    twitter.tweet('🔊 you aren\'t at home, yet there is some noise: {} db'.format(entries[0]))
     log.info('noise(): tweeted.')
     storage.lock('noise', 15*60)
 
@@ -174,7 +174,7 @@ def co2():
         return
 
     co2 = int(rows[0])
-    twitter.tweet('🤢 chtělo by to vyvětrat. aktuální koncentrace co₂: {} ppm.'.format(co2))
+    twitter.tweet('🤢 current co₂ level is {} ppm. don\'t you want to open a window?'.format(co2))
     log.info('co2(): tweeted.')
     storage.lock('co2', 30*60)
 
@@ -194,11 +194,11 @@ def co2_trend():
         co2To = int(trend[2])
 
     if trend[0] == +1:
-        twitter.tweet('⚠️ koncentrace co₂ rychle roste! {} → {} ppm.'.format(co2From, co2To))
+        twitter.tweet('⚠️ co₂ concentration is rising quickly! {} → {} ppm.'.format(co2From, co2To))
         log.info('co2(): tweeted (trend+).')
         storage.lock('co2_trend', 60*60)
     elif trend[0] == -1:
-        twitter.tweet('👍 paráda, koncentrace co₂ klesá. {} → {} ppm.'.format(co2From, co2To))
+        twitter.tweet('👍 nice! co₂ level drops. {} → {} ppm.'.format(co2From, co2To))
         log.info('co2(): tweeted (trend-).')
         storage.lock('co2_trend', 60*60)
 
@@ -217,7 +217,7 @@ def temperature_outdoor():
         log.warning('temperature_outdoor(): temperature is not low enough.')
         return
 
-    twitter.tweet('🥶 usměj se než ti ztuhne xicht. venku je jen {} °C.'.format(rows[0]))
+    twitter.tweet('🥶 your ass will face off. it\'s just {} °c outside.'.format(rows[0]))
     log.info('temperature_outdoor(): tweeted.')
     storage.lock('temperature_outdoor', 30*60)
 
@@ -246,35 +246,35 @@ def radar_tweet():
 
     if rain_now[column_area] == 0 and rain_history[column_area] > 0:
         tweet = (
-            '🌤 je po dešti.'
+            '🌤 rain is over.'
         )
     elif rain_now[column_area] > 3 and rain_history[column_area] <= 3:
         tweet = (
-            '🌧 chčije a chčije...\n\n'
-            '✪ vzdálenost: {:.1f} km\n'
-            '✪ plocha: {} %\n'
-            '✪ intenzita: {} mm/h'
+            '🌧 it started to rain.\n\n'
+            '✪ distance: {:.1f} km\n'
+            '✪ area: {} %\n'
+            '✪ intensity: {} mm/h'
         ).format(rain_now[column_distance], rain_now[column_area], rain_now[column_instensity])
-    elif 0 <= rain_now[column_distance] <= 2 and (rain_history[column_distance] > 2 or rain_history[column_distance] < 0):
+    elif rain_now[column_area] > 3 and 0 <= rain_now[column_distance] <= 2 and (rain_history[column_distance] > 2 or rain_history[column_distance] < 0):
         tweet = (
-            '☔️ zmokneš, jesli vylezeš ven!\n\n'
-            '✪ vzdálenost: {:.1f} km\n'
-            '✪ plocha: {} %\n'
-            '✪ intenzita: {} mm/h'
+            '☔️ rain is seriously close!\n\n'
+            '✪ distance: {:.1f} km\n'
+            '✪ area: {} %\n'
+            '✪ intensity: {} mm/h'
         ).format(rain_now[column_distance], rain_now[column_area], rain_now[column_instensity])
-    elif 0 <= rain_now[column_distance] < (rain_history[column_distance] * 0.75) and rain_history[column_distance] >= 0:
+    elif rain_now[column_area] > 3 and 0 <= rain_now[column_distance] < (rain_history[column_distance] * 0.75) and rain_history[column_distance] >= 0:
         tweet = (
-            '☔️ prší blíž.\n\n'
-            '✪ vzdálenost: {:.1f} km\n'
-            '✪ plocha: {} %\n'
-            '✪ intenzita: {} mm/h'
+            '☔️ rain is creeping closer.\n\n'
+            '✪ distance: {:.1f} km\n'
+            '✪ area: {} %\n'
+            '✪ intensity: {} mm/h'
         ).format(rain_now[column_distance], rain_now[column_area], rain_now[column_instensity])
-    elif rain_now[column_instensity] > (rain_history[column_instensity] * 1.25):
+    elif rain_now[column_area] > 3 and rain_now[column_instensity] > (rain_history[column_instensity] * 1.25):
         tweet = (
-            '💦 prší víc.\n\n'
-            '✪ vzdálenost: {:.1f} km\n'
-            '✪ plocha: {} %\n'
-            '✪ intenzita: {} mm/h'
+            '💦 it rains bit moree.\n\n'
+            '✪ distance: {:.1f} km\n'
+            '✪ area: {} %\n'
+            '✪ intensity: {} mm/h'
         ).format(rain_now[column_distance], rain_now[column_area], rain_now[column_instensity])
 
     if not tweet:
