@@ -32,7 +32,9 @@ composite = path.to('data/chmi/composite.png')
 
 avalon_pixel = (226, 149) # it's x,y
 avalon_gps = (50.1352602954946, 14.448018107292) # it's lat,lng / north,east / y,x
-prague_center = (50.0789384, 14.4605103) # olsanske hrbitovy seems like prague center
+
+prague_center_pixel = (228, 155) # it's x,y
+prague_center_gps = (50.0789384, 14.4605103) # it's lat,lng / north,east / y,x // olsanske hrbitovy seems like prague center
 
 watch = 20 # radius of the area to watch for rain
 
@@ -144,14 +146,14 @@ def get_rain_intensity(cutout): # → (intensity, distance, area)
     return (intensity, distance, area)
 
 def get_prg_pixel(): # -> (x, y)
-    return get_pixel(prague_center[0], prague_center[1])
+    return get_pixel(prague_center_gps[0], prague_center_gps[1], avalon_pixel)
 
 def get_my_pixel(): # -> (x, y)
     my_location = storage.get_location()
 
-    return get_pixel(my_location[0], my_location[1])
+    return get_pixel(my_location[0], my_location[1], prague_center_pixel)
 
-def get_pixel(latitude, longitude): # -> (x, y)
+def get_pixel(latitude, longitude, ref_pixel): # -> (x, y)
     dst_ns = distance.distance(avalon_gps, (latitude, avalon_gps[1])).km
     dst_ew = distance.distance(avalon_gps, (avalon_gps[0], longitude)).km
 
@@ -165,23 +167,23 @@ def get_pixel(latitude, longitude): # -> (x, y)
     else:
         dst_ew_dir = -1 # on image: to the right
 
-    my_x = avalon_pixel[0] + (dst_ew * dst_ew_dir)
-    my_y = avalon_pixel[1] + (dst_ns * dst_ns_dir)
+    my_x = ref_pixel[0] + (dst_ew * dst_ew_dir)
+    my_y = ref_pixel[1] + (dst_ns * dst_ns_dir)
 
     # check image boundaries
     if my_x < 0 or my_x > 595:
-        my_x = avalon_pixel[0]
+        my_x = ref_pixel[0]
 
     if my_y < 0 or my_x > 376:
-        my_y = avalon_pixel[1]
+        my_y = ref_pixel[1]
 
     # create my pixel
     pixel = (
-        int(avalon_pixel[0] + (dst_ew * dst_ew_dir)),
-        int(avalon_pixel[1] + (dst_ns * dst_ns_dir))
+        int(ref_pixel[0] + (dst_ew * dst_ew_dir)),
+        int(ref_pixel[1] + (dst_ns * dst_ns_dir))
     )
 
-    log.info('get_pixel(): current position: {},{} at {},{}'.format(int(dst_ew * dst_ew_dir), int(dst_ns * dst_ns_dir), my_pixel[0], my_pixel[1]))
+    log.info('get_pixel(): current position: {},{} at {},{}'.format(int(dst_ew * dst_ew_dir), int(dst_ns * dst_ns_dir), pixel[0], pixel[1]))
 
     return pixel
 
