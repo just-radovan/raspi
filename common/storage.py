@@ -10,7 +10,8 @@ import time
 import datetime
 import sqlite3
 
-rain_save = path.to('data/rain_tweet.save')
+rain_my_save = path.to('data/rain_my_tweet.save')
+rain_prg_save = path.to('data/rain_prg_tweet.save')
 
 def lock(label, expiration):
     exp = int(time.time()) + expiration
@@ -153,25 +154,40 @@ def get_rain_when(when):
     cursor = db.cursor()
 
     if when:
-        cursor.execute('select timestamp, intensity, distance, area from rain where timestamp <= {} order by timestamp desc limit 0, 1'.format(when))
+        cursor.execute('select timestamp, intensity, distance, area, distance_prg, area_prg from rain where timestamp <= {} order by timestamp desc limit 0, 1'.format(when))
     else:
-        cursor.execute('select timestamp, intensity, distance, area from rain order by timestamp desc limit 0, 1')
+        cursor.execute('select timestamp, intensity, distance, area, distance_prg, area_prg from rain order by timestamp desc limit 0, 1')
 
     row = cursor.fetchone()
     db.close()
 
     return row
 
-def save_last_rain_tweeted(timestamp):
-    file = open(rain_save, 'w')
+def save_last_rain_my_tweeted(timestamp):
+    file = open(rain_my_save, 'w')
     file.write(str(timestamp))
     file.close()
 
-def load_last_rain_tweeted():
-    if not os.path.exists(rain_save):
+def load_last_rain_my_tweeted():
+    if not os.path.exists(rain_my_save):
         return
 
-    file = open(rain_save, 'r')
+    file = open(rain_my_save, 'r')
+    timestamp = int(file.read())
+    file.close()
+
+    return timestamp
+
+def save_last_rain_prg_tweeted(timestamp):
+    file = open(rain_prg_save, 'w')
+    file.write(str(timestamp))
+    file.close()
+
+def load_last_rain_prg_tweeted():
+    if not os.path.exists(rain_prg_save):
+        return
+
+    file = open(rain_prg_save, 'r')
     timestamp = int(file.read())
     file.close()
 

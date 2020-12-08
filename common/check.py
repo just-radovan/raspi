@@ -6,6 +6,7 @@ import common.log as log
 import common.storage as storage
 import common.chmi as chmi
 import common.twitter as twitter
+import common.twitter_wp as twitter_wp
 import common.camera as camera
 import common.radovan_be as website
 
@@ -223,8 +224,9 @@ def temperature_outdoor():
 
 def radar():
     # timed by cron
-    chmi.get_rain_intensity()
+    chmi.evaluate_radar()
     radar_tweet()
+    radar_tweet_public()
 
 def radar_tweet():
     column_timestamp = 0
@@ -234,10 +236,10 @@ def radar_tweet():
 
     rain_now = storage.get_rain()
 
-    timestamp = storage.load_last_rain_tweeted()
+    timestamp = storage.load_last_rain_my_tweeted()
     if not timestamp:
         log.error('radar_tweet(): unable to load last time when rain tweeted; saving last entry.')
-        storage.save_last_rain_tweeted(rain_now[0])
+        storage.save_last_rain_my_tweeted(rain_now[0])
         return
 
     rain_history = storage.get_rain_when(timestamp)
@@ -287,8 +289,40 @@ def radar_tweet():
         return
 
     twitter.tweet(tweet, media = [composite, camera.get_last_photo()])
-    storage.save_last_rain_tweeted(rain_now[column_timestamp])
+    storage.save_last_rain_my_tweeted(rain_now[column_timestamp])
     log.info('radar_tweet(): tweeted.')
+
+def radar_tweet_public():
+    column_timestamp = 0
+    column_instensity = 4
+    column_area = 5
+
+    rain_now = storage.get_rain()
+
+    timestamp = storage.load_last_rain_prg_tweeted()
+    if not timestamp:
+        log.error('radar_tweet_public(): unable to load last time when rain tweeted; saving last entry.')
+        storage.save_last_rain_prg_tweeted(rain_now[0])
+        return
+
+    rain_history = storage.get_rain_when(timestamp)
+
+    tweet = None
+
+    # todo: create tweet
+
+    if not tweet:
+        log.warning('radar_tweet_public(): won\'t tweet, there is no reason.')
+        return
+
+    composite = path.to('data/chmi/composite.png')
+    if not os.path.isfile(composite):
+        log.error('radar_tweet_public(): composite image is missing.')
+        return
+
+    twitter_wp.tweet(tweet, media = composite)
+    storage.save_last_rain_prg_tweeted(rain_now[column_timestamp])
+    log.info('radar_tweet_public(): tweeted.')
 
 def view():
     # timed by cron

@@ -25,9 +25,14 @@ asset_cities = path.to('assets/chmi_sidla.png')
 file_rain = path.to('data/chmi/rain.png')
 file_lightning = path.to('data/chmi/lightning.png')
 
-file_rain_cutout = path.to('data/chmi/rain_cutout.png')
+file_rain_cutout_my = path.to('data/chmi/rain_cutout_my.png')
+file_rain_cutout_prg = path.to('data/chmi/rain_cutout_prg.png')
 
 composite = path.to('data/chmi/composite.png')
+
+avalon_pixel = (226, 149) # it's x,y
+avalon_gps = (50.1352602954946, 14.448018107292) # it's lat,lng / north,east / y,x
+prague_center = (50.0789384, 14.4605103) # olsanske hrbitovy seems like prague center
 
 watch = 20 # radius of the area to watch for rain
 
@@ -49,61 +54,42 @@ color_map = [ # color legend for chmi rain data
 	(252, 252, 252) # 60
 ]
 
-def get_my_pixel(): # -> (x, y)
-    # define avalon
-    avalon_pixel = (226, 149) # it's x,y
-    avalon_gps = (50.1352602954946, 14.448018107292) # it's lat,lng / north,east / y,x
-
-    # get current location
-    location = storage.get_location()
-    latitude = location[0]
-    longitude = location[1]
-
-    # get distances between avalon and current location
-    dst_ns = distance.distance(avalon_gps, (latitude, avalon_gps[1])).km
-    dst_ew = distance.distance(avalon_gps, (avalon_gps[0], longitude)).km
-
-    if avalon_gps[0] < latitude:
-        dst_ns_dir = -1 # on image: to the top
-    else:
-        dst_ns_dir = +1 # on image: to the bottom
-
-    if avalon_gps[1] < longitude:
-        dst_ew_dir = +1 # on image: to the left
-    else:
-        dst_ew_dir = -1 # on image: to the right
-
-    my_x = avalon_pixel[0] + (dst_ew * dst_ew_dir)
-    my_y = avalon_pixel[1] + (dst_ns * dst_ns_dir)
-
-    # check image boundaries
-    if my_x < 0 or my_x > 595:
-        my_x = avalon_pixel[0]
-
-    if my_y < 0 or my_x > 376:
-        my_y = avalon_pixel[1]
-
-    # create my pixel
-    my_pixel = (
-        int(avalon_pixel[0] + (dst_ew * dst_ew_dir)),
-        int(avalon_pixel[1] + (dst_ns * dst_ns_dir))
-    )
-
-    log.info('get_my_pixel(): current position: {},{} at {},{}'.format(int(dst_ew * dst_ew_dir), int(dst_ns * dst_ns_dir), my_pixel[0], my_pixel[1]))
-
-    return my_pixel
-
-def get_rain_intensity():
+def evaluate_radar():
+	# download
     download()
     create_composite()
 
-    if not os.path.isfile(file_rain_cutout):
-        log.error('get_rain_intensity(): rain cutout is missing. can\'t get rain intensity.')
+	# extract data
+	data_my = get_rain_intensity(file_rain_cutout_my)
+	intensity = data_my[0]
+	distance = data_my[1]
+	area = data_my[2]
+
+	data_prg = get_rain_intensity(file_rain_cutout_prg)
+	intensity_prg = data_prg[0]
+	area_prg = data_prg[2]
+
+    # store data
+    db = None
+    try:
+        db = sqlite3.connect(path.to('data/rain_history.sqlite'))
+    except Error as e:
+        log.error('get_rain_intensity(): unable to open rain database: {}'.format(e))
         return
 
-    location = get_my_pixel()
-    watch_x = location[0] - watch
-    watch_y = location[1] - watch
+    cursor = db.cursor()
+    cursor.execute(
+        'insert into rain ("timestamp", "intensity", "distance", "area", "intensity_prg", "area_prg") values (?, ?, ?, ?, ?, ?)',
+        (int(time.time()), intensity, distance if distance else -1.0, area, intensity_prg, area_prg)
+    )
+
+    db.commit()
+    db.close()
+
+def get_rain_intensity(cutout): # → (intensity, distance, area)
+    if not os.path.isfile(cutout):
+        log.error('get_rain_intensity(): rain cutout is missing. can\'t get rain intensity.')
+        return
 
     color_map_len = len(color_map)
     intensity = 0
@@ -120,7 +106,7 @@ def get_rain_intensity():
 
             area_watch += 1
 
-            pixel = os.popen('convert {} -format "%[fx:int(255*p{{{x},{y}}}.r)],%[fx:int(255*p{{{x},{y}}}.g)],%[fx:int(255*p{{{x},{y}}}.b)]" info:-'.format(file_rain_cutout, x = x, y = y)).read().strip()
+            pixel = os.popen('convert {} -format "%[fx:int(255*p{{{x},{y}}}.r)],%[fx:int(255*p{{{x},{y}}}.g)],%[fx:int(255*p{{{x},{y}}}.b)]" info:-'.format(cutout, x = x, y = y)).read().strip()
             colors = pixel.split(',')
 
             r = int(colors[0])
@@ -151,26 +137,54 @@ def get_rain_intensity():
     area = math.floor((area_rain / area_watch) * 100)
 
     if distance:
-        log.info('get_rain_intensity(): radar data explored. rain: max {} mm/hr at {} % of the area. closest rain: {:.1f} kms.'.format(intensity, area, distance))
+        log.info('get_rain_intensity(): radar data explored for {}. rain: max {} mm/hr at {} % of the area. closest rain: {:.1f} kms.'.format(cutout, intensity, area, distance))
     else:
-        log.info('get_rain_intensity(): radar data explored. no rain detected.')
+        log.info('get_rain_intensity(): radar data explored for {}. no rain detected.'.format(cutout))
 
-    # store data
-    db = None
-    try:
-        db = sqlite3.connect(path.to('data/rain_history.sqlite'))
-    except Error as e:
-        log.error('get_rain_intensity(): unable to open rain database: {}'.format(e))
-        return
+	return (intensity, distance, area)
 
-    cursor = db.cursor()
-    cursor.execute(
-        'insert into rain ("timestamp", "intensity", "distance", "area") values (?, ?, ?, ?)',
-        (int(time.time()), intensity, distance if distance else -1.0, area)
+def get_prg_pixel(): # -> (x, y)
+	return get_pixel(prague_center[0], prague_center[1])
+
+def get_my_pixel(): # -> (x, y)
+    my_location = storage.get_location()
+
+	return get_pixel(my_location[0], my_location[1])
+
+def get_pixel(latitude, longitude): # -> (x, y)
+    dst_ns = distance.distance(avalon_gps, (latitude, avalon_gps[1])).km
+    dst_ew = distance.distance(avalon_gps, (avalon_gps[0], longitude)).km
+
+    if avalon_gps[0] < latitude:
+        dst_ns_dir = -1 # on image: to the top
+    else:
+        dst_ns_dir = +1 # on image: to the bottom
+
+    if avalon_gps[1] < longitude:
+        dst_ew_dir = +1 # on image: to the left
+    else:
+        dst_ew_dir = -1 # on image: to the right
+
+    my_x = avalon_pixel[0] + (dst_ew * dst_ew_dir)
+    my_y = avalon_pixel[1] + (dst_ns * dst_ns_dir)
+
+    # check image boundaries
+    if my_x < 0 or my_x > 595:
+        my_x = avalon_pixel[0]
+
+    if my_y < 0 or my_x > 376:
+        my_y = avalon_pixel[1]
+
+    # create my pixel
+    pixel = (
+        int(avalon_pixel[0] + (dst_ew * dst_ew_dir)),
+        int(avalon_pixel[1] + (dst_ns * dst_ns_dir))
     )
 
-    db.commit()
-    db.close()
+    log.info('get_pixel(): current position: {},{} at {},{}'.format(int(dst_ew * dst_ew_dir), int(dst_ns * dst_ns_dir), my_pixel[0], my_pixel[1]))
+
+    return pixel
+
 
 def create_composite(): # -> composite filename (string)
     if os.path.isfile(composite):
@@ -203,14 +217,18 @@ def download():
     download_image(url_rain, file_rain)
     download_image(url_lightning, file_lightning)
 
-
     if os.path.isfile(file_rain):
         os.system('convert {} -crop 595x376+2+83 +repage {}'.format(file_rain, file_rain))
 
         location = get_my_pixel()
         watch_x = location[0] - watch
         watch_y = location[1] - watch
-        os.system('convert {} -crop {}x{}+{}+{} +repage {}'.format(file_rain, (watch * 2), (watch * 2), watch_x, watch_y, file_rain_cutout))
+        os.system('convert {} -crop {}x{}+{}+{} +repage {}'.format(file_rain, (watch * 2), (watch * 2), watch_x, watch_y, file_rain_cutout_my))
+
+        location = get_prg_pixel()
+        watch_x = location[0] - watch
+        watch_y = location[1] - watch
+        os.system('convert {} -crop {}x{}+{}+{} +repage {}'.format(file_rain, (watch * 2), (watch * 2), watch_x, watch_y, file_rain_cutout_prg))
 
     if os.path.isfile(file_lightning):
         os.system('convert {} -crop 595x376+2+83 +repage {}'.format(file_lightning, file_lightning))
