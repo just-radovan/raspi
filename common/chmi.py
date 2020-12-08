@@ -144,12 +144,12 @@ def get_rain_intensity(cutout): # → (intensity, distance, area)
     return (intensity, distance, area)
 
 def get_prg_pixel(): # -> (x, y)
-	return get_pixel(prague_center[0], prague_center[1])
+    return get_pixel(prague_center[0], prague_center[1])
 
 def get_my_pixel(): # -> (x, y)
     my_location = storage.get_location()
 
-	return get_pixel(my_location[0], my_location[1])
+    return get_pixel(my_location[0], my_location[1])
 
 def get_pixel(latitude, longitude): # -> (x, y)
     dst_ns = distance.distance(avalon_gps, (latitude, avalon_gps[1])).km
