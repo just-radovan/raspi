@@ -56,8 +56,8 @@ color_map = [ # color legend for chmi rain data
 
 def evaluate_radar():
 	# download
-    download()
-    create_composite()
+	download()
+	create_composite()
 
 	# extract data
 	data_my = get_rain_intensity(file_rain_cutout_my)
@@ -69,22 +69,22 @@ def evaluate_radar():
 	intensity_prg = data_prg[0]
 	area_prg = data_prg[2]
 
-    # store data
-    db = None
-    try:
-        db = sqlite3.connect(path.to('data/rain_history.sqlite'))
-    except Error as e:
-        log.error('get_rain_intensity(): unable to open rain database: {}'.format(e))
-        return
+	# store data
+	db = None
+	try:
+	    db = sqlite3.connect(path.to('data/rain_history.sqlite'))
+	except Error as e:
+	    log.error('get_rain_intensity(): unable to open rain database: {}'.format(e))
+	    return
 
-    cursor = db.cursor()
-    cursor.execute(
-        'insert into rain ("timestamp", "intensity", "distance", "area", "intensity_prg", "area_prg") values (?, ?, ?, ?, ?, ?)',
-        (int(time.time()), intensity, distance if distance else -1.0, area, intensity_prg, area_prg)
-    )
+	cursor = db.cursor()
+	cursor.execute(
+	    'insert into rain ("timestamp", "intensity", "distance", "area", "intensity_prg", "area_prg") values (?, ?, ?, ?, ?, ?)',
+	    (int(time.time()), intensity, distance if distance else -1.0, area, intensity_prg, area_prg)
+	)
 
-    db.commit()
-    db.close()
+	db.commit()
+	db.close()
 
 def get_rain_intensity(cutout): # → (intensity, distance, area)
     if not os.path.isfile(cutout):
