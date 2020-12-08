@@ -36,6 +36,9 @@ avalon_gps = (50.1352602954946, 14.448018107292) # it's lat,lng / north,east / y
 prague_center_pixel = (228, 155) # it's x,y
 prague_center_gps = (50.0789384, 14.4605103) # it's lat,lng / north,east / y,x // olsanske hrbitovy seems like prague center
 
+# todo: plzen
+# todo: domazlice
+
 watch = 20 # radius of the area to watch for rain
 
 color_map = [ # color legend for chmi rain data

@@ -321,7 +321,7 @@ def radar_tweet_public():
         ).format(rain_now[column_area], rain_now[column_instensity])
     elif rain_now[column_area] > 5 and rain_now[column_instensity] > (rain_history[column_instensity] * 1.50):
         tweet = (
-            '💦 Zdá se, že prší o něco víc.\n\n'
+            '💦 Prší víc a víc.\n\n'
             '✪ prší na {} % území Prahy\n'
             '✪ max. intenzita srážek se změnila z {} na {} mm/h'
         ).format(rain_now[column_area], rain_history[column_instensity], rain_now[column_instensity])
