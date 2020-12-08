@@ -3,7 +3,7 @@
 
 import path
 import common.log as log
-import auth.twitter_wp as twitter
+import auth.twitter as twitter
 
 import tweepy
 import json
