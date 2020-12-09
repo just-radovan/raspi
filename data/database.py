@@ -30,7 +30,9 @@ def init_rain():
         'create table rain ('
         '"id" integer primary key autoincrement, '
         '"timestamp" integer, "intensity" real, "distance" real, "area" real, '
-        '"intensity_prg" real, "area_prg" real'
+        '"intensity_prg" real, "area_prg" real, '
+        '"intensity_pils" real, "area_pils" real, '
+        '"intensity_dom" real, "area_dom" real'
         ')'
     )
 

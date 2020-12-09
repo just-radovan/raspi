@@ -12,6 +12,8 @@ import sqlite3
 
 rain_my_save = path.to('data/rain_my_tweet.save')
 rain_prg_save = path.to('data/rain_prg_tweet.save')
+rain_pils_save = path.to('data/rain_pils_tweet.save')
+rain_dom_save = path.to('data/rain_dom_tweet.save')
 
 def lock(label, expiration):
     exp = int(time.time()) + expiration
@@ -154,9 +156,9 @@ def get_rain_when(when):
     cursor = db.cursor()
 
     if when:
-        cursor.execute('select timestamp, intensity, distance, area, intensity_prg, area_prg from rain where timestamp <= {} order by timestamp desc limit 0, 1'.format(when))
+        cursor.execute('select timestamp, intensity, distance, area, intensity_prg, area_prg, intensity_pils, area_pils, intensity_dom, area_dom from rain where timestamp <= {} order by timestamp desc limit 0, 1'.format(when))
     else:
-        cursor.execute('select timestamp, intensity, distance, area, intensity_prg, area_prg from rain order by timestamp desc limit 0, 1')
+        cursor.execute('select timestamp, intensity, distance, area, intensity_prg, area_prg, intensity_pils, area_pils, intensity_dom, area_dom from rain order by timestamp desc limit 0, 1')
 
     row = cursor.fetchone()
     db.close()
@@ -188,6 +190,36 @@ def load_last_rain_prg_tweeted():
         return
 
     file = open(rain_prg_save, 'r')
+    timestamp = int(file.read())
+    file.close()
+
+    return timestamp
+
+def save_last_rain_pils_tweeted(timestamp):
+    file = open(rain_pils_save, 'w')
+    file.write(str(timestamp))
+    file.close()
+
+def load_last_rain_pils_tweeted():
+    if not os.path.exists(rain_pils_save):
+        return
+
+    file = open(rain_pils_save, 'r')
+    timestamp = int(file.read())
+    file.close()
+
+    return timestamp
+
+def save_last_rain_dom_tweeted(timestamp):
+    file = open(rain_dom_save, 'w')
+    file.write(str(timestamp))
+    file.close()
+
+def load_last_rain_dom_tweeted():
+    if not os.path.exists(rain_dom_save):
+        return
+
+    file = open(rain_dom_save, 'r')
     timestamp = int(file.read())
     file.close()
 

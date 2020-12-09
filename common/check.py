@@ -7,6 +7,8 @@ import common.storage as storage
 import common.chmi as chmi
 import common.twitter as twitter
 import common.twitter_wp as twitter_wp
+import common.twitter_wpl as twitter_wpl
+import common.twitter_wpd as twitter_wpd
 import common.camera as camera
 import common.radovan_be as website
 
@@ -226,7 +228,9 @@ def radar():
     # timed by cron
     chmi.evaluate_radar()
     radar_tweet()
-    radar_tweet_public()
+    radar_tweet_prg()
+    radar_tweet_pils()
+    radar_tweet_dom()
 
 def radar_tweet():
     column_timestamp = 0
@@ -250,34 +254,35 @@ def radar_tweet():
         tweet = (
             '🌤 rain is over.'
         )
-    elif rain_now[column_area] > 3 and rain_history[column_area] <= 3:
-        tweet = (
-            '🌧 it started to rain.\n\n'
-            '✪ distance: {:.1f} km\n'
-            '✪ area: {:.0f} %\n'
-            '✪ intensity: {:.0f} mm/h'
-        ).format(rain_now[column_distance], rain_now[column_area], rain_now[column_instensity])
-    elif rain_now[column_area] > 3 and 0 <= rain_now[column_distance] <= 2 and (rain_history[column_distance] > 2 or rain_history[column_distance] < 0):
-        tweet = (
-            '☔️ rain is seriously close!\n\n'
-            '✪ distance: {:.1f} km\n'
-            '✪ area: {:.0f} %\n'
-            '✪ intensity: {:.0f} mm/h'
-        ).format(rain_now[column_distance], rain_now[column_area], rain_now[column_instensity])
-    elif rain_now[column_area] > 3 and 0 <= rain_now[column_distance] < (rain_history[column_distance] * 0.75) and rain_history[column_distance] >= 0:
-        tweet = (
-            '☔️ rain is creeping closer.\n\n'
-            '✪ distance: {:.1f} km\n'
-            '✪ area: {:.0f} %\n'
-            '✪ intensity: {:.0f} mm/h'
-        ).format(rain_now[column_distance], rain_now[column_area], rain_now[column_instensity])
-    elif rain_now[column_area] > 3 and rain_now[column_instensity] > (rain_history[column_instensity] * 1.25):
-        tweet = (
-            '💦 it rains bit more.\n\n'
-            '✪ distance: {:.1f} km\n'
-            '✪ area: {:.0f} %\n'
-            '✪ intensity: {:.0f} mm/h'
-        ).format(rain_now[column_distance], rain_now[column_area], rain_now[column_instensity])
+    elif rain_now[column_area] > 3:
+        if rain_history[column_area] <= 3:
+            tweet = (
+                '🌧 it started to rain.\n\n'
+                '✪ distance: {:.1f} km\n'
+                '✪ area: {:.0f} %\n'
+                '✪ intensity: {:.0f} mm/h'
+            ).format(rain_now[column_distance], rain_now[column_area], rain_now[column_instensity])
+        elif 0 <= rain_now[column_distance] <= 2 and (rain_history[column_distance] > 2 or rain_history[column_distance] < 0):
+            tweet = (
+                '☔️ rain is seriously close!\n\n'
+                '✪ distance: {:.1f} km\n'
+                '✪ area: {:.0f} %\n'
+                '✪ intensity: {:.0f} mm/h'
+            ).format(rain_now[column_distance], rain_now[column_area], rain_now[column_instensity])
+        elif 0 <= rain_now[column_distance] < (rain_history[column_distance] * 0.75) and rain_history[column_distance] >= 0:
+            tweet = (
+                '☔️ rain is creeping closer.\n\n'
+                '✪ distance: {:.1f} km\n'
+                '✪ area: {:.0f} %\n'
+                '✪ intensity: {:.0f} mm/h'
+            ).format(rain_now[column_distance], rain_now[column_area], rain_now[column_instensity])
+        elif rain_now[column_instensity] > (rain_history[column_instensity] * 1.25):
+            tweet = (
+                '💦 it rains bit more.\n\n'
+                '✪ distance: {:.1f} km\n'
+                '✪ area: {:.0f} %\n'
+                '✪ intensity: {:.0f} mm/h'
+            ).format(rain_now[column_distance], rain_now[column_area], rain_now[column_instensity])
 
     if not tweet:
         log.warning('radar_tweet(): won\'t tweet, there is no reason.')
@@ -292,7 +297,7 @@ def radar_tweet():
     storage.save_last_rain_my_tweeted(rain_now[column_timestamp])
     log.info('radar_tweet(): tweeted.')
 
-def radar_tweet_public():
+def radar_tweet_prg():
     column_timestamp = 0
     column_instensity = 4
     column_area = 5
@@ -301,7 +306,7 @@ def radar_tweet_public():
 
     timestamp = storage.load_last_rain_prg_tweeted()
     if not timestamp:
-        log.error('radar_tweet_public(): unable to load last time when rain tweeted; saving last entry.')
+        log.error('radar_tweet_prg(): unable to load last time when rain tweeted; saving last entry.')
         storage.save_last_rain_prg_tweeted(rain_now[0])
         return
 
@@ -313,37 +318,146 @@ def radar_tweet_public():
         tweet = (
             '🌤 Yay. Už neprší.'
         )
-    elif rain_now[column_area] > 5 and rain_history[column_area] <= 5:
-        tweet = (
-            '☔️ Někde v Praze začalo pršet.\n\n'
-            '✪ prší na {:.0f} % území Prahy\n'
-            '✪ nejvyšší intenzita srážek je {:.0f} mm/h'
-        ).format(rain_now[column_area], rain_now[column_instensity])
-    elif rain_now[column_area] > 5 and rain_now[column_instensity] >= (rain_history[column_instensity] * 2.0):
-        tweet = (
-            '💦 Prší víc a víc.\n\n'
-            '✪ prší na {:.0f} % území Prahy\n'
-            '✪ max. intenzita srážek se změnila z {:.0f} na {:.0f} mm/h'
-        ).format(rain_now[column_area], rain_history[column_instensity], rain_now[column_instensity])
-    elif rain_now[column_instensity] <= (rain_history[column_instensity] * 0.5):
-        tweet = (
-            '🌦 Zdá se, že přestává pršet.\n\n'
-            '✪ prší na {:.0f} % území Prahy\n'
-            '✪ max. intenzita srážek se změnila z {:.0f} na {:.0f} mm/h'
-        ).format(rain_now[column_area], rain_history[column_instensity], rain_now[column_instensity])
+    elif rain_now[column_area] > 5:
+        if rain_history[column_area] <= 5:
+            tweet = (
+                '☔️ Někde v Praze začalo pršet.\n\n'
+                '✪ prší na {:.0f} % území Prahy\n'
+                '✪ nejvyšší intenzita srážek je {:.0f} mm/h'
+            ).format(rain_now[column_area], rain_now[column_instensity])
+        elif rain_now[column_instensity] >= (rain_history[column_instensity] * 2.0):
+            tweet = (
+                '💦 Prší víc a víc.\n\n'
+                '✪ prší na {:.0f} % území Prahy\n'
+                '✪ max. intenzita srážek se změnila z {:.0f} na {:.0f} mm/h'
+            ).format(rain_now[column_area], rain_history[column_instensity], rain_now[column_instensity])
+        elif rain_now[column_instensity] <= (rain_history[column_instensity] * 0.5):
+            tweet = (
+                '🌦 Zdá se, že přestává pršet.\n\n'
+                '✪ prší na {:.0f} % území Prahy\n'
+                '✪ max. intenzita srážek se změnila z {:.0f} na {:.0f} mm/h'
+            ).format(rain_now[column_area], rain_history[column_instensity], rain_now[column_instensity])
 
     if not tweet:
-        log.warning('radar_tweet_public(): won\'t tweet, there is no reason.')
+        log.warning('radar_tweet_prg(): won\'t tweet, there is no reason.')
         return
 
     composite = path.to('data/chmi/composite.png')
     if not os.path.isfile(composite):
-        log.error('radar_tweet_public(): composite image is missing.')
+        log.error('radar_tweet_prg(): composite image is missing.')
         return
 
     twitter_wp.tweet(tweet, media = composite)
     storage.save_last_rain_prg_tweeted(rain_now[column_timestamp])
-    log.info('radar_tweet_public(): tweeted.')
+    log.info('radar_tweet_prg(): tweeted.')
+
+def radar_tweet_pils():
+    column_timestamp = 0
+    column_instensity = 6
+    column_area = 7
+
+    rain_now = storage.get_rain()
+
+    timestamp = storage.load_last_rain_pils_tweeted()
+    if not timestamp:
+        log.error('radar_tweet_pils(): unable to load last time when rain tweeted; saving last entry.')
+        storage.save_last_rain_pils_tweeted(rain_now[0])
+        return
+
+    rain_history = storage.get_rain_when(timestamp)
+
+    tweet = None
+
+    if rain_now[column_area] == 0 and rain_history[column_area] > 0:
+        tweet = (
+            '🌤 Paráda, neprší.'
+        )
+    elif rain_now[column_area] > 5:
+        if rain_history[column_area] <= 5:
+            tweet = (
+                '☔️ V Plzni začalo pršet.\n\n'
+                '✪ prší na {:.0f} % území Plzně\n'
+                '✪ nejvyšší intenzita srážek je {:.0f} mm/h'
+            ).format(rain_now[column_area], rain_now[column_instensity])
+        elif rain_now[column_instensity] >= (rain_history[column_instensity] * 2.0):
+            tweet = (
+                '💦 Prší čím dál víc.\n\n'
+                '✪ prší na {:.0f} % území Plzně\n'
+                '✪ max. intenzita srážek se změnila z {:.0f} na {:.0f} mm/h'
+            ).format(rain_now[column_area], rain_history[column_instensity], rain_now[column_instensity])
+        elif rain_now[column_instensity] <= (rain_history[column_instensity] * 0.5):
+            tweet = (
+                '🌦 Prší o trochu míň.\n\n'
+                '✪ prší na {:.0f} % území Plzně\n'
+                '✪ max. intenzita srážek se změnila z {:.0f} na {:.0f} mm/h'
+            ).format(rain_now[column_area], rain_history[column_instensity], rain_now[column_instensity])
+
+    if not tweet:
+        log.warning('radar_tweet_pils(): won\'t tweet, there is no reason.')
+        return
+
+    composite = path.to('data/chmi/composite.png')
+    if not os.path.isfile(composite):
+        log.error('radar_tweet_pils(): composite image is missing.')
+        return
+
+    twitter_wpl.tweet(tweet, media = composite)
+    storage.save_last_rain_pils_tweeted(rain_now[column_timestamp])
+    log.info('radar_tweet_pils(): tweeted.')
+
+def radar_tweet_dom():
+    column_timestamp = 0
+    column_instensity = 8
+    column_area = 9
+
+    rain_now = storage.get_rain()
+
+    timestamp = storage.load_last_rain_dom_tweeted()
+    if not timestamp:
+        log.error('radar_tweet_dom(): unable to load last time when rain tweeted; saving last entry.')
+        storage.save_last_rain_dom_tweeted(rain_now[0])
+        return
+
+    rain_history = storage.get_rain_when(timestamp)
+
+    tweet = None
+
+    if rain_now[column_area] == 0 and rain_history[column_area] > 0:
+        tweet = (
+            '🌤 Hurá. Přestalo pršet.'
+        )
+    elif rain_now[column_area] > 5:
+        if rain_history[column_area] <= 5:
+            tweet = (
+                '☔️ Začalo pršet na ovce!\n\n'
+                '✪ prší na {:.0f} % území Domažlic\n'
+                '✪ nejvyšší intenzita srážek je {:.0f} mm/h'
+            ).format(rain_now[column_area], rain_now[column_instensity])
+        elif rain_now[column_instensity] >= (rain_history[column_instensity] * 2.0):
+            tweet = (
+                '💦 Začalo pršet o něco víc.\n\n'
+                '✪ prší na {:.0f} % území Domažlic\n'
+                '✪ max. intenzita srážek se změnila z {:.0f} na {:.0f} mm/h'
+            ).format(rain_now[column_area], rain_history[column_instensity], rain_now[column_instensity])
+        elif rain_now[column_instensity] <= (rain_history[column_instensity] * 0.5):
+            tweet = (
+                '🌦 Vypadaá to, že přestává pršet.\n\n'
+                '✪ prší na {:.0f} % území Domažlic\n'
+                '✪ max. intenzita srážek se změnila z {:.0f} na {:.0f} mm/h'
+            ).format(rain_now[column_area], rain_history[column_instensity], rain_now[column_instensity])
+
+    if not tweet:
+        log.warning('radar_tweet_dom(): won\'t tweet, there is no reason.')
+        return
+
+    composite = path.to('data/chmi/composite.png')
+    if not os.path.isfile(composite):
+        log.error('radar_tweet_dom(): composite image is missing.')
+        return
+
+    twitter_wd.tweet(tweet, media = composite)
+    storage.save_last_rain_dom_tweeted(rain_now[column_timestamp])
+    log.info('radar_tweet_dom(): tweeted.')
 
 def view():
     # timed by cron
