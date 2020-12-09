@@ -188,8 +188,8 @@ def get_pixel(latitude, longitude): # -> (x, y)
     else:
         dst_ew_dir = -1 # on image: to the right
 
-    my_x = ref_pixel[0] + (dst_ew * dst_ew_dir)
-    my_y = ref_pixel[1] + (dst_ns * dst_ns_dir)
+    my_x = avalon_pixel[0] + (dst_ew * dst_ew_dir)
+    my_y = avalon_pixel[1] + (dst_ns * dst_ns_dir)
 
     # check image boundaries
     if my_x < 0 or my_x > 595:
