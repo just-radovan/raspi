@@ -408,7 +408,7 @@ def radar_tweet_pils():
         log.error('radar_tweet_pils(): composite image is missing.')
         return
 
-    # twitter_wpl.tweet(tweet, media = composite)
+    twitter_wpl.tweet(tweet, media = composite)
     storage.save_last_rain_pils_tweeted(rain_now[column_timestamp])
     log.info('radar_tweet_pils(): tweeted.')
 
@@ -428,7 +428,7 @@ def radar_tweet_dom():
     rain_history = storage.get_rain_when(timestamp)
     if not rain_history:
         return
-        
+
     tweet = None
 
     if rain_now[column_area] == 0 and rain_history[column_area] > 0:
@@ -464,7 +464,7 @@ def radar_tweet_dom():
         log.error('radar_tweet_dom(): composite image is missing.')
         return
 
-    # twitter_wd.tweet(tweet, media = composite)
+    twitter_wd.tweet(tweet, media = composite)
     storage.save_last_rain_dom_tweeted(rain_now[column_timestamp])
     log.info('radar_tweet_dom(): tweeted.')
 
