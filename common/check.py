@@ -8,7 +8,7 @@ import common.chmi as chmi
 import common.twitter as twitter
 import common.twitter_wp as twitter_wp
 import common.twitter_wpl as twitter_wpl
-import common.twitter_wpd as twitter_wpd
+import common.twitter_wd as twitter_wd
 import common.camera as camera
 import common.radovan_be as website
 
