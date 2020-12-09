@@ -319,13 +319,13 @@ def radar_tweet_public():
             '✪ prší na {} % území Prahy\n'
             '✪ nejvyšší intenzita srážek je {} mm/h'
         ).format(rain_now[column_area], rain_now[column_instensity])
-    elif rain_now[column_area] > 5 and rain_now[column_instensity] > (rain_history[column_instensity] * 1.50):
+    elif rain_now[column_area] > 5 and rain_now[column_instensity] >= (rain_history[column_instensity] * 2.0):
         tweet = (
             '💦 Prší víc a víc.\n\n'
             '✪ prší na {} % území Prahy\n'
             '✪ max. intenzita srážek se změnila z {} na {} mm/h'
         ).format(rain_now[column_area], rain_history[column_instensity], rain_now[column_instensity])
-    elif rain_now[column_instensity] < (rain_history[column_instensity] * 0.75):
+    elif rain_now[column_instensity] <= (rain_history[column_instensity] * 0.5):
         tweet = (
             '🌦 Zdá se, že přestává pršet.\n\n'
             '✪ prší na {} % území Prahy\n'
