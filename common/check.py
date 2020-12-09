@@ -227,6 +227,7 @@ def temperature_outdoor():
 def radar():
     # timed by cron
     chmi.evaluate_radar()
+
     radar_tweet()
     radar_tweet_prg()
     radar_tweet_pils()
@@ -288,7 +289,7 @@ def radar_tweet():
         log.warning('radar_tweet(): won\'t tweet, there is no reason.')
         return
 
-    composite = path.to('data/chmi/composite.png')
+    composite = path.to('data/chmi/composite_avalon.png')
     if not os.path.isfile(composite):
         log.error('radar_tweet(): composite image is missing.')
         return
@@ -342,7 +343,7 @@ def radar_tweet_prg():
         log.warning('radar_tweet_prg(): won\'t tweet, there is no reason.')
         return
 
-    composite = path.to('data/chmi/composite.png')
+    composite = path.to('data/chmi/composite_prg.png')
     if not os.path.isfile(composite):
         log.error('radar_tweet_prg(): composite image is missing.')
         return
@@ -396,7 +397,7 @@ def radar_tweet_pils():
         log.warning('radar_tweet_pils(): won\'t tweet, there is no reason.')
         return
 
-    composite = path.to('data/chmi/composite.png')
+    composite = path.to('data/chmi/composite_pils.png')
     if not os.path.isfile(composite):
         log.error('radar_tweet_pils(): composite image is missing.')
         return
@@ -450,7 +451,7 @@ def radar_tweet_dom():
         log.warning('radar_tweet_dom(): won\'t tweet, there is no reason.')
         return
 
-    composite = path.to('data/chmi/composite.png')
+    composite = path.to('data/chmi/composite_dom.png')
     if not os.path.isfile(composite):
         log.error('radar_tweet_dom(): composite image is missing.')
         return

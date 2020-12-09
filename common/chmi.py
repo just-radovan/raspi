@@ -31,6 +31,10 @@ file_rain_cutout_pils = path.to('data/chmi/rain_cutout_pils.png')
 file_rain_cutout_dom = path.to('data/chmi/rain_cutout_dom.png')
 
 composite = path.to('data/chmi/composite.png')
+composite_avalon = path.to('data/chmi/composite_avalon.png')
+composite_prg = path.to('data/chmi/composite_prg.png')
+composite_pils = path.to('data/chmi/composite_pils.png')
+composite_dom = path.to('data/chmi/composite_dom.png')
 
 avalon_pixel = (226, 149) # it's x,y for avalon
 avalon_gps = (50.1352602954946, 14.448018107292) # it's lat,lng / north,east / y,x
@@ -160,7 +164,7 @@ def get_rain_intensity(cutout, watch_distance): # → (intensity, distance, area
 
     return (intensity, distance, area)
 
-def get_my_pixel(): # -> (x, y)
+def get_avalon_pixel(): # -> (x, y)
     my_location = storage.get_location()
 
     return get_pixel(my_location[0], my_location[1])
@@ -220,7 +224,20 @@ def create_composite(): # -> composite filename (string)
     os.system('convert {} {} -geometry +0+0 -composite {}'.format(composite, file_rain, composite))
     os.system('convert {} {} -geometry +0+0 -composite {}'.format(composite, file_lightning, composite))
 
+    mark_location(get_avalon_pixel(), watch_avalon, composite_avalon)
+    mark_location(get_prg_pixel(), watch_prague, composite_prg)
+    mark_location(get_pils_pixel(), watch_pilsner, composite_pils)
+    mark_location(get_dom_pixel(), watch_domazlice, composite_dom)
+
     return composite
+
+def mark_location(pixel, watch, file):
+    x = pixel[0]
+    y = pixel[1]
+    cx = pixel[0] - watch
+    cy = pixel[1] - watch
+
+    os.system('convert {} -fill "rgba(0, 0, 0, 0.0)" -stroke "rgba(0, 0, 0, 0.8)" -strokewidth 2 -draw "circle {},{} {},{}" {}'.format(composite, x, y, cx, cy, file))
 
 def download():
     timestamp = get_data_timestamp()
@@ -234,7 +251,7 @@ def download():
     if os.path.isfile(file_rain):
         os.system('convert {} -crop 595x376+2+83 +repage {}'.format(file_rain, file_rain))
 
-        create_cutout(get_my_pixel(), watch_avalon, file_rain_cutout_my)
+        create_cutout(get_avalon_pixel(), watch_avalon, file_rain_cutout_my)
         create_cutout(get_prg_pixel(), watch_prague, file_rain_cutout_prg)
         create_cutout(get_pils_pixel(), watch_prague, file_rain_cutout_pils)
         create_cutout(get_dom_pixel(), watch_prague, file_rain_cutout_dom)
