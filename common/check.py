@@ -248,6 +248,8 @@ def radar_tweet():
         return
 
     rain_history = storage.get_rain_when(timestamp)
+    if not rain_history:
+        return
 
     tweet = None
 
@@ -312,6 +314,8 @@ def radar_tweet_prg():
         return
 
     rain_history = storage.get_rain_when(timestamp)
+    if not rain_history:
+        return
 
     tweet = None
 
@@ -366,6 +370,8 @@ def radar_tweet_pils():
         return
 
     rain_history = storage.get_rain_when(timestamp)
+    if not rain_history:
+        return
 
     tweet = None
 
@@ -420,7 +426,9 @@ def radar_tweet_dom():
         return
 
     rain_history = storage.get_rain_when(timestamp)
-
+    if not rain_history:
+        return
+        
     tweet = None
 
     if rain_now[column_area] == 0 and rain_history[column_area] > 0:
