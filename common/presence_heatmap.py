@@ -35,8 +35,7 @@ def post_heatmap():
     log.info('post_heatmap(): tweeted.')
     storage.lock('post_heatmap', 24*60*60)
 
-# return 2d array: day-of-the-week × hour-of-the-day
-def data():
+def data(): # → 2d array: day-of-the-week × hour-of-the-day
     idxTimestamp = 0
     idxPresent = 1
 

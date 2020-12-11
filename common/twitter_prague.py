@@ -8,11 +8,14 @@ import auth.twitter as twitter
 import tweepy
 import json
 
+def id():
+    return 'prague'
+
 def tweet(message, media = None):
     accessToken = ''
     accessTokenSecret = ''
 
-    with open(path.to('data/twitter_wd_access.data')) as infile:
+    with open(path.to('data/twitter_wp_access.data')) as infile:
         data = json.load(infile)
         for access in data['access']:
             accessToken = access['token']
@@ -74,5 +77,5 @@ def authorize():
         'token_secret': accessSecret
         })
 
-    with open(path.to('data/twitter_wd_access.data'), 'w') as outfile:
+    with open(path.to('data/twitter_wp_access.data'), 'w') as outfile:
         json.dump(data, outfile)
