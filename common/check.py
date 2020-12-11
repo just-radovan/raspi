@@ -279,12 +279,28 @@ def tweet_rain(twitter):
 
     if rain_now[idx_area] == 0 and rain_history[idx_area] == 0:
         if rain_now[idx_distance] and not rain_history[idx_distance] or rain_now[idx_distance] <= (rain_history[idx_distance] * 0.5):
-            tweet = '{} Zatím neprší, ale něco se blíží.'.format(rain_emoji)
+            tweet = random.choice([
+                '{} Zatím neprší, ale něco se blíží.',
+                '{} Neprší. Ale bude!',
+                '{} Na obzoru je déšť.',
+                '{} Poslední minuty na suchu. Za chvíli asi začne pršet.'
+            ]).format(rain_emoji)
     elif rain_now[idx_area] == 0 and rain_history[idx_area] > 0:
-        tweet = '{} Woo-hoo! Už neprší.'.format(rain_emoji)
+        tweet = random.choice([
+            '{} Woo-hoo! Už neprší.',
+            '{} Paráda! Přestalo pršet.',
+            '{} Dost bylo deště!',
+            '{} Yay! Můžeme odložit deštníky.'
+        ]).format(rain_emoji)
     elif rain_now[idx_area] > 5:
         if rain_history[idx_area] <= 5:
-            tweet = '{} Připravte deštníky, začalo pršet.'.format(rain_emoji)
+            tweet = random.choice([
+                '{} Připravte deštníky, začalo pršet.',
+                '{} Někdo si přál déšť? Někdo bude happy.',
+                '{} Začalo pršet.',
+                '{} Padá. Voda.',
+                '{} Tohle není změna klimatu, tohle je změna počasí. Prší.'
+            ]).format(rain_emoji)
         elif rain_now[idx_instensity] >= (rain_history[idx_instensity] * 2.0):
             if rain_now[idx_area] > 90:
                 if rain_now[idx_intensity] <= 20:
