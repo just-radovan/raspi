@@ -317,7 +317,11 @@ def tweet_rain(twitter):
     if not os.path.isfile(composite):
         return
 
-    twitter.tweet(tweet, media = composite)
+    if twitter.id() == 'avalon':
+        twitter.tweet(tweet, media = [composite, camera.get_last_photo()])
+    else:
+        twitter.tweet(tweet, media = composite)
+
     storage.save_rain_tweeted(twitter, rain_now[column_timestamp])
     log.info('tweet_rain(): tweeted for {}.'.format(twitter.id()))
 
