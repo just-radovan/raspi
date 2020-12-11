@@ -58,7 +58,7 @@ color_map = [ # color legend for chmi rain data
 	(224, 220, 0), # 36
 	(252, 176, 0), # 40
 	(252, 132, 0), # 44
-	(252, 88, 0), #48
+	(252, 88, 0), # 48
 	(252, 0, 0), # 52
 	(160, 0, 0), # 56
 	(252, 252, 252) # 60
@@ -81,7 +81,7 @@ def get_pilsen_rain_info(when = None):
 def get_domazlice_rain_info(when = None):
     return get_rain_info(when, get_domazlice_pixel(), domazlice_radius, True)
 
-def get_rain_info(when, pixel, radius, distance_to_radius = False): # → (intensity, distance, area)
+def get_rain_info(when, pixel, radius, distance_to_radius = False): # → (intensity, area, distance)
     map = load_rain_map(when)
 
     area_watch = 0
@@ -89,23 +89,27 @@ def get_rain_info(when, pixel, radius, distance_to_radius = False): # → (inten
     intensity = 0
     distance = None
 
-    # detect rain
-    for x in range(radius * 2):
-        for y in range(radius * 2):
-            dx = x - radius # [-x, +x]
-            dy = y - radius # [-y, +y]
-
-            dst = math.sqrt(abs(dx)) ** 2 + abs(dy) ** 2)
-            if dst > radius: # make it circle
-                continue
+    # detect rain in double the radius
+    # (to see if there is rain outside the watched area)
+    for x in range(radius * 4):
+        for y in range(radius * 4):
+            dx = x - (radius * 2) # [-x, +x]
+            dy = y - (radius * 2) # [-y, +y]
 
             loc_x = pixel[0] + dx
             loc_y = pixel[1] + dy
 
-            area_watch += 1
-            intensity = map[x, y]
-            if intensity > 0:
-                area_rain += 1
+            if not (0 < loc_x < composite_size[0]) or not (0 < loc_y < composite_size[1]):
+                continue # we're outside of the map
+
+            dst = math.sqrt(abs(dx)) ** 2 + abs(dy) ** 2)
+
+            if dst <= radius:
+                area_watch += 1
+
+                intensity = map[loc_x, loc_y]
+                if intensity > 0:
+                    area_rain += 1
 
             if distance_to_radius:
                 dst = max(0, dst - radius)
@@ -122,7 +126,7 @@ def get_rain_info(when, pixel, radius, distance_to_radius = False): # → (inten
     else:
         log.info('get_rain_intensity(): radar data explored for {},{}. no rain detected.'.format(pixel[0], pixel[1]))
 
-    return (intensity, distance, area)
+    return (intensity, area, distance)
 
 def get_avalon_pixel(): # -> (x, y)
     location = storage.get_location()
