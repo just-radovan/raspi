@@ -99,25 +99,27 @@ def get_rain_info(when, pixel, radius, distance_to_radius = False): # → (inten
             loc_x = pixel[0] + dx
             loc_y = pixel[1] + dy
 
-            if not (0 < loc_x < composite_size[0]) or not (0 < loc_y < composite_size[1]):
+            if not (0 <= loc_x < composite_size[0]) or not (0 <= loc_y < composite_size[1]):
                 continue # we're outside of the map
 
             dst = math.sqrt(abs(dx)) ** 2 + abs(dy) ** 2)
 
-            if dst <= radius:
-                area_watch += 1
+            if dst <= (radius * 2): # looking around
+                if distance_to_radius:
+                    dst = max(0, dst - radius)
 
-                intensity = map[loc_x, loc_y]
-                if intensity > 0:
-                    area_rain += 1
+                if not distance:
+                    distance = dst
+                else:
+                    distance = min(distance, dst)
 
-            if distance_to_radius:
-                dst = max(0, dst - radius)
+                if dst <= radius: # inside radius, consider rain
+                    area_watch += 1
 
-            if not distance:
-                distance = dst
-            else:
-                distance = min(distance, dst)
+                    intensity = map[loc_x, loc_y]
+                    if intensity > 0:
+                        area_rain += 1
+
 
     area = math.floor((area_rain / area_watch) * 100)
 

@@ -76,7 +76,7 @@ def summary_at_home():
     message = (
         '{}\n\n'
         '✪ co₂: {} ppm\n'
-        '✪ teplota: {} °c\n'
+        '✪ teplota: {} °C\n'
         '✪ vlhkost: {} %'
     ).format(random.choice(start), co2, temperature, humidity)
 
@@ -106,7 +106,6 @@ def summary_morning():
     temperature = storage.get_netatmo_value('temp_out')
     humidity = storage.get_netatmo_value('humidity_out')
     pressure = storage.get_netatmo_value('pressure')
-    rain_dst = storage.get_rain_value('distance')
 
     start = [
       '🙄 Geez, další blbej den.',
@@ -116,32 +115,23 @@ def summary_morning():
       '🧐 Další den na hovno?'
     ]
 
-    if rain_dst < 0:
-        rain_text = 'ne'
-    elif 0 <= rain_dst < 2:
-        rain_text = 'ano'
-    else:
-        rain_text = 'prší {:.1f} km daleko'.format(rain_dst)
-
     post = website.on_this_day()
     if post:
         message = (
             '{}\n\n'
-            '✪ teplota: {} °c\n'
-            '✪ déšť: {}\n'
+            '✪ teplota: {} °C\n'
             '✪ tlak vzduchu: {} mb\n'
             '✪ vlhkost: {} %\n'
             '\n'
             '🔗 {}'
-        ).format(random.choice(start), temperature, rain_text, pressure, humidity, post)
+        ).format(random.choice(start), temperature, pressure, humidity, post)
     else:
         message = (
             '{}\n\n'
-            '✪ teplota: {} °c\n'
-            '✪ déšť: {}\n'
+            '✪ teplota: {} °C\n'
             '✪ tlak vzduchu: {} mb\n'
             '✪ vlhkost: {} %\n'
-        ).format(random.choice(start), temperature, rain_text, pressure, humidity)
+        ).format(random.choice(start), temperature, pressure, humidity)
 
     twitter.tweet(message)
     log.info('summary_morning(): tweeted.')
@@ -161,7 +151,7 @@ def noise():
     if not storage.evaluate(rows, sound_treshold, +1, 0.3, '🔊', '🔇'):
         log.warning('noise(): no noise detected.')
 
-    twitter.tweet('🔊 Doma je nějaký hluk ({} db)!'.format(entries[0]))
+    twitter.tweet('🔊 Doma je nějaký hluk ({} dB)!'.format(entries[0]))
     log.info('noise(): tweeted.')
     storage.lock('noise', 15*60)
 
@@ -177,7 +167,7 @@ def co2():
         return
 
     co2 = int(rows[0])
-    twitter.tweet('🤢 Úrověň co₂ je {} ppm. Chtělo by to vyvětrat.'.format(co2))
+    twitter.tweet('🤢 Úroveň CO₂ je {} ppm. Chtělo by to vyvětrat.'.format(co2))
     log.info('co2(): tweeted.')
     storage.lock('co2', 30*60)
 
@@ -197,11 +187,11 @@ def co2_trend():
         co2To = int(trend[2])
 
     if trend[0] == +1:
-        twitter.tweet('⚠️ Úroveň co₂ rychle stoupá! {} → {} ppm.'.format(co2From, co2To))
+        twitter.tweet('⚠️ Úroveň CO₂ rychle stoupá! {} → {} ppm.'.format(co2From, co2To))
         log.info('co2(): tweeted (trend+).')
         storage.lock('co2_trend', 60*60)
     elif trend[0] == -1:
-        twitter.tweet('👍 Paráda! Úroveň co₂ klesla. {} → {} ppm.'.format(co2From, co2To))
+        twitter.tweet('👍 Paráda! Úroveň CO₂ klesla. {} → {} ppm.'.format(co2From, co2To))
         log.info('co2(): tweeted (trend-).')
         storage.lock('co2_trend', 60*60)
 
