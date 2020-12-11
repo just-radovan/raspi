@@ -26,11 +26,9 @@ fresh_air_threshold = 700 # ppm
 def summary_presence():
     now = datetime.datetime.now()
     if now.hour < 23:
-        log.warning('summary_presence(): outside of operating hours.')
         return
 
     if storage.is_locked('summary_presence'):
-        log.warning('summary_presence(): lock file present.')
         return
 
     outside = storage.how_long_outside()
@@ -57,11 +55,9 @@ def summary_presence():
 
 def summary_at_home():
     if storage.is_locked('summary_at_home'):
-        log.warning('summary_at_home(): lock file present.')
         return
 
     if not storage.was_outside():
-        log.warning('summary_at_home(): was not outside.')
         return
 
     co2 = storage.get_netatmo_value('co2')
@@ -71,7 +67,7 @@ def summary_at_home():
     start = [
       '🛰 Vítej doma.',
       '🐈‍⬛ Hurá, kočky!',
-      '🏝 Tady nejsou lidi.'
+      '🏝 Aaah, tady nejsou lidi.'
     ]
     message = (
         '{}\n\n'
@@ -87,20 +83,16 @@ def summary_at_home():
 def summary_morning():
     now = datetime.datetime.now()
     if not (5 < now.hour < 12):
-        log.warning('summary_morning(): outside of operating hours.')
         return
 
     if storage.is_locked('summary_morning'):
-        log.warning('summary_morning(): lock file present.')
         return
 
     if not storage.is_present():
-        log.warning('summary_morning(): not at home.')
         return
 
     rows = storage.get_netatmo_data('noise', 5)
     if not storage.evaluate(rows, sound_treshold, +1, 0.3, '🔊', '🔇'):
-        log.warning('summary_morning(): not noisy enough.')
         return
 
     temperature = storage.get_netatmo_value('temp_out')
@@ -139,17 +131,15 @@ def summary_morning():
 
 def noise():
     if storage.is_locked('noise'):
-        log.warning('noise(): lock file present.')
         return
 
     if storage.is_present():
-        log.warning('noise(): at home.')
         return
 
     rows = storage.get_netatmo_data('noise', 4)
 
     if not storage.evaluate(rows, sound_treshold, +1, 0.3, '🔊', '🔇'):
-        log.warning('noise(): no noise detected.')
+        return
 
     twitter.tweet('🔊 Doma je nějaký hluk ({} dB)!'.format(entries[0]))
     log.info('noise(): tweeted.')
@@ -157,13 +147,11 @@ def noise():
 
 def co2():
     if storage.is_locked('co2'):
-        log.warning('co2(): lock file present.')
         return
 
     rows = storage.get_netatmo_data('co2', 4)
 
     if not storage.evaluate(rows, bad_air_threshold, +1, 0.3, '☣️', '💨'):
-        log.warning('co2(): co₂ is not above the limit.')
         return
 
     co2 = int(rows[0])
@@ -173,10 +161,9 @@ def co2():
 
 def co2_trend():
     if storage.is_locked('co2_trend') or storage.is_locked('co2'):
-        log.warning('co2_trend(): lock file present for co2() or co2_trend().')
         return
 
-    rows = storage.get_netatmo_data('co2', 5)
+    rows = storage.get_netatmo_data('co2', 3)
     trend = storage.evaluate_trend(rows, 0.01)
 
     co2From = 0
@@ -197,17 +184,14 @@ def co2_trend():
 
 def temperature_outdoor():
     if storage.is_locked('temperature_outdoor'):
-        log.warning('temperature_outdoor(): lock file present.')
         return
 
     if not storage.is_present():
-        log.warning('temperature_outdoor(): not at home.')
         return
 
     rows = storage.get_netatmo_data('temp_out', 4)
 
     if not storage.evaluate(rows, temp_outdoor_treshold, -1, 0.5, '❄️', '☀️'):
-        log.warning('temperature_outdoor(): temperature is not low enough.')
         return
 
     twitter.tweet('🥶 Venku mrzne!')
@@ -218,7 +202,6 @@ def radar():
     # timed by cron
     chmi.prepare_data()
 
-    # todo: this probably shouldn't be dependent on data download
     tweet_rain(twitter_avalon)
     tweet_rain(twitter_prague)
     tweet_rain(twitter_pilsen)
@@ -332,7 +315,6 @@ def tweet_rain(twitter):
 
     composite = path.to('data/chmi/composite_{}.png'.format(twitter.id()))
     if not os.path.isfile(composite):
-        log.error('tweet_rain(): composite image is missing.')
         return
 
     twitter.tweet(tweet, media = composite)
