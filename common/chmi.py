@@ -283,21 +283,6 @@ def get_data_timestamp(back = 15): # -> chmi image timestamp (string)
 
     return '{}{}{}.{}{}'.format(yr, mo, dy, hr, mn)
 
-def load_rain_map(when = None):
-    db = _open_database('data/rain_history.sqlite')
-    cursor = db.cursor()
-    cursor.row_factory = lambda cursor, row: row[0]
-
-    if when:
-        cursor.execute('select map from rain where timestamp <= {} order by timestamp desc limit 0, 1'.format(when))
-    else:
-        cursor.execute('select map from rain order by timestamp desc limit 0, 1')
-
-    row = cursor.fetchone()
-    db.close()
-
-    return numpy.frombuffer(row)
-
 def store_rain_map(map):
     db = None
     try:
@@ -314,3 +299,27 @@ def store_rain_map(map):
 
     db.commit()
     db.close()
+
+def load_rain_map(when = None, count = 1):
+    db = _open_database('data/rain_history.sqlite')
+    cursor = db.cursor()
+    cursor.row_factory = lambda cursor, row: row[0]
+
+    if when:
+        cursor.execute('select map from rain where timestamp <= {} order by timestamp desc limit 0, {}'.format(when, count))
+    else:
+        cursor.execute('select map from rain order by timestamp desc limit 0, {}'.format(count))
+
+    row = cursor.fetchone()
+    db.close()
+
+    return numpy.frombuffer(row)
+
+def _open_database(file):
+    db = None
+    try:
+        db = sqlite3.connect(path.to(file))
+    except Error as e:
+        log.error('_open_database(): unable to open database "{}": {}'.format(file, e))
+
+    return db
