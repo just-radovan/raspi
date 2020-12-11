@@ -162,21 +162,13 @@ def get_pixel(latitude, longitude): # -> (x, y)
     my_y = avalon_pixel[1] + (dst_ns * dst_ns_dir)
 
     # check image boundaries
-    if my_x < 0 or my_x > 595:
-        my_x = avalon_pixel[0]
+    my_x = max(0, min(my_x, composite_size[0]))
+    my_y = max(0, min(my_y, composite_size[1]))
 
-    if my_y < 0 or my_x > 376:
-        my_y = avalon_pixel[1]
+    log.info('get_pixel(): current position: gps:{},{} at px:{},{}'.format(latitude, longitude, my_x, my_y))
 
-    # create my pixel
-    pixel = (
-        int(avalon_pixel[0] + (dst_ew * dst_ew_dir)),
-        int(avalon_pixel[1] + (dst_ns * dst_ns_dir))
-    )
-
-    log.info('get_pixel(): current position: {},{} at {},{}'.format(int(dst_ew * dst_ew_dir), int(dst_ns * dst_ns_dir), pixel[0], pixel[1]))
-
-    return pixel
+    # return pixel
+    return (int(my_x), int(my_y))
 
 def download():
     timestamp = get_data_timestamp()
