@@ -299,7 +299,9 @@ def tweet_rain(twitter):
                 '{} Někdo si přál déšť? Někdo bude happy.',
                 '{} Začalo pršet.',
                 '{} Padá. Voda.',
-                '{} Tohle není změna klimatu, tohle je změna počasí. Prší.'
+                '{} Tohle není změna klimatu, tohle je změna počasí. Prší.',
+                '{} Pošlete šamana domu, už prší.',
+                '{} Za ten déšť může Kalousek!'
             ]).format(rain_emoji)
         elif rain_now[idx_instensity] >= (rain_history[idx_instensity] * 2.0):
             if rain_now[idx_area] > 90:
@@ -322,7 +324,7 @@ def tweet_rain(twitter):
     else:
         tweet += (
             '\n\n'
-            '{} prší {:.0f} km od sledovaného území\n'
+            '{} prší {:.0f} km od sledované oblasti\n'
         ).format(distance_trend, rain_now[idx_distance])
 
     if not tweet:
