@@ -12,6 +12,7 @@ import sqlite3
 import shutil
 import numpy
 import pytz
+from PIL import Image
 from geopy import distance
 from urllib import request
 
@@ -208,20 +209,21 @@ def create_map():
     map_y = composite_size[1]
     rain_map = numpy.zeros(shape = (map_x, map_y))
 
+    image = Image.open(composite)
+    pixels = image.load()
+
     # detect rain
     log.info('create_map(): ', no_start = False, allow_continue = True)
     for x in range(composite_size[0]):
         log.info('.', no_start = True, allow_continue = True)
 
         for y in range(composite_size[1]):
-
             intensity = 0
-            pixel = os.popen('convert {} -format "%[fx:int(255*p{{{x},{y}}}.r)],%[fx:int(255*p{{{x},{y}}}.g)],%[fx:int(255*p{{{x},{y}}}.b)]" info:-'.format(composite, x = x, y = y)).read().strip()
-            colors = pixel.split(',')
 
-            r = int(colors[0])
-            g = int(colors[1])
-            b = int(colors[2])
+            px = pixels[x, y]
+            r = int(px[0])
+            g = int(px[1])
+            b = int(px[2])
 
             for clr in range(color_map_len):
                 color = color_map[clr]
@@ -286,8 +288,8 @@ def store_rain_map(map):
 
     cursor = db.cursor()
     cursor.execute(
-        'insert into rain (timestamp, map) values (?, ?)',
-        (int(time.time()), map.tobytes())
+        'insert into rain (timestamp, map) values (?, :data)',
+        (int(time.time()), sqlite3.Binary(map.dumps()))
     )
 
     db.commit()
@@ -306,7 +308,9 @@ def load_rain_map(when = None, count = 1):
     row = cursor.fetchone()
     db.close()
 
-    return numpy.frombuffer(row)
+    map = numpy.fromstring(row, sep = '\t')
+
+    return numpy.loads(map)
 
 def _open_database(file):
     db = None
