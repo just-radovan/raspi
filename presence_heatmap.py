@@ -1,4 +1,4 @@
-#!/usr/bin/python3.7
+#!python3.8
 
 import common.presence_heatmap as presence_heatmap
 

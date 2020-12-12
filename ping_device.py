@@ -1,4 +1,4 @@
-#!/usr/bin/python3.7
+#!python3.8
 
 import common.device as device
 
