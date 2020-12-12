@@ -47,7 +47,7 @@ def summary_presence():
 
         outsideStr = '{}h{}'.format(hours, minutes)
 
-    twitter.tweet('🚶 Dnes jsi byl venku {}.'.format(outsideStr))
+    twitter_avalon.tweet('🚶 Dnes jsi byl venku {}.'.format(outsideStr))
     log.info('summary_presence(): tweeted.')
     storage.lock('summary_presence', 12*60*60)
 
@@ -76,7 +76,7 @@ def summary_at_home():
         '✪ vlhkost: {} %'
     ).format(random.choice(start), co2, temperature, humidity)
 
-    twitter.tweet(message)
+    twitter_avalon.tweet(message)
     log.info('summary_at_home(): tweeted.')
     storage.lock('summary_at_home', 30*60)
 
@@ -125,7 +125,7 @@ def summary_morning():
             '✪ vlhkost: {} %\n'
         ).format(random.choice(start), temperature, pressure, humidity)
 
-    twitter.tweet(message)
+    twitter_avalon.tweet(message)
     log.info('summary_morning(): tweeted.')
     storage.lock('summary_morning', 12*60*60)
 
@@ -141,7 +141,7 @@ def noise():
     if not storage.evaluate(rows, sound_treshold, +1, 0.3, '🔊', '🔇'):
         return
 
-    twitter.tweet('🔊 Doma je nějaký hluk ({} dB)!'.format(entries[0]))
+    twitter_avalon.tweet('🔊 Doma je nějaký hluk ({} dB)!'.format(rows[0]))
     log.info('noise(): tweeted.')
     storage.lock('noise', 15*60)
 
@@ -155,7 +155,7 @@ def co2():
         return
 
     co2 = int(rows[0])
-    twitter.tweet('🤢 Úroveň CO₂ je {} ppm. Chtělo by to vyvětrat.'.format(co2))
+    twitter_avalon.tweet('🤢 Úroveň CO₂ je {} ppm. Chtělo by to vyvětrat.'.format(co2))
     log.info('co2(): tweeted.')
     storage.lock('co2', 30*60)
 
@@ -174,11 +174,11 @@ def co2_trend():
         co2To = int(trend[2])
 
     if trend[0] == +1:
-        twitter.tweet('⚠️ Úroveň CO₂ rychle stoupá! {} → {} ppm.'.format(co2From, co2To))
+        twitter_avalon.tweet('⚠️ Úroveň CO₂ rychle stoupá! {} → {} ppm.'.format(co2From, co2To))
         log.info('co2(): tweeted (trend+).')
         storage.lock('co2_trend', 60*60)
     elif trend[0] == -1:
-        twitter.tweet('👍 Paráda! Úroveň CO₂ klesla. {} → {} ppm.'.format(co2From, co2To))
+        twitter_avalon.tweet('👍 Paráda! Úroveň CO₂ klesla. {} → {} ppm.'.format(co2From, co2To))
         log.info('co2(): tweeted (trend-).')
         storage.lock('co2_trend', 60*60)
 
@@ -194,7 +194,7 @@ def temperature_outdoor():
     if not storage.evaluate(rows, temp_outdoor_treshold, -1, 0.5, '❄️', '☀️'):
         return
 
-    twitter.tweet('🥶 Venku mrzne!')
+    twitter_avalon.tweet('🥶 Venku mrzne!')
     log.info('temperature_outdoor(): tweeted.')
     storage.lock('temperature_outdoor', 30*60)
 
@@ -208,9 +208,10 @@ def radar():
     tweet_rain(twitter_domazlice)
 
 def tweet_rain(twitter):
+    now = int(time.time())
     timestamp = storage.load_rain_tweeted(twitter)
     if not timestamp:
-        storage.save_rain_tweeted(twitter, int(time.time()))
+        storage.save_rain_tweeted(twitter, now)
         return
 
     rain_info_func = getattr(chmi, 'get_{}_rain_info'.format(twitter.id().lower()))
@@ -286,7 +287,7 @@ def tweet_rain(twitter):
                 '{} Pošlete šamana domu, už prší.',
                 '{} Za ten déšť může Kalousek!'
             ]).format(rain_emoji)
-        elif rain_now[idx_instensity] >= (rain_history[idx_instensity] * 2.0):
+        elif rain_now[idx_intensity] >= (rain_history[idx_intensity] * 2.0):
             if rain_now[idx_area] > 90:
                 if rain_now[idx_intensity] <= 20:
                     tweet = '{} Stále prší jen trochu, zato úplně všude.'.format(rain_emoji)
@@ -294,7 +295,7 @@ def tweet_rain(twitter):
                     tweet = '{} Noe, připrav archu!'.format(rain_emoji)
             else:
                 tweet = '{} Déšť zesílil.'.format(rain_emoji)
-        elif rain_now[idx_instensity] <= (rain_history[idx_instensity] * 0.5):
+        elif rain_now[idx_intensity] <= (rain_history[idx_intensity] * 0.5):
             tweet = '{} Déšť trochu zeslábl.'.format(rain_emoji)
 
     # add numbers to the message
@@ -303,7 +304,7 @@ def tweet_rain(twitter):
             '\n\n'
             '{} prší na {:.0f} % území\n'
             '{} nejvyšší intenzita srážek je {:.0f} mm/h'
-        ).format(area_trend, rain_now[idx_area], intensity_trend, rain_now[idx_instensity])
+        ).format(area_trend, rain_now[idx_area], intensity_trend, rain_now[idx_intensity])
     else:
         tweet += (
             '\n\n'
@@ -322,7 +323,7 @@ def tweet_rain(twitter):
     else:
         twitter.tweet(tweet, media = composite)
 
-    storage.save_rain_tweeted(twitter, rain_now[column_timestamp])
+    storage.save_rain_tweeted(twitter, now)
     log.info('tweet_rain(): tweeted for {}.'.format(twitter.id()))
 
 def view():
