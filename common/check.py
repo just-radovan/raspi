@@ -320,8 +320,8 @@ def tweet_rain(twitter):
 
     if twitter.id() == 'avalon':
         twitter.tweet(tweet, media = [composite, camera.get_last_photo()])
-    else:
-        twitter.tweet(tweet, media = composite)
+    # else:
+    #     twitter.tweet(tweet, media = composite)
 
     storage.save_rain_tweeted(twitter, now)
     log.info('tweet_rain(): tweeted for {}.'.format(twitter.id()))

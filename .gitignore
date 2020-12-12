@@ -10,7 +10,11 @@ auth/*.py
 
 data/*.sqlite
 data/*.data
+data/*.save
+data/*.lock
+data/chmi/*
 
 # system
 
+.vscode
 .DS_Store
