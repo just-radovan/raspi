@@ -1,5 +1,3 @@
-#!python3.8
-
 import path
 
 import sqlite3

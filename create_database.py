@@ -1,5 +1,3 @@
-#!python3.8
-
 import data.database as database
 
 database.init_netatmo()

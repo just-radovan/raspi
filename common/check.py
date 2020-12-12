@@ -1,4 +1,3 @@
-#!python3.8
 # -*- coding: UTF-8 -*-
 
 import path
@@ -320,6 +319,7 @@ def tweet_rain(twitter):
 
     if twitter.id() == 'avalon':
         twitter.tweet(tweet, media = [composite, camera.get_last_photo()])
+    # todo: uncomment
     # else:
     #     twitter.tweet(tweet, media = composite)
 

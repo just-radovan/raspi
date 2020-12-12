@@ -1,4 +1,3 @@
-#!python3.8
 # -*- coding: UTF-8 -*-
 
 import path
@@ -163,10 +162,10 @@ def get_pixel(latitude, longitude): # -> (x, y)
     my_y = avalon_pixel[1] + (dst_ns * dst_ns_dir)
 
     # check image boundaries
-    my_x = max(0, min(my_x, composite_size[0]))
-    my_y = max(0, min(my_y, composite_size[1]))
+    my_x = int(max(0, min(my_x, composite_size[0])))
+    my_y = int(max(0, min(my_y, composite_size[1])))
 
-    log.info('get_pixel(): current position: gps:{},{} at px:{},{}'.format(latitude, longitude, my_x, my_y))
+    log.info('get_pixel(): current position: gps:{:.3f},{:.3f} at px:{:d},{:d}'.format(latitude, longitude, my_x, my_y))
 
     # return pixel
     return (int(my_x), int(my_y))

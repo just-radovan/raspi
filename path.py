@@ -1,5 +1,3 @@
-#!python3.8
-
 import os
 
 currentDir = os.path.dirname(__file__)
