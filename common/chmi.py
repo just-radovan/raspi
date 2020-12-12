@@ -102,7 +102,7 @@ def get_rain_info(when, pixel, radius, distance_to_radius = False): # → (inten
             if not (0 <= loc_x < composite_size[0]) or not (0 <= loc_y < composite_size[1]):
                 continue # we're outside of the map
 
-            dst = math.sqrt(abs(dx)) ** 2 + abs(dy) ** 2)
+            dst = math.sqrt(abs(dx) ** 2 + abs(dy) ** 2)
 
             if dst <= (radius * 2): # looking around
                 if distance_to_radius:
@@ -158,6 +158,7 @@ def get_pixel(latitude, longitude): # -> (x, y)
     else:
         dst_ew_dir = -1 # on image: to the right
 
+    # coordinates on image
     my_x = avalon_pixel[0] + (dst_ew * dst_ew_dir)
     my_y = avalon_pixel[1] + (dst_ns * dst_ns_dir)
 
@@ -212,7 +213,7 @@ def create_map():
     for x in range(composite_size[0]):
         for y in range(composite_size[1]):
             intensity = 0
-            pixel = os.popen('convert {} -format "%[fx:int(255*p{{{x},{y}}}.r)],%[fx:int(255*p{{{x},{y}}}.g)],%[fx:int(255*p{{{x},{y}}}.b)]" info:-'.format(cutout, x = x, y = y)).read().strip()
+            pixel = os.popen('convert {} -format "%[fx:int(255*p{{{x},{y}}}.r)],%[fx:int(255*p{{{x},{y}}}.g)],%[fx:int(255*p{{{x},{y}}}.b)]" info:-'.format(composite, x = x, y = y)).read().strip()
             colors = pixel.split(',')
 
             r = int(colors[0])
@@ -226,11 +227,7 @@ def create_map():
                 else:
                     color_next = None
 
-                if (color[0] == r and color[1] == g and color[2] == b)
-                    or (color_next and (((color[0] <= r < color_next[0])
-                    or (color[0] >= r > color_next[0])) and ((color[1] <= g < color_next[1])
-                    or (color[1] >= g > color_next[1])) and ((color[2] <= b < color_next[2])
-                    or (color[2] >= b > color_next[2])))):
+                if (color[0] == r and color[1] == g and color[2] == b) or (color_next and (((color[0] <= r < color_next[0]) or (color[0] >= r > color_next[0])) and ((color[1] <= g < color_next[1]) or (color[1] >= g > color_next[1])) and ((color[2] <= b < color_next[2]) or (color[2] >= b > color_next[2])))):
                     intensity = (clr + 1) * 4 # mm/hr
 
             rain_map[x][y] = intensity
@@ -279,8 +276,8 @@ def store_rain_map(map):
     db = None
     try:
         db = sqlite3.connect(path.to('data/rain_history.sqlite'))
-    except Error as e:
-        log.error('store_rain_map(): unable to open rain database: {}'.format(e))
+    except:
+        log.error('store_rain_map(): unable to open rain database.')
         return
 
     cursor = db.cursor()
@@ -311,7 +308,7 @@ def _open_database(file):
     db = None
     try:
         db = sqlite3.connect(path.to(file))
-    except Error as e:
-        log.error('_open_database(): unable to open database "{}": {}'.format(file, e))
+    except:
+        log.error('_open_database(): unable to open database "{}".'.format(file))
 
     return db
