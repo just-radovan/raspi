@@ -209,8 +209,12 @@ def create_map():
     rain_map = numpy.zeros(shape = (map_x, map_y))
 
     # detect rain
+    log.info('create_map(): ', no_start = False, allow_continue = True)
     for x in range(composite_size[0]):
+        log.info('.', no_start = True, allow_continue = True)
+
         for y in range(composite_size[1]):
+
             intensity = 0
             pixel = os.popen('convert {} -format "%[fx:int(255*p{{{x},{y}}}.r)],%[fx:int(255*p{{{x},{y}}}.g)],%[fx:int(255*p{{{x},{y}}}.b)]" info:-'.format(composite, x = x, y = y)).read().strip()
             colors = pixel.split(',')
@@ -231,6 +235,7 @@ def create_map():
 
             rain_map[x][y] = intensity
 
+    log.info(' [done]', no_start = True, allow_continue = False)
     store_rain_map(rain_map)
 
 def create_composite(): # -> composite filename (string)
