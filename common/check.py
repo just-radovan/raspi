@@ -350,7 +350,7 @@ def tweet_rain(twitter):
     # add data set age
     tweet += (
         '\n'
-        '• poslední data: {} min'
+        'ℹ poslední data: {} min'
     ).format(time_delta)
 
     # check composite for attachment

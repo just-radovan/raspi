@@ -1,6 +1,7 @@
 # raspi
 
 various scripts to notify me about what's happening at home. via twitter.
+also to inform people about rain. also via twitter.
 
 ## crontab
 
