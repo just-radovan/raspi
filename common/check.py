@@ -199,7 +199,10 @@ def temperature_outdoor():
 
 def radar():
     # timed by cron
-    chmi.prepare_data()
+    status = chmi.prepare_data()
+    if not status:
+        log.warning('radar(): no new data. won\'t try to tweet.')
+        return
 
     tweet_rain(twitter_avalon)
     tweet_rain(twitter_prague)

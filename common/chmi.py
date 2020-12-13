@@ -64,10 +64,17 @@ color_map = [ # color legend for chmi rain data
 	(252, 252, 252) # 60
 ]
 
-def prepare_data():
+def prepare_data(): # → True if new data was prepared
+    now = time.time()
+    last_map = last_rain_map()
     timestamp = get_data_timestamp(back = 5)
+
+    map_age = int((timestamp[0] - last_map) / 60)
+    if map_age < 10:
+        return False
+
     status = download(timestamp[1])
-    delta = int((time.time() - timestamp[0]) / 60)
+    delta = int((now - timestamp[0]) / 60)
 
     if status:
         log.info('prepare_data(): @+{}m ({}) downloaded.'.format(delta, timestamp[1]))
@@ -82,9 +89,10 @@ def prepare_data():
             log.warning('prepare_data(): @+{}m ({}) downloaded.'.format(delta, timestamp[1]))
         else:
             log.error('prepare_data(): @+{}m ({}) failed to download.'.format(delta, timestamp[1]))
+            return False
 
     create_composite()
-    create_map(timestamp[0])
+    return create_map(timestamp[0])
 
 def get_avalon_rain_info(when = None):
     return get_rain_info(when, get_avalon_pixel(), avalon_radius)
@@ -236,9 +244,9 @@ def download_image(url, path): # → True if succeed
     else:
         return False
 
-def create_map(timestamp):
+def create_map(timestamp): # → True if new map was saved.
     if not os.path.isfile(composite):
-        return
+        return False
 
     color_map_len = len(color_map)
 
@@ -271,7 +279,7 @@ def create_map(timestamp):
 
             rain_map[x][y] = intensity
 
-    store_rain_map(timestamp, rain_map)
+    return store_rain_map(timestamp, rain_map)
 
 def create_composite(): # -> composite filename (string)
     if os.path.isfile(composite):
@@ -311,24 +319,30 @@ def get_data_timestamp(back = 10): # → (timestmap, chmi image timestamp)
     mn = '{:02d}'.format(now.minute)
     timestamp_str = '{}{}{}.{}{}'.format(yr, mo, dy, hr, mn)
 
-    return (datetime.datetime.timestamp(now), timestamp_str)
+    return (math.floor(datetime.datetime.timestamp(now)), timestamp_str)
 
-def store_rain_map(timestamp, map):
+def store_rain_map(timestamp, map): # → True if new map was saved.
     db = None
     try:
         db = sqlite3.connect(path.to('data/rain_history.sqlite'))
     except:
         log.error('store_rain_map(): unable to open rain database.')
-        return
+        return False
 
     cursor = db.cursor()
-    cursor.execute(
-        'insert into rain (timestamp, map) values (?, ?)',
-        (timestamp, sqlite3.Binary(map.tobytes()))
-    )
+    try:
+        cursor.execute(
+            'insert into rain (timestamp, map) values (?, ?)',
+            (timestamp, sqlite3.Binary(map.tobytes()))
+        )
+        db.commit()
 
-    db.commit()
-    db.close()
+        return True
+    except sqlite3.Error as error:
+        db.close()
+
+        log.error('store_rain_map(): unable to store data: {}'.format(error))
+        return False
 
 def load_rain_map(when = None, count = 1): # → (timestamp, map)
     db = _open_database('data/rain_history.sqlite')
@@ -350,6 +364,18 @@ def load_rain_map(when = None, count = 1): # → (timestamp, map)
     map = map.reshape(composite_size[0], composite_size[1])
 
     return (timestamp, map)
+
+def last_rain_map(): # → timestamp
+    db = _open_database('data/rain_history.sqlite')
+    cursor = db.cursor()
+    cursor.row_factory = lambda cursor, row: row[0]
+
+    cursor.execute('select timestamp from rain order by timestamp desc limit 0, 1')
+
+    timestamp = cursor.fetchone()
+    db.close()
+
+    return timestamp
 
 def _open_database(file):
     db = None
