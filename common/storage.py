@@ -58,8 +58,6 @@ def get_location():
     longitude = row[1]
     venue = row[2]
 
-    log.info('get_location(): last known location: {} ({:.5f}, {:.5f})'. format(venue, latitude, longitude))
-
     return [latitude, longitude, venue]
 
 def is_present():
@@ -71,10 +69,7 @@ def is_present():
     row = cursor.fetchone()
     db.close()
 
-    isPresent = (row == 1)
-    log.info('is_present(): {}'.format("🏡" if isPresent else "🏝"))
-
-    return isPresent
+    return (row == 1)
 
 def was_outside():
     entries = 8

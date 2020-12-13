@@ -6,7 +6,7 @@ def init_netatmo():
     sql = (
         'create table netatmo ('
         '"id" integer primary key autoincrement, '
-        '"timestamp" integer, "temp_in" real, "temp_out" real, '
+        '"timestamp" integer not null unique, "temp_in" real, "temp_out" real, '
         '"humidity_in" real, "humidity_out" real, "pressure" real, '
         '"noise" real, "co2" real'
         ')'
@@ -27,7 +27,7 @@ def init_rain():
     sql = (
         'create table rain ('
         '"id" integer primary key autoincrement, '
-        '"timestamp" integer, "map" blob'
+        '"timestamp" integer not null unique, "map" blob'
         ')'
     )
 
@@ -46,7 +46,7 @@ def init_presence():
     sql = (
         'create table presence ('
         '"id" integer primary key autoincrement, '
-        '"timestamp" integer, "present" integer'
+        '"timestamp" integer not null unique, "present" integer'
         ')'
     )
 

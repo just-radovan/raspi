@@ -297,6 +297,9 @@ def tweet_rain(twitter):
         elif rain_now[idx_intensity] <= (rain_history[idx_intensity] * 0.5):
             tweet = '{} Déšť trochu zeslábl.'.format(rain_emoji)
 
+    if not tweet:
+        return
+
     # add numbers to the message
     if rain_now[idx_area] > 0:
         tweet += (
@@ -310,21 +313,18 @@ def tweet_rain(twitter):
             '{} prší {:.0f} km od sledované oblasti\n'
         ).format(distance_trend, rain_now[idx_distance])
 
-    if not tweet:
-        return
-
     composite = path.to('data/chmi/composite_{}.png'.format(twitter.id()))
     if not os.path.isfile(composite):
         return
 
-    if twitter.id() == 'avalon':
-        twitter.tweet(tweet, media = [composite, camera.get_last_photo()])
-    # todo: uncomment
+    log.info('tweet: "{}"'.format(tweet))
+    # todo: return to tweeting
+    # if twitter.id() == 'avalon':
+    #     twitter.tweet(tweet, media = [composite, camera.get_last_photo()])
     # else:
     #     twitter.tweet(tweet, media = composite)
 
     storage.save_rain_tweeted(twitter, now)
-    log.info('tweet_rain(): tweeted for {}.'.format(twitter.id()))
 
 def view():
     # timed by cron

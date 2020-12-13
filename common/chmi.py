@@ -65,9 +65,11 @@ color_map = [ # color legend for chmi rain data
 ]
 
 def prepare_data():
-    download()
+    timestamp = get_data_timestamp()
+    
+    download(timestamp[1])
     create_composite()
-    create_map()
+    create_map(timestamp[0])
 
 def get_avalon_rain_info(when = None):
     return get_rain_info(when, get_avalon_pixel(), avalon_radius)
@@ -82,12 +84,15 @@ def get_domazlice_rain_info(when = None):
     return get_rain_info(when, get_domazlice_pixel(), domazlice_radius, True)
 
 def get_rain_info(when, pixel, radius, distance_to_radius = False): # → (intensity, area, distance)
-    map = load_rain_map(when)
-    
-    if map is None: 
-        log.error('get_rain_info(): there is no map for {} and {}.'.format(pixel, when))
+    data = load_rain_map(when)
+
+    if data is None: 
         return None
 
+    timestamp = data[0]
+    map = data[1]
+    delta = int((time.time() - timestamp) / 60) # minutes
+    
     area_watch = 0
     area_rain = 0
     intensity = 0
@@ -127,10 +132,7 @@ def get_rain_info(when, pixel, radius, distance_to_radius = False): # → (inten
 
     area = math.floor((area_rain / area_watch) * 100)
 
-    if distance:
-        log.info('get_rain_intensity(): radar data explored for {},{}. rain: max {} mm/hr at {} % of the area. closest rain: {:.1f} kms.'.format(pixel[0], pixel[1], intensity, area, distance))
-    else:
-        log.info('get_rain_intensity(): radar data explored for {},{}. no rain detected.'.format(pixel[0], pixel[1]))
+    log.info('get_rain_intensity(): @+{}m data explored for {},{}. rain: max {:.0f} mm/hr at {:.0f} %. closest rain: {:.0f} kms.'.format(delta, pixel[0], pixel[1], intensity, area, distance))
 
     return (intensity, area, distance)
 
@@ -170,16 +172,12 @@ def get_pixel(latitude, longitude): # -> (x, y)
     my_x = int(max(0, min(my_x, composite_size[0])))
     my_y = int(max(0, min(my_y, composite_size[1])))
 
-    log.info('get_pixel(): current position: gps:{:.3f},{:.3f} at px:{:d},{:d}'.format(latitude, longitude, my_x, my_y))
-
     # return pixel
     return (int(my_x), int(my_y))
 
-def download():
-    timestamp = get_data_timestamp()
-
-    url_rain = (url_base + url_postfix_rain).format(timestamp)
-    url_lightning = (url_base + url_postfix_lightning).format(timestamp)
+def download(file_timestamp):
+    url_rain = (url_base + url_postfix_rain).format(file_timestamp)
+    url_lightning = (url_base + url_postfix_lightning).format(file_timestamp)
 
     download_image(url_rain, file_rain)
     download_image(url_lightning, file_lightning)
@@ -206,9 +204,8 @@ def download_image(url, path):
     else:
         log.error('download_image(): failed to download {}'.format(url))
 
-def create_map():
+def create_map(timestamp):
     if not os.path.isfile(composite):
-        log.error('create_map(): can\'t create map. there is no composite file.')
         return
 
     color_map_len = len(color_map)
@@ -221,10 +218,7 @@ def create_map():
     pixels = image.load()
 
     # detect rain
-    log.info('create_map(): ', no_start = False, allow_continue = True)
     for x in range(composite_size[0]):
-        log.info('.', no_start = True, allow_continue = True)
-
         for y in range(composite_size[1]):
             intensity = 0
 
@@ -245,15 +239,13 @@ def create_map():
 
             rain_map[x][y] = intensity
 
-    log.info(' [done]', no_start = True, allow_continue = False)
-    store_rain_map(rain_map)
+    store_rain_map(timestamp, rain_map)
 
 def create_composite(): # -> composite filename (string)
     if os.path.isfile(composite):
         os.remove(composite)
 
     if not os.path.isfile(file_rain) or not os.path.isfile(file_lightning):
-        log.error('create_composite(): can\'t create composite, files are not downloaded.')
         return
 
     os.system('convert {} {} -geometry +0+0 -composite {}'.format(asset_terrain, asset_cities, composite))
@@ -275,7 +267,7 @@ def mark_location(pixel, watch, file):
 
     os.system('convert {} -fill "rgba(0, 0, 0, 0.0)" -stroke "rgba(0, 0, 0, 0.8)" -strokewidth 2 -draw "circle {},{} {},{}" {}'.format(composite, x, y, cx, cy, file))
 
-def get_data_timestamp(back = 15): # -> chmi image timestamp (string)
+def get_data_timestamp(back = 15): # → (timestmap, chmi image timestamp)
     now = datetime.datetime.now(pytz.utc) - datetime.timedelta(minutes = back)
 
     yr = '{:04d}'.format(now.year)
@@ -284,9 +276,9 @@ def get_data_timestamp(back = 15): # -> chmi image timestamp (string)
     hr = '{:02d}'.format(now.hour)
     mn = '{:02d}'.format(math.floor(now.minute / 10) * 10)
 
-    return '{}{}{}.{}{}'.format(yr, mo, dy, hr, mn)
+    return (datetime.datetime.timestamp(now), '{}{}{}.{}{}'.format(yr, mo, dy, hr, mn))
 
-def store_rain_map(map):
+def store_rain_map(timestamp, map):
     db = None
     try:
         db = sqlite3.connect(path.to('data/rain_history.sqlite'))
@@ -297,37 +289,32 @@ def store_rain_map(map):
     cursor = db.cursor()
     cursor.execute(
         'insert into rain (timestamp, map) values (?, ?)',
-        (int(time.time()), sqlite3.Binary(map.tobytes()))
+        (timestamp, sqlite3.Binary(map.tobytes()))
     )
 
     db.commit()
     db.close()
 
-def load_rain_map(when = None, count = 1):
+def load_rain_map(when = None, count = 1): # → (timestamp, map)
     db = _open_database('data/rain_history.sqlite')
     cursor = db.cursor()
-    cursor.row_factory = lambda cursor, row: row[0]
 
     if when:
-        cursor.execute('select map from rain where timestamp <= {} order by timestamp desc limit 0, {}'.format(when, count))
+        cursor.execute('select timestamp, map from rain where timestamp <= {} order by timestamp desc limit 0, {}'.format(when, count))
     else:
-        cursor.execute('select map from rain order by timestamp desc limit 0, {}'.format(count))
+        cursor.execute('select timestamp, map from rain order by timestamp desc limit 0, {}'.format(count))
 
     row = cursor.fetchone()
     db.close()
 
     if not row:
-        if when:
-            log.error('load_rain_map(): unable to load map for {}.'.format(when))
-        else:
-            log.error('load_rain_map(): unable to load last map.')
-        
         return None
 
-    map = numpy.frombuffer(row, dtype = numpy.float64)
+    timestamp = row[0]
+    map = numpy.frombuffer(row[1], dtype = numpy.float64)
     map = map.reshape(composite_size[0], composite_size[1])
 
-    return map
+    return (timestamp, map)
 
 def _open_database(file):
     db = None
