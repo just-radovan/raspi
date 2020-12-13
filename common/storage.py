@@ -95,19 +95,23 @@ def how_long_outside():
     rows = cursor.fetchall()
     db.close()
 
-    rowPrevious = None
+    row_prev = None
     outsideStart = -1
     outside = 0
+
     for row in rows:
         if row[1] == 0:
-            if (not rowPrevious or rowPrevious[1] == 1) and outsideStart < 0:
-                outsideStart = row[0]
+            if outsideStart < 0:
+                if not row_prev:
+                    outsideStart = row[0]
+                elif row_prev[1] == 1:
+                    outsideStart = row[0]
         else:
             if outsideStart >= 0:
                 outside += (row[0] - outsideStart)
                 outsideStart = -1
 
-        rowPrevious = row
+        row_prev = row
 
     return outside
 
@@ -141,7 +145,7 @@ def load_rain_tweeted(twitter):
         return
 
     file = open(fn, 'r')
-    timestamp = int(file.read())
+    timestamp = float(file.read())
     file.close()
 
     return timestamp
@@ -175,7 +179,7 @@ def evaluate(entries, threshold, comparison, required, emojiLeading, emojiTraili
     requiredCount = int(math.ceil(entriesCnt * required))
     restCount = entriesCnt - requiredCount
 
-    log.info('evaluate(): {} → {} (0..{}) | {} → {} (>={})'.format(emojiLeading, found['leading'], requiredCount, emojiTrailing, found['trailing'], requiredCount, restCount))
+    log.info('evaluate(): {} {} → {} (0..{}) | {} → {} (>={})'.format(emojiLeading, found['leading'], requiredCount, emojiTrailing, found['trailing'], requiredCount, restCount))
 
     return ((found['leading'] > 0 and found['leading'] <= requiredCount) and found['trailing'] >= restCount)
 
@@ -244,7 +248,7 @@ def _open_database(file):
     db = None
     try:
         db = sqlite3.connect(path.to(file))
-    except Error as e:
-        log.error('_open_database(): unable to open database "{}": {}'.format(file, e))
+    except:
+        log.error('_open_database(): unable to open database "{}".'.format(file))
 
     return db
