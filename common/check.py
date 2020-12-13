@@ -241,11 +241,11 @@ def tweet_rain(twitter):
         intensity_trend = '⇣'
 
     distance_trend = '⇢'
-    if rain_now[idx_distance] and not rain_history[idx_distance]:
+    if rain_now[idx_distance] >= 0 and rain_history[idx_distance] < 0:
         distance_trend = '⇣'
-    elif not rain_now[idx_distance] and rain_history[idx_distance]:
+    elif rain_now[idx_distance] < 0 and rain_history[idx_distance] >= 0:
         distance_trend = '⇡'
-    elif rain_now[idx_distance] and rain_history[idx_distance]:
+    elif rain_now[idx_distance] >= 0 and rain_history[idx_distance] >= 0:
         if rain_now[idx_distance] > rain_history[idx_distance]:
             distance_trend = '⇡'
         elif rain_now[idx_distance] < rain_history[idx_distance]:
@@ -266,7 +266,7 @@ def tweet_rain(twitter):
     tweet = None
 
     if rain_now[idx_area] < 0.2 and rain_history[idx_area] < 0.2:
-        if rain_now[idx_area_outside] > 2.0 and (rain_now[idx_distance] and not rain_history[idx_distance]):
+        if rain_now[idx_area_outside] > 2.0 and (rain_now[idx_distance] >= 0 and rain_history[idx_distance] < 0):
             tweet = random.choice([
                 '{} Zatím neprší, ale něco se blíží.',
                 '{} Neprší. Ale bude!',
@@ -274,7 +274,7 @@ def tweet_rain(twitter):
                 '{} Poslední minuty na suchu. Za chvíli asi začne pršet.'
             ]).format(rain_emoji)
     elif rain_now[idx_area] < 0.2 and rain_history[idx_area] >= 1.0:
-        if (not rain_now[idx_distance] and rain_history[idx_distance]) or rain_now[idx_distance] > rain_history[idx_distance]:
+        if (rain_now[idx_distance] < 0 and rain_history[idx_distance] >= 0) or rain_now[idx_distance] > rain_history[idx_distance]:
             tweet = random.choice([
                 '{} Woo-hoo! Už neprší.',
                 '{} Paráda! Přestalo pršet.',
@@ -310,7 +310,7 @@ def tweet_rain(twitter):
             tweet = '{} Déšť trochu zeslábl.'.format(rain_emoji)
 
     if not tweet:
-        if not rain_now[idx_distance] and not rain_history[idx_distance]:
+        if rain_now[idx_distance] < 0 and rain_history[idx_distance] < 0:
             log.info('tweet_rain(): not tweeting, but not raining. resetting the clock for {}.'.format(twitter.id()))
             storage.save_rain_tweeted(twitter, now)
 
