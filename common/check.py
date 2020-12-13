@@ -338,7 +338,7 @@ def tweet_rain(twitter):
         else:
             tweet += (
                 '\n\n'
-                '{} prší na {:.1f} % území\n'
+                '{} prší na {:.0f} % území\n'
                 '{} nejvyšší intenzita srážek je {:.0f} mm/h'
             ).format(area_trend, rain_now[idx_area], intensity_trend, rain_now[idx_intensity])
     elif rain_now[idx_distance] >= 0:
@@ -350,7 +350,7 @@ def tweet_rain(twitter):
     # add data set age
     tweet += (
         '\n'
-        'ℹ poslední data: {} min'
+        'ℹ poslední data: před {} min'
     ).format(time_delta)
 
     # check composite for attachment
@@ -358,7 +358,6 @@ def tweet_rain(twitter):
     if not os.path.isfile(composite):
         return
 
-    log.info('tweet: "{}"'.format(tweet))
     if twitter.id() == 'avalon':
         twitter.tweet(tweet, media = [composite, camera.get_last_photo()])
     else:
@@ -373,11 +372,7 @@ def tweet_rain_heatmap():
     if not os.path.isfile(heatmap):
         return
 
-    tweet = (
-        '📈 Jak pršelo posledních sedm dní.'
-    )
-
-    twitter_avalon.tweet(tweet, heatmap)
+    twitter_avalon.tweet('📈 Jak pršelo posledních sedm dní…', heatmap)
 
     log.warning('tweet_rain_heatmap(): tweeting disabled for anything but avalon.')
     # twitter_prague.tweet(tweet, heatmap)
