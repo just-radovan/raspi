@@ -346,6 +346,12 @@ def tweet_rain(twitter):
             '\n\n'
             '{} stále prší {:.1f} km od sledované oblasti'
         ).format(distance_trend, rain_now[idx_distance])
+    
+    # add data set age
+    tweet += (
+        '\n'
+        '• poslední data: {} min'
+    ).format(time_delta)
 
     # check composite for attachment
     composite = path.to('data/chmi/composite_{}.png'.format(twitter.id()))
