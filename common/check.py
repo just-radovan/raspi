@@ -218,6 +218,8 @@ def tweet_rain(twitter):
     rain_now = rain_info_func()
     rain_history = rain_info_func(timestamp)
 
+    delta = int((now - timestamp) / 60) # minutes
+
     idx_intensity = 0
     idx_area = 1
     idx_area_outside = 2
@@ -310,7 +312,7 @@ def tweet_rain(twitter):
             tweet = '{} Déšť trochu zeslábl.'.format(rain_emoji)
 
     if not tweet:
-        if rain_now[idx_distance] < 0 and rain_history[idx_distance] < 0:
+        if (rain_now[idx_distance] < 0 and rain_history[idx_distance] < 0) or (rain_now[idx_distance] < 0 and delta > 45):
             log.info('tweet_rain(): not tweeting, but not raining. resetting the clock for {}.'.format(twitter.id()))
             storage.save_rain_tweeted(twitter, now)
 
