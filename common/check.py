@@ -226,28 +226,30 @@ def tweet_rain(twitter):
     if not rain_now or not rain_history:
         return
 
-    log.info('tweet_rain(): considering tweeting for {}: {:.0f} mm/hr, {:.3f} % // perimeter: {:.3f} %, {:.1f} kms'.format(twitter.id(), rain_now[idx_intensity], rain_now[idx_area], rain_now[idx_area_outside], rain_now[idx_distance]))
-
     area_delta = rain_now[idx_area] - rain_history[idx_area]
     area_trend = '⇢'
     if area_delta > 0:
         area_trend = '⇡'
-    elif area_delta < 0:
+    elif area_delta > 0:
         area_trend = '⇣'
 
     intensity_delta = rain_now[idx_intensity] - rain_history[idx_intensity]
     intensity_trend = '⇢'
     if intensity_delta > 0:
         intensity_trend = '⇡'
-    elif area_delta < 0:
+    elif intensity_delta < 0:
         intensity_trend = '⇣'
 
-    distance_delta = rain_now[idx_distance] - rain_history[idx_distance]
     distance_trend = '⇢'
-    if distance_delta > 0:
-        distance_trend = '⇡'
-    elif distance_delta < 0:
+    if rain_now[idx_distance] and not rain_history[idx_distance]:
         distance_trend = '⇣'
+    elif not rain_now[idx_distance] and rain_history[idx_distance]:
+        distance_trend = '⇡'
+    elif rain_now[idx_distance] and rain_history[idx_distance]:
+        if rain_now[idx_distance] > rain_history[idx_distance]:
+            distance_trend = '⇡'
+        elif rain_now[idx_distance] < rain_history[idx_distance]:
+            distance_trend = '⇣'
 
     rain_emoji = '🌦'
     if rain_now[idx_intensity] < 5:
@@ -263,23 +265,23 @@ def tweet_rain(twitter):
 
     tweet = None
 
-    if rain_now[idx_area] == 0 and rain_history[idx_area] == 0:
-        if rain_now[idx_area_outside] > 2 and rain_now[idx_distance] and not rain_history[idx_distance] or rain_now[idx_distance] <= (rain_history[idx_distance] * 0.5):
+    if rain_now[idx_area] < 0.2 and rain_history[idx_area] < 0.2:
+        if rain_now[idx_area_outside] > 2.0 and (rain_now[idx_distance] and not rain_history[idx_distance]):
             tweet = random.choice([
                 '{} Zatím neprší, ale něco se blíží.',
                 '{} Neprší. Ale bude!',
                 '{} Na obzoru je déšť.',
                 '{} Poslední minuty na suchu. Za chvíli asi začne pršet.'
             ]).format(rain_emoji)
-    elif rain_now[idx_area] == 0 and rain_history[idx_area] > 0:
+    elif rain_now[idx_area] < 0.2 and rain_history[idx_area] >= 0.2:
         tweet = random.choice([
             '{} Woo-hoo! Už neprší.',
             '{} Paráda! Přestalo pršet.',
             '{} Dost bylo deště!',
             '{} Yay! Můžeme odložit deštníky.'
         ]).format(rain_emoji)
-    elif rain_now[idx_area] > 3:
-        if rain_history[idx_area] <= 3:
+    elif rain_now[idx_area] > 3.0:
+        if rain_history[idx_area] <= 3.0:
             tweet = random.choice([
                 '{} Připravte deštníky, začalo pršet.',
                 '{} Někdo si přál déšť? Někdo bude happy.',
@@ -301,11 +303,10 @@ def tweet_rain(twitter):
             tweet = '{} Déšť trochu zeslábl.'.format(rain_emoji)
 
     if not tweet:
-        log.info('tweet_rain(): not tweeting, no reason.')
         return
 
     # add numbers to the message
-    if rain_now[idx_area] > 0:
+    if rain_now[idx_area] > 0.2:
         tweet += (
             '\n\n'
             '{} prší na {:.1f} % území\n'

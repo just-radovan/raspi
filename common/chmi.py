@@ -116,31 +116,39 @@ def get_rain_info(when, pixel, radius, distance_to_radius = False): # → (inten
             dst = math.sqrt(abs(dx) ** 2 + abs(dy) ** 2)
 
             if dst <= (radius * 2):
+                map_intensity = map[loc_x, loc_y]
+
                 if dst <= radius:
                     area_watch += 1
-                    if map[loc_x, loc_y] > 0:
+                    if map_intensity > 0:
                         area_rain += 1
-                        intensity = max(intensity, map[loc_x, loc_y])
+                        intensity = max(intensity, map_intensity)
                 else:
                     perimeter_watch += 1
-                    if map[loc_x, loc_y] > 0:
+                    if map_intensity > 0:
                         perimeter_rain += 1
 
                 # store distance to watched area
-                if distance_to_radius:
-                    dst_to_watch = max(0, dst - radius)
-                else:
-                    dst_to_watch = dst
+                if map_intensity > 0:
+                    if distance_to_radius:
+                        dst_to_watch = max(0, dst - radius)
+                    else:
+                        dst_to_watch = dst
 
-                if not distance:
-                    distance = dst_to_watch
-                else:
-                    distance = min(distance, dst_to_watch)
+                    if not distance:
+                        distance = dst_to_watch
+                    else:
+                        distance = min(distance, dst_to_watch)
 
     area = (area_rain / area_watch) * 100
     perimeter = (perimeter_rain / perimeter_watch) * 100
 
-    log.info('get_rain_intensity(): @+{}m {}×{}: max {:.0f} mm/hr at {:.3f} % // perimeter: {:.3f} %, {:.1f} kms.'.format(delta, pixel[0], pixel[1], intensity, area, perimeter, distance))
+    if distance:
+        log.info('get_rain_intensity(): @+{}m {}×{}: max {:.0f} mm/hr at {:.3f} % // perimeter: {:.3f} %, {:.1f} kms.'.format(delta, pixel[0], pixel[1], intensity, area, perimeter, distance))
+    else:
+        log.info('get_rain_intensity(): @+{}m {}×{}: no rain detected'.format(delta, pixel[0], pixel[1]))
+        if perimeter > 0:
+            log.warning('get_rain_intensity(): @+{}m {}×{}: no distance, but there\'s something out there: {} %!'.format(delta, pixel[0], pixel[1], perimeter))
 
     return (intensity, area, perimeter, distance)
 
