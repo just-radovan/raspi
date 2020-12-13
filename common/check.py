@@ -273,7 +273,7 @@ def tweet_rain(twitter):
                 '{} Na obzoru je déšť.',
                 '{} Poslední minuty na suchu. Za chvíli asi začne pršet.'
             ]).format(rain_emoji)
-    elif rain_now[idx_area] < 0.2 and rain_history[idx_area] >= 1.0:
+    elif rain_now[idx_area] < 0.2 and rain_history[idx_area] >= 0.2:
         if (rain_now[idx_distance] < 0 and rain_history[idx_distance] >= 0) or rain_now[idx_distance] > rain_history[idx_distance]:
             tweet = random.choice([
                 '{} Woo-hoo! Už neprší.',
