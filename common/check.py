@@ -273,13 +273,20 @@ def tweet_rain(twitter):
                 '{} Na obzoru je déšť.',
                 '{} Poslední minuty na suchu. Za chvíli asi začne pršet.'
             ]).format(rain_emoji)
-    elif rain_now[idx_area] < 0.2 and rain_history[idx_area] >= 0.2:
-        tweet = random.choice([
-            '{} Woo-hoo! Už neprší.',
-            '{} Paráda! Přestalo pršet.',
-            '{} Dost bylo deště!',
-            '{} Yay! Můžeme odložit deštníky.'
-        ]).format(rain_emoji)
+    elif rain_now[idx_area] < 0.2 and rain_history[idx_area] >= 1.0:
+        if (not rain_now[idx_distance] and rain_history[idx_distance]) or rain_now[idx_distance] > rain_history[idx_distance]:
+            tweet = random.choice([
+                '{} Woo-hoo! Už neprší.',
+                '{} Paráda! Přestalo pršet.',
+                '{} Dost bylo deště!',
+                '{} Yay! Můžeme odložit deštníky.'
+            ]).format(rain_emoji)
+        else:
+            tweet = random.choice([
+                '{} Už neprší, ale asi brzy zase začne.',
+                '{} Užijte si pár minut bez deště.',
+                '{} Přestalo pršet, ale zatím bych se neradoval.'
+            ]).format(rain_emoji)
     elif rain_now[idx_area] > 3.0:
         if rain_history[idx_area] <= 3.0:
             tweet = random.choice([
@@ -303,6 +310,10 @@ def tweet_rain(twitter):
             tweet = '{} Déšť trochu zeslábl.'.format(rain_emoji)
 
     if not tweet:
+        if not rain_now[idx_distance] and not rain_history[idx_distance]:
+            log.info('tweet_rain(): not tweeting, but not raining. resetting the clock for {}.'.format(twitter.id()))
+            storage.save_rain_tweeted(twitter, now)
+
         return
 
     # add numbers to the message
