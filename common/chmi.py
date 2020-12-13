@@ -83,6 +83,10 @@ def get_domazlice_rain_info(when = None):
 
 def get_rain_info(when, pixel, radius, distance_to_radius = False): # → (intensity, area, distance)
     map = load_rain_map(when)
+    
+    if map is None: 
+        log.error('get_rain_info(): there is no map for {} and {}.'.format(pixel, when))
+        return None
 
     area_watch = 0
     area_rain = 0
@@ -203,6 +207,10 @@ def download_image(url, path):
         log.error('download_image(): failed to download {}'.format(url))
 
 def create_map():
+    if not os.path.isfile(composite):
+        log.error('create_map(): can\'t create map. there is no composite file.')
+        return
+
     color_map_len = len(color_map)
 
     map_x = composite_size[0]
@@ -288,8 +296,8 @@ def store_rain_map(map):
 
     cursor = db.cursor()
     cursor.execute(
-        'insert into rain (timestamp, map) values (?, :data)',
-        (int(time.time()), sqlite3.Binary(map.dumps()))
+        'insert into rain (timestamp, map) values (?, ?)',
+        (int(time.time()), sqlite3.Binary(map.tobytes()))
     )
 
     db.commit()
@@ -308,9 +316,18 @@ def load_rain_map(when = None, count = 1):
     row = cursor.fetchone()
     db.close()
 
-    map = numpy.fromstring(row, sep = '\t')
+    if not row:
+        if when:
+            log.error('load_rain_map(): unable to load map for {}.'.format(when))
+        else:
+            log.error('load_rain_map(): unable to load last map.')
+        
+        return None
 
-    return numpy.loads(map)
+    map = numpy.frombuffer(row, dtype = numpy.float64)
+    map = map.reshape(composite_size[0], composite_size[1])
+
+    return map
 
 def _open_database(file):
     db = None
