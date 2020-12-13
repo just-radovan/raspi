@@ -39,7 +39,6 @@ def data(): # → 2d array: day-of-the-week × hour-of-the-day
     idxPresent = 1
 
     entries = storage.get_presence(asc = True)
-    entriesCnt = len(entries)
 
     data = {
         'mon': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],

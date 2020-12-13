@@ -7,13 +7,15 @@ also to inform people about rain. also via twitter.
 
 ```
 *	    *	*	*	*	python3 /usr/local/bin/scripts/ping_device.py # >> /usr/local/bin/scripts/log/log
+*/2	    *	*	*	*	python3 /usr/local/bin/scripts/take_photo.py # >> /usr/local/bin/scripts/log/log
 */5	    *	*	*	*	python3 /usr/local/bin/scripts/check.py # >> /usr/local/bin/scripts/log/log
 */5	    *	*	*	*	python3 /usr/local/bin/scripts/netatmo_download.py # >> /usr/local/bin/scripts/log/log
 */5	    *	*	*	*	python3 /usr/local/bin/scripts/download_checkins.py # >> /usr/local/bin/scripts/log/log
-*/10	*	*	*	*	python3 /usr/local/bin/scripts/watch_rain.py # >> /usr/local/bin/scripts/log/log
-*/2	    *	*	*	*	python3 /usr/local/bin/scripts/take_photo.py # >> /usr/local/bin/scripts/log/log
 55	    23	*	*	*	python3 /usr/local/bin/scripts/make_video.py # >> /usr/local/bin/scripts/log/log
 10	    22	*	*	0	python3 /usr/local/bin/scripts/presence_heatmap.py # >> /usr/local/bin/scripts/log/log
+
+*/10	*	*	*	*	python3 /usr/local/bin/scripts/watch_rain.py # >> /usr/local/bin/scripts/log/log
+20	    22	*	*	0	python3 /usr/local/bin/scripts/rain_heatmap.py # >> /usr/local/bin/scripts/log/log
 
 15	    0	*	*	*	cp /usr/local/bin/scripts/data/* /mnt/storage/backup/
 20	    0	*	*	*	cp /usr/local/bin/scripts/data/video/* /mnt/storage/movies/timelapse/ && rm /usr/local/bin/scripts/data/video/*

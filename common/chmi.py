@@ -12,9 +12,12 @@ import sqlite3
 import shutil
 import numpy
 import pytz
+import seaborn
+import pandas
 from PIL import Image
 from geopy import distance
 from urllib import request
+from pylab import savefig
 
 url_base = 'http://portal.chmi.cz/files/portal/docs/meteo/rad/inca-cz/data'
 url_postfix_rain = '/czrad-z_max3d/pacz2gmaps3.z_max3d.{}.0.png'
@@ -31,6 +34,9 @@ composite_avalon = path.to('data/chmi/composite_avalon.png')
 composite_prague = path.to('data/chmi/composite_prague.png')
 composite_pilsen = path.to('data/chmi/composite_pilsen.png')
 composite_domazlice = path.to('data/chmi/composite_domazlice.png')
+
+heatmap_file = path.to('data/chmi/heatmap.png')
+heatmap_composite = path.to('data/chmi/heatmap_composite.png')
 
 avalon_pixel = (226, 149) # it's x,y for avalon
 
@@ -64,31 +70,51 @@ color_map = [ # color legend for chmi rain data
 	(252, 252, 252) # 60
 ]
 
-def prepare_data(): # → True if new data was prepared
-    now = time.time()
-    status = False
+def get_week_rain_info(): # → path to heatmap composite file
+    # load rain maps from last 7 days
+    since = datetime.datetime.timestamp(datetime.datetime.now() - datetime.timedelta(days = 7))
+    entries = load_rain_maps(since)
 
-    for back in range(10, 40, 10):
-        timestamp = get_data_timestamp(back = back)
-        status = download(timestamp[1])
-        delta = int((now - timestamp[0]) / 60)
+    log.info('get_week_rain_info(): loaded {} maps.'.format(len(entries)))
 
-        if status:
-            log.info('prepare_data(): @+{}m ({}) downloaded.'.format(delta, timestamp[1]))
-            break
-        else:
-            log.error('prepare_data(): @+{}m ({}) failed to download.'.format(delta, timestamp[1]))
+    # sum maps
+    map_x = composite_size[0]
+    map_y = composite_size[1]
+    map = numpy.zeros(shape = (map_x, map_y))
+    
+    for entry in entries:
+        map = numpy.add(map, entry[1])
 
-    if not status:
-        return False
+    # normalize maps for 0..1
+    map *= 1.0 / map.max() # maybe numpy.amax(array) will work instead of map.max()
 
-    last_map = last_rain_map()
-    map_age = int((timestamp[0] - last_map) / 60)
-    if map_age < 10:
-        return False
+    # create heat map
+    data_frame = pandas.DataFrame(map)
+    data_frame = data_frame.transpose()
 
-    create_composite()
-    return create_map(timestamp[0])
+    palette = seaborn.color_palette('rocket_r', as_cmap = True)
+    heatmap = seaborn.heatmap(data_frame, vmin = 0, vmax = 1, cmap = palette, square = True, xticklabels = False, yticklabels = False, cbar = False)
+
+    if os.path.isfile(heatmap_file):
+        os.remove(heatmap_file)
+
+    fig = heatmap.get_figure()
+    fig.savefig(heatmap_file, dpi = 400)
+
+    # crop & resize the heatmap
+    if not os.path.isfile(heatmap_file):
+        return
+
+    os.system('convert {} -crop 1982x1252+320+343 +repage {}'.format(heatmap_file, heatmap_file))
+    os.system('convert {} -resize {}x{}! {}'.format(heatmap_file, map_x, map_y, heatmap_file))
+
+    # put map under heatmap
+    os.system('convert {} -alpha set -background none -channel A -evaluate multiply 0.5 +channel {}'.format(heatmap_file, heatmap_file))
+    os.system('convert {} {} -geometry +0+0 -composite {}'.format(asset_terrain, asset_cities, heatmap_composite))
+    os.system('convert {} {} -geometry +0+0 -composite {}'.format(heatmap_composite, heatmap_file, heatmap_composite))
+    os.system('convert {} -crop 500x290+49+37 +repage {}'.format(heatmap_composite, heatmap_composite))
+
+    return heatmap_composite
 
 def get_avalon_rain_info(when = None):
     return get_rain_info(when, get_avalon_pixel(), avalon_radius)
@@ -210,6 +236,32 @@ def get_pixel(latitude, longitude): # -> (x, y)
     # return pixel
     return (int(my_x), int(my_y))
 
+def prepare_data(): # → True if new data was prepared
+    now = time.time()
+    status = False
+
+    for back in range(10, 40, 10):
+        timestamp = get_data_timestamp(back = back)
+        status = download(timestamp[1])
+        delta = int((now - timestamp[0]) / 60)
+
+        if status:
+            log.info('prepare_data(): @+{}m ({}) downloaded.'.format(delta, timestamp[1]))
+            break
+        else:
+            log.error('prepare_data(): @+{}m ({}) failed to download.'.format(delta, timestamp[1]))
+
+    if not status:
+        return False
+
+    last_map = last_rain_map()
+    map_age = int((timestamp[0] - last_map) / 60)
+    if map_age < 10:
+        return False
+
+    create_composite()
+    return create_map(timestamp[0])
+
 def download(file_timestamp): # → True if succeed
     url_rain = (url_base + url_postfix_rain).format(file_timestamp)
     url_lightning = (url_base + url_postfix_lightning).format(file_timestamp)
@@ -248,7 +300,7 @@ def create_map(timestamp): # → True if new map was saved.
 
     map_x = composite_size[0]
     map_y = composite_size[1]
-    rain_map = numpy.zeros(shape = (map_x, map_y))
+    map = numpy.zeros(shape = (map_x, map_y))
 
     image = Image.open(composite)
     pixels = image.load()
@@ -273,9 +325,9 @@ def create_map(timestamp): # → True if new map was saved.
                 if (color[0] == r and color[1] == g and color[2] == b) or (color_next and (((color[0] <= r < color_next[0]) or (color[0] >= r > color_next[0])) and ((color[1] <= g < color_next[1]) or (color[1] >= g > color_next[1])) and ((color[2] <= b < color_next[2]) or (color[2] >= b > color_next[2])))):
                     intensity = (clr + 1) * 4 # mm/hr
 
-            rain_map[x][y] = intensity
+            map[x][y] = intensity
 
-    return store_rain_map(timestamp, rain_map)
+    return store_rain_map(timestamp, map)
 
 def create_composite(): # -> composite filename (string)
     if os.path.isfile(composite):
@@ -360,6 +412,28 @@ def load_rain_map(when = None, count = 1): # → (timestamp, map)
     map = map.reshape(composite_size[0], composite_size[1])
 
     return (timestamp, map)
+
+def load_rain_maps(since): # → [(timestamp, map)]
+    db = _open_database('data/rain_history.sqlite')
+    cursor = db.cursor()
+
+    cursor.execute('select timestamp, map from rain where timestamp >= {} order by timestamp desc'.format(since))
+
+    rows = cursor.fetchall()
+    db.close()
+
+    if not rows:
+        return None
+
+    entries = []
+    for row in rows:
+        timestamp = row[0]
+        map = numpy.frombuffer(row[1], dtype = numpy.float64)
+        map = map.reshape(composite_size[0], composite_size[1])
+
+        entries.append((timestamp, map))
+
+    return entries
 
 def last_rain_map(): # → timestamp
     db = _open_database('data/rain_history.sqlite')

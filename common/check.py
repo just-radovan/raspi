@@ -367,6 +367,24 @@ def tweet_rain(twitter):
 
     storage.save_rain_tweeted(twitter, time_now)
 
+def tweet_rain_heatmap():
+    heatmap = chmi.get_week_rain_info()
+
+    if not os.path.isfile(heatmap):
+        return
+
+    tweet = (
+        '📈 Jak pršelo posledních sedm dní.'
+    )
+
+    # todo: return to tweeting
+    # twitter_avalon.tweet(tweet, heatmap)
+    # twitter_prague.tweet(tweet, heatmap)
+    # twitter_pilsen.tweet(tweet, heatmap)
+    # twitter_domazlice.tweet(tweet, heatmap)
+
+    storage.lock('post_rain_heatmap', 5*24*60*60)
+
 def view():
     # timed by cron
     camera.take_photo()
