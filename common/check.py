@@ -207,25 +207,30 @@ def radar():
     tweet_rain(twitter_domazlice)
 
 def tweet_rain(twitter):
-    now = int(time.time())
-    timestamp = storage.load_rain_tweeted(twitter)
-    if not timestamp:
-        storage.save_rain_tweeted(twitter, now)
+    time_last_check = storage.load_rain_tweeted(twitter)
+    if not time_last_check:
+        storage.save_rain_tweeted(twitter, time.time())
         return
 
+    idx_timestamp = 0
+    idx_intensity = 1
+    idx_area = 2
+    idx_area_outside = 3
+    idx_distance = 4
+
     rain_info_func = getattr(chmi, 'get_{}_rain_info'.format(twitter.id().lower()))
-
     rain_now = rain_info_func()
-    rain_history = rain_info_func(timestamp)
-
-    delta = int((now - timestamp) / 60) # minutes
-
-    idx_intensity = 0
-    idx_area = 1
-    idx_area_outside = 2
-    idx_distance = 3
+    rain_history = rain_info_func(time_last_check)
 
     if not rain_now or not rain_history:
+        return
+
+    time_now = rain_now[idx_timestamp]
+    time_last_check = rain_history[idx_timestamp]
+    time_delta = int((time_now - time_last_check) / 60) # minutes
+
+    log.info('tweet_rain(): time between data sets: {} mins.'.format(time_delta))
+    if time_delta < 10:
         return
 
     area_delta = rain_now[idx_area] - rain_history[idx_area]
@@ -312,9 +317,9 @@ def tweet_rain(twitter):
             tweet = '{} Déšť trochu zeslábl.'.format(rain_emoji)
 
     if not tweet:
-        if (rain_now[idx_distance] < 0 and rain_history[idx_distance] < 0) or (rain_now[idx_distance] < 0 and delta > 45):
+        if (rain_now[idx_distance] < 0 and rain_history[idx_distance] < 0) or (rain_now[idx_distance] < 0 and time_delta > 45):
             log.info('tweet_rain(): not tweeting, but not raining. resetting the clock for {}.'.format(twitter.id()))
-            storage.save_rain_tweeted(twitter, now)
+            storage.save_rain_tweeted(twitter, time_now)
 
         return
 
@@ -343,7 +348,7 @@ def tweet_rain(twitter):
     # else:
     #     twitter.tweet(tweet, media = composite)
 
-    storage.save_rain_tweeted(twitter, now)
+    storage.save_rain_tweeted(twitter, time_now)
 
 def view():
     # timed by cron

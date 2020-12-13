@@ -83,7 +83,7 @@ def get_pilsen_rain_info(when = None):
 def get_domazlice_rain_info(when = None):
     return get_rain_info(when, get_domazlice_pixel(), domazlice_radius, True)
 
-def get_rain_info(when, pixel, radius, distance_to_radius = False): # → (intensity, area, area outside, distance)
+def get_rain_info(when, pixel, radius, distance_to_radius = False): # → (timestamp, intensity, area, area outside, distance)
     data = load_rain_map(when)
 
     if data is None: 
@@ -150,7 +150,7 @@ def get_rain_info(when, pixel, radius, distance_to_radius = False): # → (inten
         if perimeter > 0:
             log.warning('get_rain_intensity(): @+{}m {}×{}: no distance, but there\'s something out there: {} %!'.format(delta, pixel[0], pixel[1], perimeter))
 
-    return (intensity, area, perimeter, distance)
+    return (timestamp, intensity, area, perimeter, distance)
 
 def get_avalon_pixel(): # -> (x, y)
     location = storage.get_location()
