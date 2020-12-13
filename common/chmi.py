@@ -68,7 +68,7 @@ def prepare_data(): # → True if new data was prepared
     now = time.time()
     status = False
 
-    for back in range(0, 30, 8):
+    for back in range(10, 40, 10):
         timestamp = get_data_timestamp(back = back)
         status = download(timestamp[1])
         delta = int((now - timestamp[0]) / 60)

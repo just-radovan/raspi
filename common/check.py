@@ -328,11 +328,19 @@ def tweet_rain(twitter):
 
     # add numbers to the message
     if rain_now[idx_area] > 0.2:
-        tweet += (
-            '\n\n'
-            '{} prší na {:.1f} % území\n'
-            '{} nejvyšší intenzita srážek je {:.0f} mm/h'
-        ).format(area_trend, rain_now[idx_area], intensity_trend, rain_now[idx_intensity])
+        if twitter.id() == 'avalon':
+            tweet += (
+                '\n\n'
+                '{} prší na {:.1f} % území\n'
+                '{} nejvyšší intenzita srážek je {:.0f} mm/h'
+                '{} prší {:.0f} km od poslední známé lokace\n'
+            ).format(area_trend, rain_now[idx_area], intensity_trend, rain_now[idx_intensity], distance_trend, rain_now[idx_distance])
+        else:
+            tweet += (
+                '\n\n'
+                '{} prší na {:.1f} % území\n'
+                '{} nejvyšší intenzita srážek je {:.0f} mm/h'
+            ).format(area_trend, rain_now[idx_area], intensity_trend, rain_now[idx_intensity])
     else:
         tweet += (
             '\n\n'
