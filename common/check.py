@@ -359,11 +359,11 @@ def tweet_rain(twitter):
         return
 
     log.info('tweet: "{}"'.format(tweet))
-    # todo: return to tweeting
-    # if twitter.id() == 'avalon':
-    #     twitter.tweet(tweet, media = [composite, camera.get_last_photo()])
-    # else:
-    #     twitter.tweet(tweet, media = composite)
+    if twitter.id() == 'avalon':
+        twitter.tweet(tweet, media = [composite, camera.get_last_photo()])
+    else:
+        log.warning('tweet_rain(): tweeting disabled for {}.'.format(twitter.id()))
+        # twitter.tweet(tweet, media = composite)
 
     storage.save_rain_tweeted(twitter, time_now)
 
@@ -377,13 +377,14 @@ def tweet_rain_heatmap():
         '📈 Jak pršelo posledních sedm dní.'
     )
 
-    # todo: return to tweeting
-    # twitter_avalon.tweet(tweet, heatmap)
+    twitter_avalon.tweet(tweet, heatmap)
+
+    log.warning('tweet_rain_heatmap(): tweeting disabled for anything but avalon.')
     # twitter_prague.tweet(tweet, heatmap)
     # twitter_pilsen.tweet(tweet, heatmap)
     # twitter_domazlice.tweet(tweet, heatmap)
 
-    storage.lock('post_rain_heatmap', 5*24*60*60)
+    storage.lock('tweet_rain_heatmap', 5*24*60*60)
 
 def view():
     # timed by cron
