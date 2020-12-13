@@ -66,30 +66,26 @@ color_map = [ # color legend for chmi rain data
 
 def prepare_data(): # → True if new data was prepared
     now = time.time()
-    last_map = last_rain_map()
-    timestamp = get_data_timestamp(back = 5)
+    status = False
 
+    for back in range(5, 25, 5):
+        timestamp = get_data_timestamp(back = back)
+        status = download(timestamp[1])
+        delta = int((now - timestamp[0]) / 60)
+
+        if status:
+            log.info('prepare_data(): @+{}m ({}) downloaded.'.format(delta, timestamp[1]))
+            break
+        else:
+            log.error('prepare_data(): @+{}m ({}) failed to download.'.format(delta, timestamp[1]))
+
+    if not status:
+        return False
+
+    last_map = last_rain_map()
     map_age = int((timestamp[0] - last_map) / 60)
     if map_age < 10:
         return False
-
-    status = download(timestamp[1])
-    delta = int((now - timestamp[0]) / 60)
-
-    if status:
-        log.info('prepare_data(): @+{}m ({}) downloaded.'.format(delta, timestamp[1]))
-    else:
-        log.error('prepare_data(): @+{}m ({}) failed to download.'.format(delta, timestamp[1]))
-
-        timestamp = get_data_timestamp(back = 15)
-        status = download(timestamp[1])
-        delta = int((time.time() - timestamp[0]) / 60)
-
-        if status:
-            log.warning('prepare_data(): @+{}m ({}) downloaded.'.format(delta, timestamp[1]))
-        else:
-            log.error('prepare_data(): @+{}m ({}) failed to download.'.format(delta, timestamp[1]))
-            return False
 
     create_composite()
     return create_map(timestamp[0])
