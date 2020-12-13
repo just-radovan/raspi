@@ -252,9 +252,9 @@ def tweet_rain(twitter):
             distance_trend = '⇣'
 
     rain_emoji = '🌦'
-    if rain_now[idx_intensity] < 5:
+    if rain_now[idx_intensity] <= 4:
         rain_emoji = '🌤'
-    elif rain_now[idx_intensity] <= 24:
+    elif rain_now[idx_intensity] <= 16:
         rain_emoji = '🌦'
     elif rain_now[idx_intensity] <= 40:
         rain_emoji = '🌧'
