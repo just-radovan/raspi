@@ -220,10 +220,13 @@ def tweet_rain(twitter):
 
     idx_intensity = 0
     idx_area = 1
-    idx_distance = 2
+    idx_area_outside = 2
+    idx_distance = 3
 
     if not rain_now or not rain_history:
         return
+
+    log.info('tweet_rain(): considering tweeting for {}: {:.0f} mm/hr, {:.3f} % // perimeter: {:.3f} %, {:.1f} kms'.format(twitter.id(), rain_now[idx_intensity], rain_now[idx_area], rain_now[idx_area_outside], rain_now[idx_distance]))
 
     area_delta = rain_now[idx_area] - rain_history[idx_area]
     area_trend = '⇢'
@@ -261,7 +264,7 @@ def tweet_rain(twitter):
     tweet = None
 
     if rain_now[idx_area] == 0 and rain_history[idx_area] == 0:
-        if rain_now[idx_distance] and not rain_history[idx_distance] or rain_now[idx_distance] <= (rain_history[idx_distance] * 0.5):
+        if rain_now[idx_area_outside] > 2 and rain_now[idx_distance] and not rain_history[idx_distance] or rain_now[idx_distance] <= (rain_history[idx_distance] * 0.5):
             tweet = random.choice([
                 '{} Zatím neprší, ale něco se blíží.',
                 '{} Neprší. Ale bude!',
@@ -275,8 +278,8 @@ def tweet_rain(twitter):
             '{} Dost bylo deště!',
             '{} Yay! Můžeme odložit deštníky.'
         ]).format(rain_emoji)
-    elif rain_now[idx_area] > 5:
-        if rain_history[idx_area] <= 5:
+    elif rain_now[idx_area] > 3:
+        if rain_history[idx_area] <= 3:
             tweet = random.choice([
                 '{} Připravte deštníky, začalo pršet.',
                 '{} Někdo si přál déšť? Někdo bude happy.',
@@ -298,13 +301,14 @@ def tweet_rain(twitter):
             tweet = '{} Déšť trochu zeslábl.'.format(rain_emoji)
 
     if not tweet:
+        log.info('tweet_rain(): not tweeting, no reason.')
         return
 
     # add numbers to the message
     if rain_now[idx_area] > 0:
         tweet += (
             '\n\n'
-            '{} prší na {:.0f} % území\n'
+            '{} prší na {:.1f} % území\n'
             '{} nejvyšší intenzita srážek je {:.0f} mm/h'
         ).format(area_trend, rain_now[idx_area], intensity_trend, rain_now[idx_intensity])
     else:
@@ -313,6 +317,7 @@ def tweet_rain(twitter):
             '{} prší {:.0f} km od sledované oblasti\n'
         ).format(distance_trend, rain_now[idx_distance])
 
+    # check composite for attachment
     composite = path.to('data/chmi/composite_{}.png'.format(twitter.id()))
     if not os.path.isfile(composite):
         return

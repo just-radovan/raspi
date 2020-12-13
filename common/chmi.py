@@ -83,7 +83,7 @@ def get_pilsen_rain_info(when = None):
 def get_domazlice_rain_info(when = None):
     return get_rain_info(when, get_domazlice_pixel(), domazlice_radius, True)
 
-def get_rain_info(when, pixel, radius, distance_to_radius = False): # → (intensity, area, distance)
+def get_rain_info(when, pixel, radius, distance_to_radius = False): # → (intensity, area, area outside, distance)
     data = load_rain_map(when)
 
     if data is None: 
@@ -95,6 +95,8 @@ def get_rain_info(when, pixel, radius, distance_to_radius = False): # → (inten
     
     area_watch = 0
     area_rain = 0
+    perimeter_watch = 0
+    perimeter_rain = 0
     intensity = 0
     distance = None
 
@@ -113,28 +115,34 @@ def get_rain_info(when, pixel, radius, distance_to_radius = False): # → (inten
 
             dst = math.sqrt(abs(dx) ** 2 + abs(dy) ** 2)
 
-            if dst <= (radius * 2): # looking around
+            if dst <= (radius * 2):
+                if dst <= radius:
+                    area_watch += 1
+                    if map[loc_x, loc_y] > 0:
+                        area_rain += 1
+                        intensity = max(intensity, map[loc_x, loc_y])
+                else:
+                    perimeter_watch += 1
+                    if map[loc_x, loc_y] > 0:
+                        perimeter_rain += 1
+
+                # store distance to watched area
                 if distance_to_radius:
-                    dst = max(0, dst - radius)
+                    dst_to_watch = max(0, dst - radius)
+                else:
+                    dst_to_watch = dst
 
                 if not distance:
-                    distance = dst
+                    distance = dst_to_watch
                 else:
-                    distance = min(distance, dst)
+                    distance = min(distance, dst_to_watch)
 
-                if dst <= radius: # inside radius, consider rain
-                    area_watch += 1
+    area = (area_rain / area_watch) * 100
+    perimeter = (perimeter_rain / perimeter_watch) * 100
 
-                    intensity = map[loc_x, loc_y]
-                    if intensity > 0:
-                        area_rain += 1
+    log.info('get_rain_intensity(): @+{}m {}×{}: max {:.0f} mm/hr at {:.3f} % // perimeter: {:.3f} %, {:.1f} kms.'.format(delta, pixel[0], pixel[1], intensity, area, perimeter, distance))
 
-
-    area = math.floor((area_rain / area_watch) * 100)
-
-    log.info('get_rain_intensity(): @+{}m data explored for {},{}. rain: max {:.0f} mm/hr at {:.0f} %. closest rain: {:.0f} kms.'.format(delta, pixel[0], pixel[1], intensity, area, distance))
-
-    return (intensity, area, distance)
+    return (intensity, area, perimeter, distance)
 
 def get_avalon_pixel(): # -> (x, y)
     location = storage.get_location()
