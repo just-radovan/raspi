@@ -300,7 +300,7 @@ def tweet_rain(twitter):
             ]).format(rain_emoji)
         elif rain_now[idx_intensity] >= (rain_history[idx_intensity] * 2.0):
             if rain_now[idx_area] > 90:
-                if rain_now[idx_intensity] <= 20:
+                if rain_now[idx_intensity] <= 16:
                     tweet = '{} Stále prší jen trochu, zato úplně všude.'.format(rain_emoji)
                 elif rain_now[idx_intensity] > 52:
                     tweet = '{} Noe, připrav archu!'.format(rain_emoji)
