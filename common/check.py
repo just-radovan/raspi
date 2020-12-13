@@ -332,8 +332,8 @@ def tweet_rain(twitter):
             tweet += (
                 '\n\n'
                 '{} prší na {:.1f} % území\n'
-                '{} nejvyšší intenzita srážek je {:.0f} mm/h'
-                '{} prší {:.0f} km od poslední známé lokace\n'
+                '{} nejvyšší intenzita srážek je {:.0f} mm/h\n'
+                '{} prší {:.0f} km od poslední známé lokace'
             ).format(area_trend, rain_now[idx_area], intensity_trend, rain_now[idx_intensity], distance_trend, rain_now[idx_distance])
         else:
             tweet += (
@@ -344,7 +344,7 @@ def tweet_rain(twitter):
     else:
         tweet += (
             '\n\n'
-            '{} prší {:.0f} km od sledované oblasti\n'
+            '{} prší {:.0f} km od sledované oblasti'
         ).format(distance_trend, rain_now[idx_distance])
 
     # check composite for attachment
