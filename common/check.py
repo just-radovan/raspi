@@ -291,7 +291,7 @@ def tweet_rain(twitter):
                 '{} Přestalo pršet, ale zatím bych se neradoval.'
             ]).format(rain_emoji)
     elif rain_now[idx_area] < 2.0 and rain_history[idx_area] < 2.0:
-        if (rain_now[idx_area_outside] > 5.0 and rain_history[idx_area_outside] <= 5.0) or (rain_now[idx_distance] >= 0 and (rain_now[idx_distance] < rain_history[idx_distance] * 0.5 or rain_history[idx_distance] < 0)):
+        if (rain_now[idx_area_outside] > 5.0 and rain_history[idx_area_outside] <= 5.0) or (rain_now[idx_area_outside] > 5.0 and (rain_now[idx_distance] >= 0 and (rain_now[idx_distance] < rain_history[idx_distance] * 0.5 or rain_history[idx_distance] < 0))):
             if not storage.is_locked('tweet_rain_approaching'):
                 tweet = random.choice([
                     '{} Zatím neprší, ale něco se blíží.',
