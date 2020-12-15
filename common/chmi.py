@@ -419,7 +419,7 @@ def get_data_timestamp(since = None): # → [(timestmap, chmi image timestamp)]
         groups = match.groups()
 
         file_name = '{}.{}'.format(groups[0], groups[1])
-        file_date = datetime.datetime.strptime(file_name, '%Y%m%d.%H%M')
+        file_date = datetime.datetime.strptime(file_name, '%Y%m%d.%H%M').replace(tzinfo = datetime.timezone.utc)
         timestamp = int(datetime.datetime.timestamp(file_date))
 
         if not since or timestamp > since:
