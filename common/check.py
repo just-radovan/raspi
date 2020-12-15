@@ -277,7 +277,7 @@ def tweet_rain(twitter):
     tweet = None
 
     if rain_now[idx_area] < 0.2 and rain_history[idx_area] < 0.2:
-        if rain_now[idx_area_outside] > 2.0 and (rain_now[idx_distance] >= 0 and rain_history[idx_distance] < 0):
+        if rain_now[idx_area_outside] > 2.0 and rain_history[idx_area_outside] <= 2.0 and rain_now[idx_distance] < rain_history[idx_distance]:
             tweet = random.choice([
                 '{} Zatím neprší, ale něco se blíží.',
                 '{} Neprší. Ale bude!',
