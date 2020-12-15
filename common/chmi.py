@@ -239,8 +239,9 @@ def get_pixel(latitude, longitude): # -> (x, y)
 def prepare_data(): # → True if new data was prepared
     now = time.time()
     status = False
-
-    for back in range(10, 40, 10):
+    
+    back = 10
+    while True:
         timestamp = get_data_timestamp(back = back)
         status = download(timestamp[1])
         delta = int((now - timestamp[0]) / 60)
@@ -251,7 +252,20 @@ def prepare_data(): # → True if new data was prepared
         else:
             log.error('prepare_data(): @+{}m ({}) failed to download.'.format(delta, timestamp[1]))
 
+        if back < 30:
+            back += 10
+        elif back <= 90:
+            back += 30
+        else:
+            back += 60
+
+        if back > 360:
+            break
+
+        time.sleep(5)
+
     if not status:
+        log.error('prepare_data(): @+{}m failed to download any data.'.format(delta))
         return False
 
     last_map = last_rain_map()

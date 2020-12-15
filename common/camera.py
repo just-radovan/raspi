@@ -20,9 +20,12 @@ brightness_save = path.to('data/camera_brightness.save')
 # full path to truetype file used for annotations
 overlay_font = '/usr/local/share/fonts/SpaceMono-Regular.ttf'
 
-def get_last_photo():
+def get_last_photo(): # → path to last photo
     dir = path.to('data/capture/')
     files = glob.glob(dir + '*')
+
+    if not files:
+        return None
 
     return max(files, key = os.path.getctime)
 

@@ -349,7 +349,7 @@ def tweet_rain(twitter):
     
     # add data set age
     tweet += (
-        '\n'
+        '\n\n'
         'ℹ poslední data: před {} min'
     ).format(time_delta)
 
@@ -359,7 +359,12 @@ def tweet_rain(twitter):
         return
 
     if twitter.id() == 'avalon':
-        twitter.tweet(tweet, media = [composite, camera.get_last_photo()])
+        media = [composite]
+        last_photo = camera.get_last_photo()
+        if last_photo:
+            media.append(last_photo)
+
+        twitter.tweet(tweet, media = media)
     else:
         log.warning('tweet_rain(): tweeting disabled for {}.'.format(twitter.id()))
         # twitter.tweet(tweet, media = composite)
