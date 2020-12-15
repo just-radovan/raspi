@@ -422,7 +422,7 @@ def get_data_timestamp(since = None): # → [(timestmap, chmi image timestamp)]
         file_date = datetime.datetime.strptime(file_name, '%Y%m%d.%H%M')
         timestamp = int(datetime.datetime.timestamp(file_date))
 
-        if timestamp > since:
+        if not since or timestamp > since:
             timestamps.append((timestamp, file_name))
 
     timestamps.sort(key = first_element) # sort by timestamp
