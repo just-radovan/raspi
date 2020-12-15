@@ -241,7 +241,7 @@ def tweet_rain(twitter):
     area_trend = '➙'
     if area_delta > 0:
         area_trend = '➚'
-    elif area_delta > 0:
+    elif area_delta < 0:
         area_trend = '➘'
 
     intensity_delta = rain_now[idx_intensity] - rain_history[idx_intensity]
@@ -329,13 +329,18 @@ def tweet_rain(twitter):
 
     # add numbers to the message
     if rain_now[idx_area] > 0.2:
+        if rain_now[idx_label]:
+            label = rain_now[idx_label]
+        else:
+            label = 'sledované oblasti'
+
         if twitter.id() == 'avalon':
             tweet += (
                 '\n\n'
                 '{} prší na {:.1f} % území\n'
                 '{} nejvyšší intenzita srážek je {:.0f} mm/h\n'
                 '{} prší {:.1f} km od {}'
-            ).format(area_trend, rain_now[idx_area], intensity_trend, rain_now[idx_intensity], distance_trend, rain_now[idx_distance], rain_now[idx_label])
+            ).format(area_trend, rain_now[idx_area], intensity_trend, rain_now[idx_intensity], distance_trend, rain_now[idx_distance], label)
         else:
             tweet += (
                 '\n\n'
