@@ -5,6 +5,7 @@ import common.log as log
 import common.storage as storage
 
 import os
+import re
 import math
 import time
 import datetime
@@ -19,7 +20,9 @@ from geopy import distance
 from urllib import request
 from pylab import savefig
 
+url_index = 'https://www.chmi.cz/files/portal/docs/meteo/rad/inca-cz/data/czrad-z_max3d/'
 url_base = 'http://portal.chmi.cz/files/portal/docs/meteo/rad/inca-cz/data'
+url_filename_keyword = 'pacz2gmaps3.z_max3d'
 url_postfix_rain = '/czrad-z_max3d/pacz2gmaps3.z_max3d.{}.0.png'
 url_postfix_lightning = '/celdn/pacz2gmaps3.blesk.{}.png'
 
@@ -238,73 +241,31 @@ def get_pixel(latitude, longitude): # -> (x, y)
 
 def prepare_data(): # → True if new data was prepared
     now = time.time()
-    status = False
+    last_map = last_rain_map()
     
-    back = 10
-    while True:
-        timestamp = get_data_timestamp(back = back)
-        status = download(timestamp[1])
-        delta = int((now - timestamp[0]) / 60)
+    sources = get_data_timestamp(since = last_map)
+    if not sources or len(sources) == 0:
+        return False
+
+    log.info('prepare_data(): got {} sources.'.format(len(sources)))
+
+    any_map = False
+    for source in sources:
+        status = download(source[1])
+        delta = int((now - source[0]) / 60)
 
         if status:
-            log.info('prepare_data(): @+{}m ({}) downloaded.'.format(delta, timestamp[1]))
-            break
+            map_status = create_map(source[0])
+            create_composite()
+
+            any_map = any_map or map_status
+            
+            log.info('prepare_data(): @+{}m ({}) processed.'.format(delta, source[1]))
+            time.sleep(5) # let's not overload another server.
         else:
-            log.error('prepare_data(): @+{}m ({}) failed to download.'.format(delta, timestamp[1]))
+            log.error('prepare_data(): @+{}m ({}) failed to download.'.format(delta, source[1]))
 
-        if back < 30:
-            back += 10
-        elif back <= 90:
-            back += 30
-        else:
-            back += 60
-
-        if back > 360:
-            break
-
-        time.sleep(5)
-
-    if not status:
-        log.error('prepare_data(): @+{}m failed to download any data.'.format(delta))
-        return False
-
-    last_map = last_rain_map()
-    map_age = int((timestamp[0] - last_map) / 60)
-    if map_age < 10:
-        return False
-
-    create_composite()
-    return create_map(timestamp[0])
-
-def download(file_timestamp): # → True if succeed
-    url_rain = (url_base + url_postfix_rain).format(file_timestamp)
-    url_lightning = (url_base + url_postfix_lightning).format(file_timestamp)
-
-    rain = download_image(url_rain, file_rain)
-    lightning = download_image(url_lightning, file_lightning)
-
-    if rain and os.path.isfile(file_rain):
-        os.system('convert {} -crop 595x376+2+83 +repage {}'.format(file_rain, file_rain))
-
-    if lightning and os.path.isfile(file_lightning):
-        os.system('convert {} -crop 595x376+2+83 +repage {}'.format(file_lightning, file_lightning))
-
-    return rain and lightning
-
-def download_image(url, path): # → True if succeed
-    if os.path.isfile(path):
-        os.remove(path)
-
-    try:
-        with request.urlopen(url) as response, open(path, 'wb') as file:
-            shutil.copyfileobj(response, file)
-    except:
-        return False
-
-    if os.path.isfile(path):
-        return True
-    else:
-        return False
+    return any_map
 
 def create_map(timestamp): # → True if new map was saved.
     if not os.path.isfile(composite):
@@ -369,19 +330,74 @@ def mark_location(pixel, watch, file):
 
     os.system('convert {} -fill "rgba(0, 0, 0, 0.0)" -stroke "rgba(0, 0, 0, 0.8)" -strokewidth 2 -draw "circle {},{} {},{}" {}'.format(composite, x, y, cx, cy, file))
 
-def get_data_timestamp(back = 10): # → (timestmap, chmi image timestamp)
-    now = datetime.datetime.now(pytz.utc) - datetime.timedelta(minutes = back)
-    minute = now.minute - math.floor(now.minute / 10) * 10
-    now = now - datetime.timedelta(minutes = minute, seconds = now.second)
-    
-    yr = '{:04d}'.format(now.year)
-    mo = '{:02d}'.format(now.month)
-    dy = '{:02d}'.format(now.day)
-    hr = '{:02d}'.format(now.hour)
-    mn = '{:02d}'.format(now.minute)
-    timestamp_str = '{}{}{}.{}{}'.format(yr, mo, dy, hr, mn)
+def download(file_timestamp): # → True if succeed
+    url_rain = (url_base + url_postfix_rain).format(file_timestamp)
+    url_lightning = (url_base + url_postfix_lightning).format(file_timestamp)
 
-    return (math.floor(datetime.datetime.timestamp(now)), timestamp_str)
+    rain = download_image(url_rain, file_rain)
+    lightning = download_image(url_lightning, file_lightning)
+
+    if rain and os.path.isfile(file_rain):
+        os.system('convert {} -crop 595x376+2+83 +repage {}'.format(file_rain, file_rain))
+
+    if lightning and os.path.isfile(file_lightning):
+        os.system('convert {} -crop 595x376+2+83 +repage {}'.format(file_lightning, file_lightning))
+
+    return rain and lightning
+
+def download_image(url, path): # → True if succeed
+    if os.path.isfile(path):
+        os.remove(path)
+
+    try:
+        with request.urlopen(url) as response, open(path, 'wb') as file:
+            shutil.copyfileobj(response, file)
+    except:
+        return False
+
+    if os.path.isfile(path):
+        return True
+    else:
+        return False
+
+def get_data_timestamp(since = None): # → [(timestmap, chmi image timestamp)]
+    data = None
+    try:
+        with request.urlopen(url_index) as response:
+            data = response.read()
+    except:
+        log.error('get_data_timestamp(): failed to download data index.')
+        return None
+
+    if not data:
+        log.error('get_data_timestamp(): no data index received.')
+        return None
+
+    lines = data.decode('utf-8').split('\n')
+    pattern = re.compile('^<a href=\"pacz2gmaps3\\.z_max3d\\.([0-9]{8})\\.([0-9]{4})\\.[0-9]{1}\\.png\">', re.IGNORECASE)
+
+    timestamps = []
+
+    for line in lines:
+        match = re.match(pattern, line.strip())
+        if not match:
+            continue
+
+        groups = match.groups()
+
+        file_name = '{}.{}'.format(groups[0], groups[1])
+        file_date = datetime.datetime.strptime(file_name, '%Y%m%d.%H%M')
+        timestamp = int(datetime.datetime.timestamp(file_date))
+
+        if timestamp > since:
+            timestamps.append((timestamp, file_name))
+
+    timestamps.sort(key = first_element) # sort by timestamp
+
+    return timestamps
+
+def first_element(item):
+    return item[0]
 
 def store_rain_map(timestamp, map): # → True if new map was saved.
     db = None
