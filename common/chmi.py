@@ -240,8 +240,6 @@ def get_pixel(latitude, longitude): # -> (x, y)
     return (int(my_x), int(my_y))
 
 def prepare_data(): # → True if new data was prepared
-    clear_composites()
-
     now = time.time()
     last_map = last_rain_map()
     
@@ -249,29 +247,38 @@ def prepare_data(): # → True if new data was prepared
     if not sources or len(sources) == 0:
         return False
 
-    log.info('prepare_data(): got {} sources.'.format(len(sources)))
+    new = 0
+    old = 0
+    for source in sources:
+        if source[0] > last_map:
+            new += 1
+        else:
+            old += 1
+
+    log.info('prepare_data(): got {} sources: {} old, {} new'.format((old + new), old, new))
 
     any_map = False
-    last_timestamp = sources[-1][0]
     for source in sources:
         status = download(source[1])
         delta = int((now - source[0]) / 60)
 
         if status:
-            map_status = create_map(source[0])
-            if map_status and source[0] >= last_timestamp: # create composite only for the newest successful map
-                create_composite()
+            create_composite()
+            map_status = create_map(source)
 
+            if map_status:
                 log.info('prepare_data(): @+{}m ({}) processed.'.format(delta, source[1]))
-                time.sleep(5) # let's not overload another server.
+            else:
+                log.error('prepare_data(): @+{}m ({}) failed to process.'.format(delta, source[1]))
 
             any_map = any_map or map_status
+            time.sleep(5) # let's not overload another server.
         else:
             log.error('prepare_data(): @+{}m ({}) failed to download.'.format(delta, source[1]))
 
     return any_map
 
-def create_map(timestamp): # → True if new map was saved.
+def create_map(source): # → True if new map was saved.
     if not os.path.isfile(composite):
         return False
 
@@ -306,7 +313,7 @@ def create_map(timestamp): # → True if new map was saved.
 
             map[x][y] = intensity
 
-    return store_rain_map(timestamp, map)
+    return store_rain_map(source[0], map)
 
 def clear_composites():
     if os.path.isfile(composite):
@@ -327,6 +334,8 @@ def clear_composites():
 def create_composite(): # -> composite filename (string)
     if not os.path.isfile(file_rain) or not os.path.isfile(file_lightning):
         return
+
+    clear_composites()
 
     os.system('convert {} {} -geometry +0+0 -composite {}'.format(asset_terrain, asset_cities, composite))
     os.system('convert {} {} -geometry +0+0 -composite {}'.format(composite, file_rain, composite))
