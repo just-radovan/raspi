@@ -378,8 +378,7 @@ def tweet_rain(twitter):
 
         twitter.tweet(tweet, media = media)
     else:
-        log.warning('twitter for non-avalon disabled!')
-        # twitter.tweet(tweet, media = composite)
+        twitter.tweet(tweet, media = composite)
 
     storage.save_rain_tweeted(twitter, time_now)
 
@@ -392,11 +391,9 @@ def tweet_rain_heatmap():
     tweet = '📈 Jak pršelo posledních sedm dní…'
 
     twitter_avalon.tweet(tweet, heatmap)
-
-    log.warning('twitter for non-avalon disabled!')
-    # twitter_prague.tweet(tweet, heatmap)
-    # twitter_pilsen.tweet(tweet, heatmap)
-    # twitter_domazlice.tweet(tweet, heatmap)
+    twitter_prague.tweet(tweet, heatmap)
+    twitter_pilsen.tweet(tweet, heatmap)
+    twitter_domazlice.tweet(tweet, heatmap)
 
     storage.lock('tweet_rain_heatmap', 5*24*60*60)
 
