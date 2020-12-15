@@ -55,6 +55,8 @@ pilsen_radius = 7 # radius of the area to watch for rain
 domazlice_gps = (49.441526, 12.925853) # it's lat,lng / north,east / y,x
 domazlice_radius = 4 # radius of the area to watch for rain
 
+perimeter_radius = 20
+
 color_map = [ # color legend for chmi rain data
 	(56, 0, 112), # 04 mm/hr
     (48, 0, 168), # 08
@@ -150,10 +152,12 @@ def get_rain_info(when, pixel, radius, distance_to_radius = False): # → (times
 
     # detect rain in double the radius
     # (to see if there is rain outside the watched area)
-    for x in range(radius * 4):
-        for y in range(radius * 4):
-            dx = x - (radius * 2) # [-x, +x]
-            dy = y - (radius * 2) # [-y, +y]
+    scan_r = radius + perimeter_radius
+    scan_d = scan_r * 2
+    for x in range(scan_d):
+        for y in range(scan_d):
+            dx = x - scan_r # [-x, +x]
+            dy = y - scan_r # [-y, +y]
 
             loc_x = pixel[0] + dx
             loc_y = pixel[1] + dy
@@ -163,7 +167,7 @@ def get_rain_info(when, pixel, radius, distance_to_radius = False): # → (times
 
             dst = math.sqrt(abs(dx) ** 2 + abs(dy) ** 2)
 
-            if dst <= (radius * 2):
+            if dst <= scan_r:
                 map_intensity = map[loc_x, loc_y]
 
                 if dst <= radius:
