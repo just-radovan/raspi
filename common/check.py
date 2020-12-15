@@ -220,6 +220,7 @@ def tweet_rain(twitter):
     idx_area = 2
     idx_area_outside = 3
     idx_distance = 4
+    idx_label = 5
 
     rain_info_func = getattr(chmi, 'get_{}_rain_info'.format(twitter.id().lower()))
     rain_now = rain_info_func()
@@ -237,29 +238,29 @@ def tweet_rain(twitter):
         return
 
     area_delta = rain_now[idx_area] - rain_history[idx_area]
-    area_trend = '⇢'
+    area_trend = '➙'
     if area_delta > 0:
-        area_trend = '⇡'
+        area_trend = '➚'
     elif area_delta > 0:
-        area_trend = '⇣'
+        area_trend = '➘'
 
     intensity_delta = rain_now[idx_intensity] - rain_history[idx_intensity]
-    intensity_trend = '⇢'
+    intensity_trend = '➙'
     if intensity_delta > 0:
-        intensity_trend = '⇡'
+        intensity_trend = '➚'
     elif intensity_delta < 0:
-        intensity_trend = '⇣'
+        intensity_trend = '➘'
 
-    distance_trend = '⇢'
+    distance_trend = '➙'
     if rain_now[idx_distance] >= 0 and rain_history[idx_distance] < 0:
-        distance_trend = '⇣'
+        distance_trend = '➘'
     elif rain_now[idx_distance] < 0 and rain_history[idx_distance] >= 0:
-        distance_trend = '⇡'
+        distance_trend = '➚'
     elif rain_now[idx_distance] >= 0 and rain_history[idx_distance] >= 0:
         if rain_now[idx_distance] > rain_history[idx_distance]:
-            distance_trend = '⇡'
+            distance_trend = '➚'
         elif rain_now[idx_distance] < rain_history[idx_distance]:
-            distance_trend = '⇣'
+            distance_trend = '➘'
 
     rain_emoji = '🌦'
     if rain_now[idx_intensity] <= 4:
@@ -333,8 +334,8 @@ def tweet_rain(twitter):
                 '\n\n'
                 '{} prší na {:.1f} % území\n'
                 '{} nejvyšší intenzita srážek je {:.0f} mm/h\n'
-                '{} prší {:.1f} km od poslední známé lokace'
-            ).format(area_trend, rain_now[idx_area], intensity_trend, rain_now[idx_intensity], distance_trend, rain_now[idx_distance])
+                '{} prší {:.1f} km od {}'
+            ).format(area_trend, rain_now[idx_area], intensity_trend, rain_now[idx_intensity], distance_trend, rain_now[idx_distance], rain_now[idx_label])
         else:
             tweet += (
                 '\n\n'

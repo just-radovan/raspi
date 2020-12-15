@@ -131,7 +131,7 @@ def get_pilsen_rain_info(when = None):
 def get_domazlice_rain_info(when = None):
     return get_rain_info(when, get_domazlice_pixel(), domazlice_radius, True)
 
-def get_rain_info(when, pixel, radius, distance_to_radius = False): # → (timestamp, intensity, area, area outside, distance)
+def get_rain_info(when, pixel, radius, distance_to_radius = False): # → (timestamp, intensity, area, area outside, distance, label)
     data = load_rain_map(when)
 
     if data is None: 
@@ -198,23 +198,26 @@ def get_rain_info(when, pixel, radius, distance_to_radius = False): # → (times
         if perimeter > 0:
             log.warning('get_rain_intensity(): @+{}m {}×{}: no distance, but there\'s something out there: {:.2f} %!'.format(delta, pixel[0], pixel[1], perimeter))
 
-    return (timestamp, intensity, area, perimeter, distance)
+    return (timestamp, intensity, area, perimeter, distance, pixel[2])
 
-def get_avalon_pixel(): # -> (x, y)
+def get_avalon_pixel(): # → (x, y, label)
     location = storage.get_location()
 
-    return get_pixel(location[0], location[1])
+    return get_pixel_with_label(get_pixel(location[0], location[1]), location[2])
 
-def get_prague_pixel(): # -> (x, y)
-    return get_pixel(prague_gps[0], prague_gps[1])
+def get_prague_pixel(): # → (x, y, label)
+    return get_pixel_with_label(get_pixel(prague_gps[0], prague_gps[1]), None)
 
-def get_pilsen_pixel(): # -> (x, y)
-    return get_pixel(pilsen_gps[0], pilsen_gps[1])
+def get_pilsen_pixel(): # → (x, y, label)
+    return get_pixel_with_label(get_pixel(pilsen_gps[0], pilsen_gps[1]), None)
 
-def get_domazlice_pixel(): # -> (x, y)
-    return get_pixel(domazlice_gps[0], domazlice_gps[1])
+def get_domazlice_pixel(): # → (x, y, label)
+    return get_pixel_with_label(get_pixel(domazlice_gps[0], domazlice_gps[1]), None)
 
-def get_pixel(latitude, longitude): # -> (x, y)
+def get_pixel_with_label(pixel, label = None): # → (x, y, label)
+    return (pixel[0], pixel[1], label)
+
+def get_pixel(latitude, longitude): # → (x, y)
     dst_ns = distance.distance(avalon_gps, (latitude, avalon_gps[1])).km
     dst_ew = distance.distance(avalon_gps, (avalon_gps[0], longitude)).km
 
