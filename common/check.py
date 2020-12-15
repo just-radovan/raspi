@@ -352,7 +352,7 @@ def tweet_rain(twitter):
     elif rain_now[idx_distance] >= 0:
         tweet += (
             '\n\n'
-            '{} stále prší {:.1f} km od sledované oblasti'
+            '{} prší {:.1f} km od sledované oblasti'
         ).format(distance_trend, rain_now[idx_distance])
     
     # add data set age
