@@ -231,7 +231,7 @@ def tweet_rain(twitter):
     time_now = rain_now[idx_timestamp]
     time_last_check = rain_history[idx_timestamp]
     time_delta = int((time_now - time_last_check) / 60) # minutes
-
+    
     log.info('tweet_rain(): time between data sets: {} mins.'.format(time_delta))
     if time_delta < 10:
         return
@@ -348,10 +348,12 @@ def tweet_rain(twitter):
         ).format(distance_trend, rain_now[idx_distance])
     
     # add data set age
-    tweet += (
-        '\n\n'
-        'ℹ poslední data: před {} min'
-    ).format(time_delta)
+    data_age = int((time.time() - time_last_check) / 60) # minutes
+    if data_age > 45:
+        tweet += (
+            '\n\n'
+            '⚠️ stáří dat: {} min'
+        ).format(data_age)
 
     # check composite for attachment
     composite = path.to('data/chmi/composite_{}.png'.format(twitter.id()))
