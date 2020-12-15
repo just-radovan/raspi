@@ -235,7 +235,7 @@ def get_pixel(latitude, longitude): # → (x, y)
     else:
         dst_ew_dir = -1 # on image: to the right
 
-    # coordinates on image
+    # coordinates on image; conviniently, the image is 1px = 1km
     my_x = avalon_pixel[0] + (dst_ew * dst_ew_dir)
     my_y = avalon_pixel[1] + (dst_ns * dst_ns_dir)
 
@@ -322,7 +322,7 @@ def create_map(source): # → True if new map was saved.
 
     return store_rain_map(source[0], map)
 
-def create_composite(): # -> composite filename (string)
+def create_composite(): # → composite filename (string)
     if not os.path.isfile(file_rain) or not os.path.isfile(file_lightning):
         return
 
@@ -433,7 +433,7 @@ def get_data_timestamp(since = None): # → [(timestmap, chmi image timestamp)]
 def first_element(item):
     return item[0]
 
-def store_rain_map(timestamp, map): # → True if new map was saved.
+def store_rain_map(timestamp, map): # → True if new map was saved
     db = None
     try:
         db = sqlite3.connect(path.to('data/rain_history.sqlite'))
@@ -511,7 +511,7 @@ def last_rain_map(): # → timestamp
 
     return timestamp
 
-def _open_database(file):
+def _open_database(file): # → database connection
     db = None
     try:
         db = sqlite3.connect(path.to(file))

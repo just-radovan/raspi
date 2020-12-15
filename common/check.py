@@ -368,8 +368,6 @@ def tweet_rain(twitter):
     if not os.path.isfile(composite):
         return
 
-    log.info('tweet: {}'.format(tweet))
-
     if twitter.id() == 'avalon':
         media = [composite]
         last_photo = camera.get_last_photo()
@@ -381,6 +379,7 @@ def tweet_rain(twitter):
         twitter.tweet(tweet, media = composite)
 
     storage.save_rain_tweeted(twitter, time_now)
+    log.info('tweet_rain(): tweeted for {}.'.format(twitter.id()))
 
 def tweet_rain_heatmap():
     heatmap = chmi.get_week_rain_info()
