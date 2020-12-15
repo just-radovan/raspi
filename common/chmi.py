@@ -240,6 +240,8 @@ def get_pixel(latitude, longitude): # -> (x, y)
     return (int(my_x), int(my_y))
 
 def prepare_data(): # → True if new data was prepared
+    clear_composites()
+    
     now = time.time()
     last_map = last_rain_map()
     
@@ -250,13 +252,15 @@ def prepare_data(): # → True if new data was prepared
     log.info('prepare_data(): got {} sources.'.format(len(sources)))
 
     any_map = False
+    last_timestamp = sources[-1][0]
     for source in sources:
         status = download(source[1])
         delta = int((now - source[0]) / 60)
 
         if status:
             map_status = create_map(source[0])
-            create_composite()
+            if source[0] >= last_timestamp:
+                create_composite()
 
             any_map = any_map or map_status
             
@@ -304,10 +308,23 @@ def create_map(timestamp): # → True if new map was saved.
 
     return store_rain_map(timestamp, map)
 
-def create_composite(): # -> composite filename (string)
+def clear_composites():
     if os.path.isfile(composite):
         os.remove(composite)
 
+    if os.path.isfile(composite_avalon):
+        os.remove(composite_avalon)
+
+    if os.path.isfile(composite_prague):
+        os.remove(composite_prague)
+
+    if os.path.isfile(composite_pilsen):
+        os.remove(composite_pilsen)
+
+    if os.path.isfile(composite_domazlice):
+        os.remove(composite_domazlice)
+
+def create_composite(): # -> composite filename (string)
     if not os.path.isfile(file_rain) or not os.path.isfile(file_lightning):
         return
 
