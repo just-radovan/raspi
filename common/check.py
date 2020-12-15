@@ -277,13 +277,15 @@ def tweet_rain(twitter):
     tweet = None
 
     if rain_now[idx_area] < 0.2 and rain_history[idx_area] < 0.2:
-        if rain_now[idx_area_outside] > 2.0 and rain_history[idx_area_outside] <= 2.0 and rain_now[idx_distance] < rain_history[idx_distance]:
-            tweet = random.choice([
-                '{} Zatím neprší, ale něco se blíží.',
-                '{} Neprší. Ale bude!',
-                '{} Na obzoru je déšť.',
-                '{} Poslední minuty na suchu. Za chvíli asi začne pršet.'
-            ]).format(rain_emoji)
+        if (rain_now[idx_area_outside] > 2.0 and rain_history[idx_area_outside] <= 2.0) or (rain_now[idx_distance] >= 0 and (rain_now[idx_distance] < rain_history[idx_distance] * 0.5 or rain_history[idx_distance] < 0)):
+            if not storage.is_locked('tweet_rain:approaching'):
+                tweet = random.choice([
+                    '{} Zatím neprší, ale něco se blíží.',
+                    '{} Neprší. Ale bude!',
+                    '{} Na obzoru je déšť.',
+                    '{} Poslední minuty na suchu. Za chvíli asi začne pršet.'
+                ]).format(rain_emoji)
+                storage.lock('tweet_rain:approaching', 60*60)
     elif rain_now[idx_area] < 0.2 and rain_history[idx_area] >= 0.2:
         if (rain_now[idx_distance] < 0 and rain_history[idx_distance] >= 0) or rain_now[idx_distance] > rain_history[idx_distance]:
             tweet = random.choice([
@@ -365,6 +367,8 @@ def tweet_rain(twitter):
     composite = path.to('data/chmi/composite_{}.png'.format(twitter.id()))
     if not os.path.isfile(composite):
         return
+
+    log.info('tweet: {}'.format(tweet))
 
     if twitter.id() == 'avalon':
         media = [composite]

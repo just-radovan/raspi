@@ -40,10 +40,8 @@ def tweet(access_data, message, media = None):
             ids.append(img.media_id_string)
 
         api.update_status(status = message, media_ids = ids)
-        log.info('tweet(): "{}" w/ media'.format(message))
     else:
         api.update_status(status = message)
-        log.info('tweet(): "{}"'.format(message))
 
 def authorize(access_data):
     auth = tweepy.OAuthHandler(twitter.get_consumer_key(), twitter.get_consumer_secret(), 'oob')
