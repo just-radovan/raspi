@@ -237,14 +237,14 @@ def tweet_rain(twitter):
     if time_delta < 10:
         return
 
-    area_delta = rain_now[idx_area] - rain_history[idx_area]
+    area_delta = round(rain_now[idx_area]) - round(rain_history[idx_area])
     area_trend = '➙'
     if area_delta > 0:
         area_trend = '➚'
     elif area_delta < 0:
         area_trend = '➘'
 
-    intensity_delta = rain_now[idx_intensity] - rain_history[idx_intensity]
+    intensity_delta = round(rain_now[idx_intensity]) - round(rain_history[idx_intensity])
     intensity_trend = '➙'
     if intensity_delta > 0:
         intensity_trend = '➚'
@@ -257,9 +257,9 @@ def tweet_rain(twitter):
     elif rain_now[idx_distance] < 0 and rain_history[idx_distance] >= 0:
         distance_trend = '➚'
     elif rain_now[idx_distance] >= 0 and rain_history[idx_distance] >= 0:
-        if rain_now[idx_distance] > rain_history[idx_distance]:
+        if round(rain_now[idx_distance]) > round(rain_history[idx_distance]):
             distance_trend = '➚'
-        elif rain_now[idx_distance] < rain_history[idx_distance]:
+        elif round(rain_now[idx_distance]) < round(rain_history[idx_distance]):
             distance_trend = '➘'
 
     rain_emoji = '🌦'
