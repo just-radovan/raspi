@@ -263,7 +263,6 @@ def prepare_data(): # → True if new data was prepared
         delta = int((now - source[0]) / 60)
 
         if status:
-            create_composite()
             map_status = create_map(source)
 
             if map_status:
@@ -279,7 +278,8 @@ def prepare_data(): # → True if new data was prepared
     return any_map
 
 def create_map(source): # → True if new map was saved.
-    if not os.path.isfile(composite):
+    file = create_composite()
+    if not os.path.isfile(file):
         return False
 
     color_map_len = len(color_map)
@@ -288,7 +288,7 @@ def create_map(source): # → True if new map was saved.
     map_y = composite_size[1]
     map = numpy.zeros(shape = (map_x, map_y))
 
-    image = Image.open(composite)
+    image = Image.open(file)
     pixels = image.load()
 
     # detect rain
@@ -315,22 +315,6 @@ def create_map(source): # → True if new map was saved.
 
     return store_rain_map(source[0], map)
 
-def clear_composites():
-    if os.path.isfile(composite):
-        os.remove(composite)
-
-    if os.path.isfile(composite_avalon):
-        os.remove(composite_avalon)
-
-    if os.path.isfile(composite_prague):
-        os.remove(composite_prague)
-
-    if os.path.isfile(composite_pilsen):
-        os.remove(composite_pilsen)
-
-    if os.path.isfile(composite_domazlice):
-        os.remove(composite_domazlice)
-
 def create_composite(): # -> composite filename (string)
     if not os.path.isfile(file_rain) or not os.path.isfile(file_lightning):
         return
@@ -347,6 +331,22 @@ def create_composite(): # -> composite filename (string)
     mark_location(get_domazlice_pixel(), domazlice_radius, composite_domazlice)
 
     return composite
+
+def clear_composites():
+    if os.path.isfile(composite):
+        os.remove(composite)
+
+    if os.path.isfile(composite_avalon):
+        os.remove(composite_avalon)
+
+    if os.path.isfile(composite_prague):
+        os.remove(composite_prague)
+
+    if os.path.isfile(composite_pilsen):
+        os.remove(composite_pilsen)
+
+    if os.path.isfile(composite_domazlice):
+        os.remove(composite_domazlice)
 
 def mark_location(pixel, watch, file):
     x = pixel[0]

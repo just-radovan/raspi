@@ -348,7 +348,7 @@ def tweet_rain(twitter):
         ).format(distance_trend, rain_now[idx_distance])
     
     # add data set age
-    data_age = int((time.time() - time_last_check) / 60) # minutes
+    data_age = int((time.time() - rain_now[idx_timestamp]) / 60) # minutes
     if data_age > 45:
         tweet += (
             '\n\n'
