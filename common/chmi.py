@@ -241,7 +241,7 @@ def get_pixel(latitude, longitude): # -> (x, y)
 
 def prepare_data(): # → True if new data was prepared
     clear_composites()
-    
+
     now = time.time()
     last_map = last_rain_map()
     
@@ -259,13 +259,13 @@ def prepare_data(): # → True if new data was prepared
 
         if status:
             map_status = create_map(source[0])
-            if source[0] >= last_timestamp:
+            if map_status and source[0] >= last_timestamp: # create composite only for the newest successful map
                 create_composite()
 
+                log.info('prepare_data(): @+{}m ({}) processed.'.format(delta, source[1]))
+                time.sleep(5) # let's not overload another server.
+
             any_map = any_map or map_status
-            
-            log.info('prepare_data(): @+{}m ({}) processed.'.format(delta, source[1]))
-            time.sleep(5) # let's not overload another server.
         else:
             log.error('prepare_data(): @+{}m ({}) failed to download.'.format(delta, source[1]))
 
