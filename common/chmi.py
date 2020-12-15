@@ -257,7 +257,7 @@ def prepare_data(): # → True if new data was prepared
     new = 0
     old = 0
     for source in sources:
-        if source[0] > last_map:
+        if not last_map or source[0] > last_map:
             new += 1
         else:
             old += 1
