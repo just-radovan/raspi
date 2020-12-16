@@ -3,6 +3,15 @@
 various scripts to notify me about what's happening at home. via twitter.
 also to inform people about rain. also via twitter.
 
+## setup
+
+* install dependencies
+* create `auth/*.py` files with oauth tokens for twitter, swarm, and netatmo. see examples.
+* run `*_auth.py` to authorize scripts with each respective service. you'll be asked for some manual help.
+* run `create_database.py` to init... well, databases.
+* run whatever script you want from project root directory.
+* setup cron to not run that manually ever again.
+
 ## crontab
 
 ```
