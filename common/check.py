@@ -382,6 +382,9 @@ def tweet_rain(twitter):
     log.info('tweet_rain(): tweeted for {}.'.format(twitter.id()))
 
 def tweet_rain_heatmap():
+    if storage.is_locked('tweet_rain_heatmap'):
+        return
+
     heatmap = chmi.get_week_rain_info()
 
     if not os.path.isfile(heatmap):
