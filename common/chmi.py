@@ -97,7 +97,7 @@ def get_week_rain_info(): # → path to heatmap composite file
     data_frame = pandas.DataFrame(map)
     data_frame = data_frame.transpose()
 
-    palette = seaborn.color_palette('rocket_r', as_cmap = True)
+    palette = seaborn.color_palette('Blues', as_cmap = True)
     heatmap = seaborn.heatmap(data_frame, vmin = 0, vmax = 1, cmap = palette, square = True, xticklabels = False, yticklabels = False, cbar = False)
 
     if os.path.isfile(heatmap_file):
