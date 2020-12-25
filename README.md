@@ -24,6 +24,7 @@ also to inform people about rain. also via twitter.
 10	    22	*	*	0	python3 /usr/local/bin/scripts/presence_heatmap.py # >> /usr/local/bin/scripts/log/log
 
 */10    *	*	*	*	python3 /usr/local/bin/scripts/watch_rain.py # >> /usr/local/bin/scripts/log/log
+*/5    *	*	*	*	python3 /usr/local/bin/scripts/watch_rain_mentions.py # >> /usr/local/bin/scripts/log/log
 20	    22	*	*	0	python3 /usr/local/bin/scripts/rain_heatmap.py # >> /usr/local/bin/scripts/log/log
 
 15	    0	*	*	*	cp /usr/local/bin/scripts/data/* /mnt/storage/backup/

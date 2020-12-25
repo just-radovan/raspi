@@ -270,7 +270,7 @@ def prepare_data(): # → True if new data was prepared
         else:
             old += 1
 
-    log.info('prepare_data(): got {} sources: {} old, {} new'.format((old + new), old, new))
+    log.info('prepare_data(): got {} source(s): {} old, {} new'.format((old + new), old, new))
 
     any_map = False
     for source in sources:

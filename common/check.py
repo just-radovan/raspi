@@ -198,14 +198,23 @@ def temperature_outdoor():
     storage.lock('temperature_outdoor', 30*60)
 
 def radar_for_mentions():
+    # timed by cron
     process_rain_mentions(twitter_avalon)
-    process_rain_mentions(twitter_prague)
-    process_rain_mentions(twitter_pilsen)
-    process_rain_mentions(twitter_domazlice)
+
+    # todo: enable for all
+    # process_rain_mentions(twitter_prague)
+    # process_rain_mentions(twitter_pilsen)
+    # process_rain_mentions(twitter_domazlice)
 
 def process_rain_mentions(twitter):
     last_id = storage.load_last_mention(twitter.id())
     mentions = twitter.mentions(last_id)
+
+    cnt = len(mentions)
+    log.info('process_rain_mentions(): got {} mention(s).'.format(cnt))
+
+    if cnt == 0:
+        return
 
     last_processed_id = -1
     for mention in mentions:
@@ -228,10 +237,14 @@ def process_rain_mentions(twitter):
             idx_distance = 4
             idx_label = 5
 
-            # todo: handle data
-            message = (
-                '@{} ?'
-            ).format(mentions[1])
+            if rain_now[idx_distance] < 0:
+                message = (
+                    '@{} Neprší.'
+                ).format(mentions[1])
+            else:
+                message = (
+                    '@{} Prší {:.1f} km daleko.'
+                ).format(mentions[1], rain_now[idx_distance])
 
         twitter.tweet(message, in_reply_to = mention[0])
 
@@ -240,8 +253,9 @@ def process_rain_mentions(twitter):
     storage.save_last_mention(twitter, last_processed_id)
 
 def has_rain_keywords(text): # → True if it contains some request for rain data.
-    # todo: check keywords
-    return False
+    keywords = ['prší?', 'prsi?', 'co déšť?', 'co dest?']
+
+    return any(keyword in text.lower() for keyword in keywords)
 
 def radar():
     # timed by cron

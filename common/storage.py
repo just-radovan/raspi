@@ -164,7 +164,7 @@ def load_last_mention(twitter):
     fn = mention_save.format(id)
 
     if not os.path.exists(fn):
-        return
+        return None
 
     file = open(fn, 'r')
     tweet_id = int(file.read())
