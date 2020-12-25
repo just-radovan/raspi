@@ -207,7 +207,7 @@ def radar_for_mentions():
     # process_rain_mentions(twitter_domazlice)
 
 def process_rain_mentions(twitter):
-    last_id = storage.load_last_mention(twitter.id())
+    last_id = storage.load_last_mention(twitter)
     mentions = twitter.mentions(last_id)
 
     cnt = len(mentions)
