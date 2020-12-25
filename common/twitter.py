@@ -40,9 +40,15 @@ def tweet(access_data, message, in_reply_to = None, media = None):
             img = api.media_upload(media)
             ids.append(img.media_id_string)
 
-        api.update_status(status = message, in_reply_to_status_id = in_reply_to, media_ids = ids)
+        try:
+            api.update_status(status = message, in_reply_to_status_id = in_reply_to, media_ids = ids)
+        except tweepy.error.TweepError as error:
+            log.error('tweet(): failed to tweet: {}'.format(error))
     else:
-        api.update_status(status = message, in_reply_to_status_id = in_reply_to)
+        try:
+            api.update_status(status = message, in_reply_to_status_id = in_reply_to)
+        except tweepy.error.TweepError as error:
+            log.error('tweet(): failed to tweet: {}'.format(error))
 
 def mentions(access_data, since_id): # → [(tweet_id, user, text, gps_is_set, latitude, longitude)]
     mentions = []
@@ -90,13 +96,13 @@ def authorize(access_data):
 
         print('👉 authorize(): to continue, please visit {}'.format(redirect_url))
         verifier = input('verification code? ')
-    except tweepy.TweepError:
+    except tweepy.error.TweepError:
         log.error('authorize(): failed to get authorization request token.')
         return
 
     try:
         auth.get_access_token(verifier)
-    except tweepy.TweepError:
+    except tweepy.error.TweepError:
         log.error('authorize(): failed to get access token.')
         return
 
