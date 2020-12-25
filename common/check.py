@@ -232,7 +232,7 @@ def process_rain_mentions(twitter):
             rain_now = rain_info_func()
 
         if not rain_now:
-            message = '@{} Na tuhle lokaci nevidim 😞'.format(mention[1])
+            message = '@{} Na tohle místo bohužel nevidim 😞'.format(mention[1])
         else:
             idx_timestamp = 0
             idx_intensity = 1
@@ -241,14 +241,31 @@ def process_rain_mentions(twitter):
             idx_distance = 4
             idx_label = 5
 
+            rain_emoji = '🌦'
+            if rain_now[idx_intensity] <= 4:
+                rain_emoji = '🌤'
+            elif rain_now[idx_intensity] <= 16:
+                rain_emoji = '🌦'
+            elif rain_now[idx_intensity] <= 40:
+                rain_emoji = '🌧'
+            elif rain_now[idx_intensity] <= 52:
+                rain_emoji = '💦'
+            else:
+                rain_emoji = '🌊'
+
             if rain_now[idx_distance] < 0:
                 message = (
-                    '@{} Neprší.'
-                ).format(mention[1])
+                    '@{} {} Neprší.'
+                ).format(mention[1], rain_emoji)
             else:
-                message = (
-                    '@{} Prší {:.1f} km daleko.'
-                ).format(mention[1], rain_now[idx_distance])
+                if rain_now[idx_area_outside] < 2:
+                    message = (
+                        '@{} {} Pár kapek spadlo {:.1f} km daleko.'
+                    ).format(mention[1], rain_emoji, rain_now[idx_distance])
+                else:
+                    message = (
+                        '@{} {} Prší {:.1f} km daleko.'
+                    ).format(mention[1], rain_emoji, rain_now[idx_distance])
 
         twitter.tweet(message, in_reply_to = mention[0])
 
