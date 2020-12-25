@@ -197,6 +197,52 @@ def temperature_outdoor():
     log.info('temperature_outdoor(): tweeted.')
     storage.lock('temperature_outdoor', 30*60)
 
+def radar_for_mentions():
+    process_rain_mentions(twitter_avalon)
+    process_rain_mentions(twitter_prague)
+    process_rain_mentions(twitter_pilsen)
+    process_rain_mentions(twitter_domazlice)
+
+def process_rain_mentions(twitter):
+    last_id = storage.load_last_mention(twitter.id())
+    mentions = twitter.mentions(last_id)
+
+    last_processed_id = -1
+    for mention in mentions:
+        if not has_rain_keywords(mention[2]):
+            continue
+
+        if mention[3]:
+            rain_now = chmi.get_rain_info_for_gps(mention[4], mention[5])
+        else:
+            rain_info_func = getattr(chmi, 'get_{}_rain_info'.format(twitter.id().lower()))
+            rain_now = rain_info_func()
+
+        if not rain_now:
+            message = '@{} Na tuhle lokaci nevidim 😞'.format(mentions[1])
+        else:
+            idx_timestamp = 0
+            idx_intensity = 1
+            idx_area = 2
+            idx_area_outside = 3
+            idx_distance = 4
+            idx_label = 5
+
+            # todo: handle data
+            message = (
+                '@{} ?'
+            ).format(mentions[1])
+
+        twitter.tweet(message, in_reply_to = mention[0])
+
+        last_processed_id = max(last_processed_id, mention[0])
+
+    storage.save_last_mention(twitter, last_processed_id)
+
+def has_rain_keywords(text): # → True if it contains some request for rain data.
+    # todo: check keywords
+    return False
+
 def radar():
     # timed by cron
     status = chmi.prepare_data()
@@ -204,12 +250,12 @@ def radar():
         log.warning('radar(): no new data. won\'t try to tweet.')
         return
 
-    tweet_rain(twitter_avalon)
-    tweet_rain(twitter_prague)
-    tweet_rain(twitter_pilsen)
-    tweet_rain(twitter_domazlice)
+    process_rain_tweet(twitter_avalon)
+    process_rain_tweet(twitter_prague)
+    process_rain_tweet(twitter_pilsen)
+    process_rain_tweet(twitter_domazlice)
 
-def tweet_rain(twitter):
+def process_rain_tweet(twitter):
     time_last_check = storage.load_rain_tweeted(twitter)
     if not time_last_check:
         storage.save_rain_tweeted(twitter, time.time())

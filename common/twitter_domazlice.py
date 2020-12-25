@@ -11,10 +11,14 @@ auth_file = 'data/twitter_access_domazlice.data'
 def id():
     return 'domazlice'
 
-def tweet(message, media = None):
+def tweet(message, in_reply_to = None, media = None):
     access_data = path.to(auth_file)
     twitter.tweet(access_data, message, media)
 
+def mentions(since_id):
+    access_data = path.to(auth_file)
+    twitter.mentions(access_data, since_id)
+    
 def authorize():
     access_data = path.to(auth_file)
     twitter.authorize(access_data)

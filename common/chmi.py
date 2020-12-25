@@ -133,7 +133,14 @@ def get_pilsen_rain_info(when = None):
 def get_domazlice_rain_info(when = None):
     return get_rain_info(when, get_domazlice_pixel(), domazlice_radius, True)
 
+def get_rain_info_for_gps(latitude, longitude, when = None):
+    return get_rain_info(None, get_pixel(latitude, longitude), 20, False)
+
 def get_rain_info(when, pixel, radius, distance_to_radius = False): # → (timestamp, intensity, area, area outside, distance, label)
+    if not pixel:
+        log.warning('get_rain_info(): not processing rain, pixel is not defined.')
+        return None
+    
     data = load_rain_map(when)
 
     if data is None: 
@@ -219,7 +226,10 @@ def get_domazlice_pixel(): # → (x, y, label)
     return get_pixel_with_label(get_pixel(domazlice_gps[0], domazlice_gps[1]), None)
 
 def get_pixel_with_label(pixel, label = None): # → (x, y, label)
-    return (pixel[0], pixel[1], label)
+    if not pixel:
+        return None
+    else:
+        return (pixel[0], pixel[1], label)
 
 def get_pixel(latitude, longitude): # → (x, y)
     dst_ns = distance.distance(avalon_gps, (latitude, avalon_gps[1])).km
@@ -239,12 +249,10 @@ def get_pixel(latitude, longitude): # → (x, y)
     my_x = avalon_pixel[0] + (dst_ew * dst_ew_dir)
     my_y = avalon_pixel[1] + (dst_ns * dst_ns_dir)
 
-    # check image boundaries
-    my_x = int(max(0, min(my_x, composite_size[0])))
-    my_y = int(max(0, min(my_y, composite_size[1])))
-
-    # return pixel
-    return (int(my_x), int(my_y))
+    if 0 < my_x < composite_size[0] and 0 < my_y < composite_size[1]:
+        return (int(my_x), int(my_y))
+    else:
+        return None
 
 def prepare_data(): # → True if new data was prepared
     now = time.time()

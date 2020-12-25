@@ -10,6 +10,7 @@ import datetime
 import sqlite3
 
 rain_save = path.to('data/rain_tweet_{}.save')
+mention_save = path.to('data/rain_last_mention_{}.save')
 
 def lock(label, expiration):
     exp = int(time.time()) + expiration
@@ -149,6 +150,27 @@ def load_rain_tweeted(twitter):
     file.close()
 
     return timestamp
+
+def save_last_mention(twitter, tweet_id):
+    id = twitter.id()
+    fn = mention_save.format(id)
+
+    file = open(fn, 'w')
+    file.write(str(tweet_id))
+    file.close()
+
+def load_last_mention(twitter):
+    id = twitter.id()
+    fn = mention_save.format(id)
+
+    if not os.path.exists(fn):
+        return
+
+    file = open(fn, 'r')
+    tweet_id = int(file.read())
+    file.close()
+
+    return tweet_id
 
 # entries: list of numeric values
 # threshold: value that decides
