@@ -13,7 +13,7 @@ def id():
 
 def tweet(message, in_reply_to = None, media = None):
     access_data = path.to(auth_file)
-    twitter.tweet(access_data, message, media)
+    twitter.tweet(access_data, message, in_reply_to, media)
 
 def mentions(since_id):
     access_data = path.to(auth_file)

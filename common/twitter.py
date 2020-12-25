@@ -42,11 +42,13 @@ def tweet(access_data, message, in_reply_to = None, media = None):
             ids.append(img.media_id_string)
 
         try:
+            log.info('tweet(): tweeting in reply to {} with media ({}×).'.format(in_reply_to, len(ids)))
             api.update_status(status = message, in_reply_to_status_id = in_reply_to, media_ids = ids)
         except tweepy.error.TweepError as error:
             log.error('tweet(): failed to tweet: {}'.format(error))
     else:
         try:
+            log.info('tweet(): tweeting in reply to {}.'.format(in_reply_to))
             api.update_status(status = message, in_reply_to_status_id = in_reply_to)
         except tweepy.error.TweepError as error:
             log.error('tweet(): failed to tweet: {}'.format(error))
