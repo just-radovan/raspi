@@ -200,11 +200,9 @@ def temperature_outdoor():
 def radar_for_mentions():
     # timed by cron
     process_rain_mentions(twitter_avalon)
-
-    # todo: enable for all
-    # process_rain_mentions(twitter_prague)
-    # process_rain_mentions(twitter_pilsen)
-    # process_rain_mentions(twitter_domazlice)
+    process_rain_mentions(twitter_prague)
+    process_rain_mentions(twitter_pilsen)
+    process_rain_mentions(twitter_domazlice)
 
 def process_rain_mentions(twitter):
     last_id = storage.load_last_mention(twitter)
@@ -232,7 +230,7 @@ def process_rain_mentions(twitter):
             rain_now = rain_info_func()
 
         if not rain_now:
-            message = '@{} Na tohle místo bohužel nevidim 😞'.format(mention[1])
+            message = '@{} Na {} bohužel nevidim 😞'.format(mention[1], mention[6])
         else:
             idx_timestamp = 0
             idx_intensity = 1
@@ -254,18 +252,33 @@ def process_rain_mentions(twitter):
                 rain_emoji = '🌊'
 
             if rain_now[idx_distance] < 0:
-                message = (
-                    '@{} {} Neprší.'
-                ).format(mention[1], rain_emoji)
-            else:
-                if rain_now[idx_area_outside] < 2:
+                if mention[6]:
                     message = (
-                        '@{} {} Pár kapek spadlo {:.1f} km daleko.'
-                    ).format(mention[1], rain_emoji, rain_now[idx_distance])
+                        '@{} {} U {} neprší.'
+                    ).format(mention[1], rain_emoji, mention[6])
                 else:
                     message = (
-                        '@{} {} Prší {:.1f} km daleko.'
-                    ).format(mention[1], rain_emoji, rain_now[idx_distance])
+                        '@{} {} Neprší.'
+                    ).format(mention[1], rain_emoji)
+            else:
+                if rain_now[idx_area_outside] < 2:
+                    if mention[6]:
+                        message = (
+                            '@{} {} Pár kapek spadlo {:.1f} km od {}.'
+                        ).format(mention[1], rain_emoji, rain_now[idx_distance], mention[6])
+                    else:
+                        message = (
+                            '@{} {} Pár kapek spadlo {:.1f} km daleko.'
+                        ).format(mention[1], rain_emoji, rain_now[idx_distance])
+                else:
+                    if mention[6]:
+                        message = (
+                            '@{} {} Prší {:.1f} km od {}.'
+                        ).format(mention[1], rain_emoji, rain_now[idx_distance], mention[6])
+                    else:
+                        message = (
+                            '@{} {} Prší {:.1f} km daleko.'
+                        ).format(mention[1], rain_emoji, rain_now[idx_distance])
 
         twitter.tweet(message, in_reply_to = mention[0])
 
