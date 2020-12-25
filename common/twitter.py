@@ -73,6 +73,9 @@ def mentions(access_data, since_id): # → [(tweet_id, user, text, gps_is_set, l
 
     api = tweepy.API(auth)
 
+    if since_id <= 0:
+        since_id = None
+
     for mention in tweepy.Cursor(api.mentions_timeline, since_id = since_id, count = 20).items():
         tweet_id = mention.id # int64
         user = mention.user.screen_name
