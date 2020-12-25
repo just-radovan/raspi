@@ -87,8 +87,8 @@ def mentions(access_data, since_id): # → [(tweet_id, user, text, gps_is_set, l
 
             location = Polygon(mention.place.bounding_box.coordinates[0])
             # geojson is long, then lat.
-            latitude = location.centroid[1]
-            longitude = location.centroid[0]
+            latitude = location.centroid.coords[1]
+            longitude = location.centroid.coords[0]
         else:
             gps_is_set = False
             latitude = None
