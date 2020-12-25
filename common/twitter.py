@@ -51,7 +51,7 @@ def tweet(access_data, message, in_reply_to = None, media = None):
         except tweepy.error.TweepError as error:
             log.error('tweet(): failed to tweet: {}'.format(error))
 
-def mentions(access_data, since_id): # → [(tweet_id, user, text, gps_is_set, latitude, longitude)]
+def mentions(access_data, since_id): # → [(tweet_id, user, text, gps_is_set, latitude, longitude, location_label)]
     mentions = []
     access_token = None
     access_secret = None
@@ -81,18 +81,21 @@ def mentions(access_data, since_id): # → [(tweet_id, user, text, gps_is_set, l
 
             latitude = mention.coordinates.coordinates[1]
             longitude = mention.coordinates.coordinates[0]
+            location_label = '{:.3f},{:.3f}'.format(latitude, longitude)
         elif mention.place:
             gps_is_set = True
 
             location = Polygon(mention.place.bounding_box.coordinates[0])
             latitude = location.centroid.y # not a mistake, geojson has it the otherway around.
             longitude = location.centroid.x
+            location_label = mention.place.name
         else:
             gps_is_set = False
             latitude = None
             longitude = None
+            location_label = None
 
-        mentions.append((tweet_id, user, text, gps_is_set, latitude, longitude))
+        mentions.append((tweet_id, user, text, gps_is_set, latitude, longitude, location_label))
 
     return mentions
 

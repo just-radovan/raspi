@@ -133,8 +133,10 @@ def get_pilsen_rain_info(when = None):
 def get_domazlice_rain_info(when = None):
     return get_rain_info(when, get_domazlice_pixel(), domazlice_radius, True)
 
-def get_rain_info_for_gps(latitude, longitude, when = None):
-    return get_rain_info(None, get_pixel(latitude, longitude), 20, False)
+def get_rain_info_for_gps(latitude, longitude, label = None, when = None):
+    pixel = get_pixel_with_label(get_pixel(latitude, longitude), label)
+    
+    return get_rain_info(None, pixel, 20, False)
 
 def get_rain_info(when, pixel, radius, distance_to_radius = False): # → (timestamp, intensity, area, area outside, distance, label)
     if not pixel:
@@ -217,13 +219,13 @@ def get_avalon_pixel(): # → (x, y, label)
     return get_pixel_with_label(get_pixel(location[0], location[1]), location[2])
 
 def get_prague_pixel(): # → (x, y, label)
-    return get_pixel_with_label(get_pixel(prague_gps[0], prague_gps[1]), None)
+    return get_pixel_with_label(get_pixel(prague_gps[0], prague_gps[1]), 'Praha')
 
 def get_pilsen_pixel(): # → (x, y, label)
-    return get_pixel_with_label(get_pixel(pilsen_gps[0], pilsen_gps[1]), None)
+    return get_pixel_with_label(get_pixel(pilsen_gps[0], pilsen_gps[1]), 'Plzeň')
 
 def get_domazlice_pixel(): # → (x, y, label)
-    return get_pixel_with_label(get_pixel(domazlice_gps[0], domazlice_gps[1]), None)
+    return get_pixel_with_label(get_pixel(domazlice_gps[0], domazlice_gps[1]), 'Domažlice')
 
 def get_pixel_with_label(pixel, label = None): # → (x, y, label)
     if not pixel:

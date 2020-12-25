@@ -222,11 +222,11 @@ def process_rain_mentions(twitter):
             continue
 
         if mention[3]:
-            log.info('process_rain_mentions(): @{} asking for rain near {:.3f}×{:.3f}.'.format(mention[1], mention[4], mention[5]))
+            log.info('process_rain_mentions(): @{} asking for rain near {}.'.format(mention[1], mention[6]))
             
-            rain_now = chmi.get_rain_info_for_gps(mention[4], mention[5])
+            rain_now = chmi.get_rain_info_for_gps(mention[4], mention[5], mention[6])
         else:
-            log.info('process_rain_mentions(): @{} asking for rain near {}.'.format(mention[1], twitter.id()))
+            log.info('process_rain_mentions(): @{} asking for rain, no location specified.'.format(mention[1]))
             
             rain_info_func = getattr(chmi, 'get_{}_rain_info'.format(twitter.id().lower()))
             rain_now = rain_info_func()
