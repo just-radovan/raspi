@@ -45,6 +45,7 @@ def tweet(access_data, message, in_reply_to = None, media = None):
         api.update_status(status = message, in_reply_to_status_id = in_reply_to)
 
 def mentions(access_data, since_id): # → [(tweet_id, user, text, gps_is_set, latitude, longitude)]
+    mentions = []
     access_token = None
     access_secret = None
 
@@ -56,14 +57,13 @@ def mentions(access_data, since_id): # → [(tweet_id, user, text, gps_is_set, l
 
     if not access_token or not access_secret:
         log.error('mentions(): unable to load access tokens.')
-        return
+        return mentions
 
     auth = tweepy.OAuthHandler(twitter.get_consumer_key(), twitter.get_consumer_secret())
     auth.set_access_token(access_token, access_secret)
 
     api = tweepy.API(auth)
 
-    mentions = []
     for mention in tweepy.Cursor(api.mentions_timeline, since_id = since_id, count = 20).items():
         tweet_id = mention.id # int64
         user = mention.user.screen_name

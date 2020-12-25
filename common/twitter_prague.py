@@ -17,7 +17,7 @@ def tweet(message, in_reply_to = None, media = None):
 
 def mentions(since_id):
     access_data = path.to(auth_file)
-    twitter.mentions(access_data, since_id)
+    return twitter.mentions(access_data, since_id)
 
 def authorize():
     access_data = path.to(auth_file)
