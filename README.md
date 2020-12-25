@@ -44,4 +44,5 @@ also to inform people about rain. also via twitter.
 * numpy (pip) - python: library to handle numbers
 * seaborn (pip) - python: library to visualise numbers
 * geopy (pip) - python: precise distance between coordinates
+* shapely (pip) - python: polygon analysis
 * space mono ([github.com/../spacemono](https://github.com/googlefonts/spacemono)) - font used to annotate timelapse frames

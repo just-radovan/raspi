@@ -7,6 +7,7 @@ import common.storage as storage
 
 import tweepy
 import json
+from shapely.geometry import Polygon as polygon
 
 def id():
     return None
@@ -76,10 +77,18 @@ def mentions(access_data, since_id): # → [(tweet_id, user, text, gps_is_set, l
         text = mention.text
         
         if mention.coordinates:
-            # geojson is long, then lat.
             gps_is_set = True
-            latitude = mention.coordinates[1]
-            longitude = mention.coordinates[0]
+
+            # geojson is long, then lat.
+            latitude = mention.coordinates.coordinates[1]
+            longitude = mention.coordinates.coordinates[0]
+        elif mention.place:
+            gps_is_set = True
+
+            polygon = polygon(mention.place.bounding_box.coordinates[0])
+            # geojson is long, then lat.
+            latitude = polygon.centroid[1]
+            longitude = polygon.centroid[0]
         else:
             gps_is_set = False
             latitude = None
