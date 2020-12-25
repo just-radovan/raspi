@@ -240,11 +240,11 @@ def process_rain_mentions(twitter):
             if rain_now[idx_distance] < 0:
                 message = (
                     '@{} Neprší.'
-                ).format(mentions[1])
+                ).format(mention[1])
             else:
                 message = (
                     '@{} Prší {:.1f} km daleko.'
-                ).format(mentions[1], rain_now[idx_distance])
+                ).format(mention[1], rain_now[idx_distance])
 
         twitter.tweet(message, in_reply_to = mention[0])
 
