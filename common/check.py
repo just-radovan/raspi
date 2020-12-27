@@ -486,10 +486,10 @@ def tweet_rain_heatmap():
 
     tweet = '📈 Jak pršelo posledních sedm dní…'
 
-    twitter_avalon.tweet(tweet, heatmap)
-    twitter_prague.tweet(tweet, heatmap)
-    twitter_pilsen.tweet(tweet, heatmap)
-    twitter_domazlice.tweet(tweet, heatmap)
+    twitter_avalon.tweet(tweet, media = heatmap)
+    twitter_prague.tweet(tweet, media = heatmap)
+    twitter_pilsen.tweet(tweet, media = heatmap)
+    twitter_domazlice.tweet(tweet, media = heatmap)
 
     storage.lock('tweet_rain_heatmap', 5*24*60*60)
 
