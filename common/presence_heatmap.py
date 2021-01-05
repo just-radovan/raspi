@@ -30,7 +30,7 @@ def post_heatmap():
     fig = heatmap.get_figure()
     fig.savefig(heatmapFile, dpi = 400)
 
-    twitter.tweet('🏝', heatmapFile)
+    twitter.tweet('🏝', media = heatmapFile)
     log.info('post_heatmap(): tweeted.')
     storage.lock('post_heatmap', 24*60*60)
 

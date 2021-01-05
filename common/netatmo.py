@@ -159,8 +159,8 @@ def download():
     db = None
     try:
         db = sqlite3.connect(path.to('data/netatmo_history.sqlite'))
-    except Error as e:
-        log.error('download(): unable to open netatmo database: {}'.format(e))
+    except:
+        log.error('download(): unable to open netatmo database.')
         return
 
     cursor = db.cursor()
