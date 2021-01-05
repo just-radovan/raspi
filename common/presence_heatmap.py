@@ -3,7 +3,7 @@
 import path
 import common.log as log
 import common.storage as storage
-import common.twitter as twitter
+import common.twitter_avalon as twitter
 
 import os
 import math
