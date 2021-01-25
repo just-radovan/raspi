@@ -52,33 +52,6 @@ def summary_presence():
 
     return
 
-def summary_at_home():
-    if storage.is_locked('summary_at_home'):
-        return
-
-    if not storage.was_outside():
-        return
-
-    co2 = storage.get_netatmo_value('co2')
-    temperature = storage.get_netatmo_value('temp_in')
-    humidity = storage.get_netatmo_value('humidity_in')
-
-    start = [
-      '🛰 Vítej doma.',
-      '🐈‍⬛ Hurá, kočky!',
-      '🏝 Aaah, tady nejsou lidi.'
-    ]
-    message = (
-        '{}\n\n'
-        '✪ co₂: {} ppm\n'
-        '✪ teplota: {} °C\n'
-        '✪ vlhkost: {} %'
-    ).format(random.choice(start), co2, temperature, humidity)
-
-    twitter_avalon.tweet(message)
-    log.info('summary_at_home(): tweeted.')
-    storage.lock('summary_at_home', 30*60)
-
 def summary_morning():
     now = datetime.datetime.now()
     if not (5 < now.hour < 12):
@@ -196,6 +169,81 @@ def temperature_outdoor():
     twitter_avalon.tweet('🥶 Venku mrzne!')
     log.info('temperature_outdoor(): tweeted.')
     storage.lock('temperature_outdoor', 30*60)
+
+def swarm():
+    time_last_check = storage.load_swarm_tweeted()
+    if not time_last_check:
+        storage.save_swarm_tweeted(time.time())
+        return
+
+    location = storage.get_location(since = time_last_check) # → (timestamp, time_delta, latitude, longitude, distance, venue_name)
+    if not location:
+        return
+
+    if location[4] < 20:
+        return
+
+    time_now = location[0]
+    rain_now = chmi.get_rain_info_for_gps(location[2], location[3], location[5])
+
+    tweet_travel = (
+        '✈ {} — {:.1f} km daleko od posledního checkinu'
+    ).format(location[5], location[4])
+
+    if not rain_now:
+        tweet_weather = 'Na {} bohužel nevidim 😞'.format(location[5])
+    else:
+        idx_intensity = 1
+        idx_area_outside = 3
+        idx_distance = 4
+
+        rain_emoji = '🌦'
+        if rain_now[idx_intensity] <= 4:
+            rain_emoji = '🌤'
+        elif rain_now[idx_intensity] <= 16:
+            rain_emoji = '🌦'
+        elif rain_now[idx_intensity] <= 40:
+            rain_emoji = '🌧'
+        elif rain_now[idx_intensity] <= 52:
+            rain_emoji = '💦'
+        else:
+            rain_emoji = '🌊'
+
+        if rain_now[idx_distance] < 0:
+            tweet_weather = (
+                '{} Neprší'
+            ).format(rain_emoji)
+        else:
+            if rain_now[idx_area_outside] < 2:
+                tweet_weather = (
+                    '{} Pár kapek spadlo {:.1f} km daleko'
+                ).format(rain_emoji, rain_now[idx_distance])
+            else:
+                tweet_weather = (
+                    '{} Prší {:.1f} km daleko'
+                ).format(rain_emoji, rain_now[idx_distance])
+
+    # add media
+    media = []
+
+    composite = path.to('data/chmi/composite_{}.png'.format(twitter_avalon.id()))
+    if os.path.isfile(composite):
+        media.append(composite)
+
+    last_photo = camera.get_last_photo()
+    if last_photo:
+        media.append(last_photo)
+
+    # tweet
+    tweet = (
+        '{}\n'
+        '\n'
+        '{}'
+    ).format(tweet_travel, tweet_weather)
+    twitter_avalon.tweet(tweet, media = media)
+
+    storage.save_swarm_tweeted(time_now)
+    log.info('swarm(): tweeted.')
 
 def radar_for_mentions():
     # timed by cron

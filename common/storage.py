@@ -8,7 +8,9 @@ import math
 import time
 import datetime
 import sqlite3
+from geopy import distance
 
+swarm_save = path.to('data/swarm_tweet.save')
 rain_save = path.to('data/rain_tweet_{}.save')
 mention_save = path.to('data/rain_last_mention_{}.save')
 
@@ -47,7 +49,7 @@ def get_presence(asc = False):
 
     return rows
 
-def get_location():
+def get_location(): # → (latitude, longitude, venue_name)
     db = _open_database('data/location_history.sqlite')
     cursor = db.cursor()
     cursor.execute('select latitude, longitude, venue from location order by timestamp desc limit 0, 1')
@@ -55,25 +57,34 @@ def get_location():
     row = cursor.fetchone()
     db.close()
 
-    latitude = row[0]
-    longitude = row[1]
-    venue = row[2]
+    return (row[0], row[1], row[2])
 
-    return [latitude, longitude, venue]
+def get_location_change(since = None): # → (timestamp, time_delta, latitude, longitude, distance, venue_name)
+    if not since:
+        return None
 
-def is_present():
-    db = _open_database('data/presence_history.sqlite')
+    db = _open_database('data/location_history.sqlite')
     cursor = db.cursor()
-    cursor.row_factory = lambda cursor, row: row[0]
-    cursor.execute('select present from presence order by timestamp desc limit 0, 1')
+    cursor.execute('select timestamp, latitude, longitude, venue from location where timestamp >= {} order by timestamp desc limit 0, 1'.format(since))
 
-    row = cursor.fetchone()
+    rows = cursor.fetchall()
+    row_count = cursor.rowcount
     db.close()
 
-    return (row == 1)
+    if row_count < 2:
+        return None
 
-def was_outside():
-    entries = 8
+    row_now = 0
+    row_b4 = row_count - 1
+
+    # change
+    time_delta = rows[row_now][0] - rows[row_b4][0]
+    distance = distance.distance((rows[row_now][1], rows[row_now][2]), (rows[row_b4][1], rows[row_b4][2])).km
+
+    return (rows[row_now][0], time_delta, rows[row_now][1], rows[row_now][2], distance, rows[row_now][3])  
+
+def is_present():
+    entries = 3
 
     db = _open_database('data/presence_history.sqlite')
     cursor = db.cursor()
@@ -83,7 +94,7 @@ def was_outside():
     rows = cursor.fetchall()
     db.close()
 
-    return evaluate(rows, 1, 0, 0.3, '🏡', '🏝')
+    return rows.count(1) >= 2
 
 def how_long_outside():
     timeFrom = datetime.datetime.timestamp(datetime.datetime.combine(datetime.date.today(), datetime.datetime.min.time())) # today's midnight
@@ -129,6 +140,21 @@ def get_netatmo_data(column, count):
     db.close()
 
     return rows
+
+def save_swarm_tweeted(timestamp):
+    file = open(swarm_save, 'w')
+    file.write(str(timestamp))
+    file.close()
+
+def load_swarm_tweeted():
+    if not os.path.exists(swarm_save):
+        return
+
+    file = open(swarm_save, 'r')
+    timestamp = float(file.read())
+    file.close()
+
+    return timestamp
 
 def save_rain_tweeted(twitter, timestamp):
     id = twitter.id()
