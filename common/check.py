@@ -264,6 +264,8 @@ def process_rain_mentions(twitter):
 
     last_processed_id = -1
     for mention in mentions:
+        last_processed_id = max(last_processed_id, mention[0])
+
         if not has_rain_keywords(mention[2]):
             continue
 
@@ -329,8 +331,6 @@ def process_rain_mentions(twitter):
                         ).format(mention[1], rain_emoji, rain_now[idx_distance])
 
         twitter.tweet(message, in_reply_to = mention[0])
-
-        last_processed_id = max(last_processed_id, mention[0])
 
     storage.save_last_mention(twitter, last_processed_id)
 
