@@ -72,6 +72,7 @@ def get_location_change(since = None): # → (timestamp, time_delta, latitude, l
     db.close()
 
     if row_count < 2:
+        log.info('get_location_change(): not enough checkins ({}).'.format(row_count))
         return None
 
     row_now = 0
