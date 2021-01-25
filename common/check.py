@@ -347,6 +347,7 @@ def radar():
         log.warning('radar(): no new data. won\'t try to tweet.')
         return
 
+    swarm()
     process_rain_tweet(twitter_avalon)
     process_rain_tweet(twitter_prague)
     process_rain_tweet(twitter_pilsen)
