@@ -59,10 +59,7 @@ def get_location(): # → (latitude, longitude, venue_name)
 
     return (row[0], row[1], row[2])
 
-def get_location_change(since = None): # → (timestamp, time_delta, latitude, longitude, distance, venue_name)
-    if not since:
-        return None
-
+def get_location_change(since): # → (timestamp, time_delta, latitude, longitude, distance, venue_name)
     db = _open_database('data/location_history.sqlite')
     cursor = db.cursor()
     cursor.execute('select timestamp, latitude, longitude, venue from location where timestamp >= {} order by timestamp desc limit 0, 1'.format(since))
@@ -71,8 +68,9 @@ def get_location_change(since = None): # → (timestamp, time_delta, latitude, l
     row_count = cursor.rowcount
     db.close()
 
+    log.info('get_location_change(): checkins since {}: {}.'.format(since, row_count))
+
     if row_count < 2:
-        log.info('get_location_change(): not enough checkins ({}).'.format(row_count))
         return None
 
     row_now = 0
