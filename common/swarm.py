@@ -37,7 +37,7 @@ def download_checkins():
     cursor.execute('select timestamp from location order by timestamp desc limit 0, 1')
     timestampLast = cursor.fetchone()
 
-    stored = 0
+    stored = []
     for checkin in data['checkins']['items']:
         swarm_id = checkin['id']
         timestamp = checkin['createdAt']
@@ -56,12 +56,14 @@ def download_checkins():
             ')'
         )
         cursor.execute(sql, (swarm_id, timestamp, latitude, longitude, venue))
-        stored += 1
+        stored.append(venue)
 
     db.commit()
     db.close()
 
-    log.info('download_checkins(): stored new {} checkins.'.format(stored))
+    log.info('download_checkins(): stored new {} checkins.'.format(len(stored)))
+    for item in stored:
+        log.info('download_checkins(): → {}'.format(item))
 
 def authorize():
     client = foursquare.Foursquare(client_id = swarm.get_consumer_key(), client_secret = swarm.get_consumer_secret(), redirect_uri = 'https://www.radovan.be/')
