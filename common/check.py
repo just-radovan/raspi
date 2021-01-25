@@ -176,7 +176,7 @@ def swarm():
         storage.save_swarm_tweeted(time.time())
         return
 
-    location = storage.get_location(since = time_last_check) # → (timestamp, time_delta, latitude, longitude, distance, venue_name)
+    location = storage.get_location_change(since = time_last_check) # → (timestamp, time_delta, latitude, longitude, distance, venue_name)
     if not location:
         return
 
