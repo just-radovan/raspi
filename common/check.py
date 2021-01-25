@@ -180,7 +180,7 @@ def swarm():
     if not location:
         return
 
-    if location[4] < 20:
+    if location[4] < 10:
         return
 
     time_now = location[0]
