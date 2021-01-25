@@ -187,7 +187,7 @@ def swarm():
     rain_now = chmi.get_rain_info_for_gps(location[2], location[3], location[5])
 
     tweet_travel = (
-        '✈ {} — {:.1f} km daleko od posledního checkinu'
+        '🚗 {} — {:.1f} km daleko od posledního checkinu.'
     ).format(location[5], location[4])
 
     if not rain_now:
@@ -211,16 +211,16 @@ def swarm():
 
         if rain_now[idx_distance] < 0:
             tweet_weather = (
-                '{} Neprší'
+                '{} Neprší.'
             ).format(rain_emoji)
         else:
             if rain_now[idx_area_outside] < 2:
                 tweet_weather = (
-                    '{} Pár kapek spadlo {:.1f} km daleko'
+                    '{} Pár kapek spadlo {:.1f} km daleko.'
                 ).format(rain_emoji, rain_now[idx_distance])
             else:
                 tweet_weather = (
-                    '{} Prší {:.1f} km daleko'
+                    '{} Prší {:.1f} km daleko.'
                 ).format(rain_emoji, rain_now[idx_distance])
 
     # add media
