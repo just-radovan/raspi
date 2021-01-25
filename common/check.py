@@ -44,7 +44,7 @@ def summary_presence():
         hours = int(math.floor(outside / (60 * 60)))
         minutes = int(math.floor((outside - (hours * 60 * 60)) / 60))
 
-        outsideStr = '{}h{}'.format(hours, minutes)
+        outsideStr = '{:02d}h{:02d}'.format(hours, minutes)
 
     twitter_avalon.tweet('🚶 Dnes jsi byl venku {}.'.format(outsideStr))
     log.info('summary_presence(): tweeted.')
@@ -243,6 +243,7 @@ def swarm():
     twitter_avalon.tweet(tweet, media = media)
 
     storage.save_swarm_tweeted(time_now)
+    storage.save_rain_tweeted(twitter_avalon, time_now)
     log.info('swarm(): tweeted.')
 
 def radar_for_mentions():
