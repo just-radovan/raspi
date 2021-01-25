@@ -78,11 +78,11 @@ def get_location_change(since): # → (timestamp, time_delta, latitude, longitud
 
     # change
     time_delta = rows[row_now][0] - rows[row_b4][0]
-    distance = distance.distance((rows[row_now][1], rows[row_now][2]), (rows[row_b4][1], rows[row_b4][2])).km
+    dst = distance.distance((rows[row_now][1], rows[row_now][2]), (rows[row_b4][1], rows[row_b4][2])).km
 
-    log.info('get_location_change(): at {} — {:.1f} kms, {} secs'.format(rows[row_now][3], distance, time_delta))
+    log.info('get_location_change(): at {} — {:.1f} kms, {} secs'.format(rows[row_now][3], dst, time_delta))
 
-    return (rows[row_now][0], time_delta, rows[row_now][1], rows[row_now][2], distance, rows[row_now][3])  
+    return (rows[row_now][0], time_delta, rows[row_now][1], rows[row_now][2], dst, rows[row_now][3])  
 
 def is_present():
     entries = 3
