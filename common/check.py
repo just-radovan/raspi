@@ -30,23 +30,25 @@ def summary_presence():
     if storage.is_locked('summary_presence'):
         return
 
-    outside = storage.how_long_outside()
-    outsideStr = ''
-    if outside < 60:
-        outsideStr = 'necelou minutu'
-    elif outside < 5*60:
-        outsideStr = 'méně než pět minut'
-    elif outside <= 90*60:
-        minutes = int(math.floor(outside / 60))
+    outside_time = storage.how_long_outside()
+    outside_distance = storage.how_far_outside()
 
-        outsideStr = '{} min.'.format(minutes)
+    outside_time_str = ''
+
+    if outside_time < 5*60:
+        outside_time_str = 'méně než pět minut'
+    elif outside_time <= 90*60:
+        minutes = int(math.floor(outside_time / 60))
+
+        outside_time_str = '{} min.'.format(minutes)
     else:
-        hours = int(math.floor(outside / (60 * 60)))
-        minutes = int(math.floor((outside - (hours * 60 * 60)) / 60))
+        hours = int(math.floor(outside_time / (60 * 60)))
+        minutes = int(math.floor((outside_time - (hours * 60 * 60)) / 60))
 
-        outsideStr = '{:02d}h{:02d}'.format(hours, minutes)
+        outside_time_str = '{:02d}h{:02d}'.format(hours, minutes)
 
-    twitter_avalon.tweet('🚶 Dnes jsi byl venku {}.'.format(outsideStr))
+
+    twitter_avalon.tweet('🚶 Dnes jsi byl venku {}, urazil jsi {:.1f} km.'.format(outside_time_str, outside_distance))
     log.info('summary_presence(): tweeted.')
     storage.lock('summary_presence', 12*60*60)
 

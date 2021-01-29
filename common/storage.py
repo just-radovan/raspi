@@ -98,35 +98,62 @@ def is_present():
     return rows.count(1) >= 2
 
 def how_long_outside():
-    timeFrom = datetime.datetime.timestamp(datetime.datetime.combine(datetime.date.today(), datetime.datetime.min.time())) # today's midnight
-    timeTo = int(time.time())
+    time_from = datetime.datetime.timestamp(datetime.datetime.combine(datetime.date.today(), datetime.datetime.min.time())) # today's midnight
+    time_to = int(time.time())
 
     db = _open_database('data/presence_history.sqlite')
     cursor = db.cursor()
-    cursor.execute('select timestamp, present from presence where timestamp between ? and ?', (timeFrom, timeTo))
+    cursor.execute('select timestamp, present from presence where timestamp between ? and ? order by timestamp asc', (time_from, time_to))
 
     rows = cursor.fetchall()
     db.close()
 
     row_prev = None
-    outsideStart = -1
+    outside_start = -1
     outside = 0
 
     for row in rows:
         if row[1] == 0:
-            if outsideStart < 0:
+            if outside_start < 0:
                 if not row_prev:
-                    outsideStart = row[0]
+                    outside_start = row[0]
                 elif row_prev[1] == 1:
-                    outsideStart = row[0]
+                    outside_start = row[0]
         else:
-            if outsideStart >= 0:
-                outside += (row[0] - outsideStart)
-                outsideStart = -1
+            if outside_start >= 0:
+                diff = row[0] - outside_start
+                if diff >= 5*60:
+                    outside += diff
+                outside_start = -1
 
         row_prev = row
 
     return outside
+
+def how_far_outside():
+    time_from = datetime.datetime.timestamp(datetime.datetime.combine(datetime.date.today(), datetime.datetime.min.time())) # today's midnight
+    time_to = int(time.time())
+
+    db = _open_database('data/location_history.sqlite')
+    cursor = db.cursor()
+    cursor.execute('select latitude, longitude from location where timestamp between ? and ? order by timestamp asc', (time_from, time_to))
+
+    rows = cursor.fetchall()
+    db.close()
+
+    row_prev = None
+    dst = 0.0
+
+    for row in rows:
+        if not row_prev:
+            row_prev = row
+            continue
+
+        dst += distance.distance((row_prev[0], row_prev[1]), (row[0], row[1])).km
+
+        row_prev = row
+
+    return dst
 
 def get_netatmo_value(column):
     return get_netatmo_data(column, 1)[0]
