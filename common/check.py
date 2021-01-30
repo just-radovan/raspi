@@ -273,12 +273,47 @@ def radar():
         log.warning('radar(): no new data. won\'t try to tweet.')
         return
 
+    save_bitbar_data()
+
     process_rain_swarm()
     process_rain_tweet(twitter_avalon)
     process_rain_tweet(twitter_prague)
     process_rain_tweet(twitter_pilsen)
     process_rain_tweet(twitter_domazlice)
 
+def save_bitbar_data():
+    out = path.to('data/bitbar/weather.txt')
+
+    idx_intensity = 1
+    idx_area = 2
+    idx_area_outside = 3
+    idx_distance = 4
+    idx_label = 5
+
+    rain_now = chmi.get_avalon_rain_info()
+
+    if not rain_now:
+        return
+
+    rain_emoji = '🌦'
+    if rain_now[idx_intensity] <= 4:
+        rain_emoji = '🌤'
+    elif rain_now[idx_intensity] <= 16:
+        rain_emoji = '🌦'
+    elif rain_now[idx_intensity] <= 40:
+        rain_emoji = '🌧'
+    elif rain_now[idx_intensity] <= 52:
+        rain_emoji = '💦'
+    else:
+        rain_emoji = '🌊'
+
+    info = (
+        '{} {:.0f} mmh // {:.1f}% // {:.1f} kms'
+    ).format(rain_emoji, rain_now[idx_intensity], rain_now[idx_area], rain_now[idx_distance])
+
+    file = open(out, 'w')
+    file.write(info)
+    file.close()
 
 def process_rain_swarm():
     time_last_check = storage.load_swarm_tweeted()
