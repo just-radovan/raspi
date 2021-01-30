@@ -310,7 +310,7 @@ def save_bitbar_data():
         co2_emoji = '🤢'
 
     info = (
-        '{} {:.0f} mmh • {:.1f} kms // 🌡 {}°c // {} {}ppm'
+        '{} {:.0f} mmh • {:.1f} kms // 🌡 {}°c // {} {} ppm'
     ).format(rain_emoji, rain_now[idx_intensity], rain_now[idx_distance], temp, co2_emoji, co2)
 
     file = open(out, 'w')
