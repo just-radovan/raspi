@@ -85,7 +85,7 @@ def get_location_change(since): # → (timestamp, time_delta, latitude, longitud
     return (rows[row_now][0], time_delta, rows[row_now][1], rows[row_now][2], dst, rows[row_now][3])  
 
 def is_present():
-    entries = 3
+    entries = 5
 
     db = _open_database('data/presence_history.sqlite')
     cursor = db.cursor()
@@ -95,7 +95,7 @@ def is_present():
     rows = cursor.fetchall()
     db.close()
 
-    return rows.count(1) >= 2
+    return evaluate(rows, 1, -1, 0.6, '🏝', '🏠')
 
 def how_long_outside():
     time_from = datetime.datetime.timestamp(datetime.datetime.combine(datetime.date.today(), datetime.datetime.min.time())) # today's midnight
