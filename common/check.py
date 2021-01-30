@@ -286,9 +286,7 @@ def save_bitbar_data():
 
     idx_intensity = 1
     idx_area = 2
-    idx_area_outside = 3
     idx_distance = 4
-    idx_label = 5
 
     rain_now = chmi.get_avalon_rain_info()
 
@@ -314,6 +312,8 @@ def save_bitbar_data():
     file = open(out, 'w')
     file.write(info)
     file.close()
+
+    log.info('save_bitbar_data(): bitbar data generated: {}'.format(info))
 
 def process_rain_swarm():
     time_last_check = storage.load_swarm_tweeted()
