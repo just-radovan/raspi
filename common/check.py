@@ -209,12 +209,9 @@ def process_rain_mentions(twitter):
         if not rain_now:
             message = '@{} Na {} bohužel nevidim 😞'.format(mention[1], mention[6])
         else:
-            idx_timestamp = 0
             idx_intensity = 1
-            idx_area = 2
             idx_area_outside = 3
             idx_distance = 4
-            idx_label = 5
 
             rain_emoji = '🌦'
             if rain_now[idx_intensity] <= 4:
@@ -285,10 +282,11 @@ def save_bitbar_data():
     out = path.to('data/bitbar/weather.txt')
 
     idx_intensity = 1
-    idx_area = 2
     idx_distance = 4
 
     rain_now = chmi.get_avalon_rain_info()
+    temp = storage.get_netatmo_value('temp_out')
+    co2 = storage.get_netatmo_value('co2')
 
     if not rain_now:
         return
@@ -305,9 +303,15 @@ def save_bitbar_data():
     else:
         rain_emoji = '🌊'
 
+    co2_emoji = '🙂'
+    if co2 > 2000:
+        co2_emoji = '😵'
+    elif co2 > 1000:
+        co2_emoji = '🤢'
+
     info = (
-        '{} {:.0f} mmh // {:.1f}% // {:.1f} kms'
-    ).format(rain_emoji, rain_now[idx_intensity], rain_now[idx_area], rain_now[idx_distance])
+        '{} {:.0f} mmh • {:.1f} kms // 🌡 {}°c // {} {}ppm'
+    ).format(rain_emoji, rain_now[idx_intensity], rain_now[idx_distance], temp, co2_emoji, co2)
 
     file = open(out, 'w')
     file.write(info)
