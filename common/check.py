@@ -292,7 +292,9 @@ def save_bitbar_data():
         return
 
     rain_emoji = '🌦'
-    if rain_now[idx_intensity] <= 4:
+    if rain_now[idx_distance] < 0:
+        rain_emoji = '☀️'
+    elif rain_now[idx_intensity] <= 4:
         rain_emoji = '🌤'
     elif rain_now[idx_intensity] <= 16:
         rain_emoji = '🌦'
@@ -309,9 +311,14 @@ def save_bitbar_data():
     elif co2 > 1000:
         co2_emoji = '🤢'
 
-    info = (
-        '{} {:.0f} mmh • {:.1f} kms // 🌡 {}°c // {} {} ppm'
-    ).format(rain_emoji, rain_now[idx_intensity], rain_now[idx_distance], temp, co2_emoji, co2)
+    if rain_now[idx_distance] < 0:
+        info = (
+            '{} // 🌡 {}°c // {} {} ppm'
+        ).format(rain_emoji, temp, co2_emoji, co2)
+    else:
+        info = (
+            '{} {:.0f} mmh • {:.1f} kms // 🌡 {}°c // {} {} ppm'
+        ).format(rain_emoji, rain_now[idx_intensity], rain_now[idx_distance], temp, co2_emoji, co2)
 
     file = open(out, 'w')
     file.write(info)
