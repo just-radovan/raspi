@@ -119,6 +119,9 @@ def get_week_rain_info(): # → path to heatmap composite file
     os.system('convert {} {} -geometry +0+0 -composite {}'.format(heatmap_composite, heatmap_file, heatmap_composite))
     os.system('convert {} -crop 500x290+49+37 +repage {}'.format(heatmap_composite, heatmap_composite))
 
+    # delete old data
+    remove_rain_maps(since)
+
     return heatmap_composite
 
 def get_avalon_rain_info(when = None):
@@ -520,6 +523,13 @@ def last_rain_map(): # → timestamp
     db.close()
 
     return timestamp
+
+def remove_rain_maps(before):
+    db = _open_database('data/rain_history.sqlite')
+    cursor = db.cursor()
+
+    cursor.execute('delete from rain timestamp < {}'.format(before))
+    db.close()
 
 def _open_database(file): # → database connection
     db = None
