@@ -528,7 +528,7 @@ def remove_rain_maps(before):
     db = _open_database('data/rain_history.sqlite')
     cursor = db.cursor()
 
-    cursor.execute('delete from rain timestamp < {}'.format(before))
+    cursor.execute('delete from rain where timestamp < {}'.format(before))
     db.close()
 
 def _open_database(file): # → database connection
