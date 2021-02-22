@@ -103,22 +103,6 @@ def summary_morning():
     log.info('summary_morning(): tweeted.')
     storage.lock('summary_morning', 12*60*60)
 
-def noise():
-    if storage.is_locked('noise'):
-        return
-
-    if storage.is_present():
-        return
-
-    rows = storage.get_netatmo_data('noise', 4)
-
-    if not storage.evaluate(rows, sound_treshold, +1, 0.3, '🔊', '🔇'):
-        return
-
-    twitter_avalon.tweet('🔊 Doma je nějaký hluk ({} dB)!'.format(rows[0]))
-    log.info('noise(): tweeted.')
-    storage.lock('noise', 15*60)
-
 def co2():
     if storage.is_locked('co2'):
         return
