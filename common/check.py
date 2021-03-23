@@ -370,10 +370,6 @@ def process_rain_swarm():
     if os.path.isfile(composite):
         media.append(composite)
 
-    last_photo = camera.get_last_photo()
-    if last_photo:
-        media.append(last_photo)
-
     # tweet
     tweet = (
         '{}\n'
@@ -545,15 +541,7 @@ def process_rain_tweet(twitter):
     if not os.path.isfile(composite):
         return
 
-    if twitter.id() == 'avalon':
-        media = [composite]
-        last_photo = camera.get_last_photo()
-        if last_photo:
-            media.append(last_photo)
-
-        twitter.tweet(tweet, media = media)
-    else:
-        twitter.tweet(tweet, media = composite)
+    twitter.tweet(tweet, media = composite)
 
     storage.save_rain_tweeted(twitter, time_now)
     log.info('tweet_rain(): tweeted for {}.'.format(twitter.id()))
