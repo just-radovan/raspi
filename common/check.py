@@ -30,25 +30,9 @@ def summary_presence():
     if storage.is_locked('summary_presence'):
         return
 
-    outside_time = storage.how_long_outside()
     outside_distance = storage.how_far_outside()
 
-    outside_time_str = ''
-
-    if outside_time < 5*60:
-        outside_time_str = 'méně než pět minut'
-    elif outside_time <= 90*60:
-        minutes = int(math.floor(outside_time / 60))
-
-        outside_time_str = '{} min.'.format(minutes)
-    else:
-        hours = int(math.floor(outside_time / (60 * 60)))
-        minutes = int(math.floor((outside_time - (hours * 60 * 60)) / 60))
-
-        outside_time_str = '{:02d}h{:02d}'.format(hours, minutes)
-
-
-    twitter_avalon.tweet('🚶 Dnes jsi byl venku {}, urazil jsi {:.1f} km.'.format(outside_time_str, outside_distance))
+    twitter_avalon.tweet('🚶 Dnes jsi urazil {:.1f} km.'.format(outside_distance))
     log.info('summary_presence(): tweeted.')
     storage.lock('summary_presence', 12*60*60)
 
@@ -60,9 +44,6 @@ def summary_morning():
         return
 
     if storage.is_locked('summary_morning'):
-        return
-
-    if not storage.is_present():
         return
 
     rows = storage.get_netatmo_data('noise', 5)
@@ -122,7 +103,7 @@ def co2_trend():
         return
 
     rows = storage.get_netatmo_data('co2', 3)
-    trend = storage.evaluate_trend(rows, 0.01)
+    trend = storage.evaluate_trend(rows, 0.001)
 
     co2From = 0
     co2To = 0
@@ -142,9 +123,6 @@ def co2_trend():
 
 def temperature_outdoor():
     if storage.is_locked('temperature_outdoor'):
-        return
-
-    if not storage.is_present():
         return
 
     rows = storage.get_netatmo_data('temp_out', 4)
@@ -254,61 +232,11 @@ def radar():
         log.warning('radar(): no new data. won\'t try to tweet.')
         return
 
-    save_bitbar_data()
-
     process_rain_swarm()
     process_rain_tweet(twitter_avalon)
     process_rain_tweet(twitter_prague)
     process_rain_tweet(twitter_pilsen)
     process_rain_tweet(twitter_domazlice)
-
-def save_bitbar_data():
-    out = path.to('data/bitbar/weather.txt')
-
-    idx_intensity = 1
-    idx_distance = 4
-
-    rain_now = chmi.get_avalon_rain_info()
-    temp = storage.get_netatmo_value('temp_out')
-    co2 = storage.get_netatmo_value('co2')
-
-    if not rain_now:
-        return
-
-    rain_emoji = '🌦'
-    if rain_now[idx_distance] < 0:
-        rain_emoji = '☀️'
-    elif rain_now[idx_intensity] <= 4:
-        rain_emoji = '🌤'
-    elif rain_now[idx_intensity] <= 16:
-        rain_emoji = '🌦'
-    elif rain_now[idx_intensity] <= 40:
-        rain_emoji = '🌧'
-    elif rain_now[idx_intensity] <= 52:
-        rain_emoji = '💦'
-    else:
-        rain_emoji = '🌊'
-
-    co2_emoji = '🙂'
-    if co2 > 2000:
-        co2_emoji = '😵'
-    elif co2 > 1000:
-        co2_emoji = '🤢'
-
-    if rain_now[idx_distance] < 0:
-        info = (
-            '{} // 🌡 {}°c // {} {} ppm'
-        ).format(rain_emoji, temp, co2_emoji, co2)
-    else:
-        info = (
-            '{} {:.0f} mmh • {:.1f} kms // 🌡 {}°c // {} {} ppm'
-        ).format(rain_emoji, rain_now[idx_intensity], rain_now[idx_distance], temp, co2_emoji, co2)
-
-    file = open(out, 'w')
-    file.write(info)
-    file.close()
-
-    log.info('save_bitbar_data(): bitbar data generated: {}'.format(info))
 
 def process_rain_swarm():
     time_last_check = storage.load_swarm_tweeted()
@@ -563,11 +491,3 @@ def tweet_rain_heatmap():
     twitter_domazlice.tweet(tweet, media = heatmap)
 
     storage.lock('tweet_rain_heatmap', 5*24*60*60)
-
-def view():
-    # timed by cron
-    camera.take_photo()
-
-def video():
-    # timed by cron
-    camera.make_video()
